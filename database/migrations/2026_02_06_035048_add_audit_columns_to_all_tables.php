@@ -6,23 +6,87 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::table('all_tables', function (Blueprint $table) {
-            //
+        Schema::table('branches', function (Blueprint $table) {
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
+        });
+
+        Schema::table('dress_types', function (Blueprint $table) {
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
+        });
+
+        Schema::table('fabrics', function (Blueprint $table) {
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
+        });
+
+        Schema::table('measurements', function (Blueprint $table) {
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
+        });
+
+        Schema::table('measurement_templates', function (Blueprint $table) {
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
+        });
+
+        Schema::table('order_statuses', function (Blueprint $table) {
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
+        });
+
+        Schema::table('payment_statuses', function (Blueprint $table) {
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
+        });
+
+        Schema::table('payment_methods', function (Blueprint $table) {
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
+        });
+
+        Schema::table('assignment_statuses', function (Blueprint $table) {
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
+        });
+
+        Schema::table('settings', function (Blueprint $table) {
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::table('all_tables', function (Blueprint $table) {
-            //
-        });
+        $tables = [
+            'branches',
+            'dress_types',
+            'fabrics',
+            'measurements',
+            'measurement_templates',
+            'order_statuses',
+            'payment_statuses',
+            'payment_methods',
+            'assignment_statuses',
+            'settings'
+        ];
+
+        foreach ($tables as $tableName) {
+            if (Schema::hasColumn($tableName, 'created_by')) {
+                Schema::table($tableName, function (Blueprint $table) {
+                    $table->dropForeign(['created_by']);
+                    $table->dropColumn('created_by');
+                });
+            }
+            if (Schema::hasColumn($tableName, 'updated_by')) {
+                Schema::table($tableName, function (Blueprint $table) {
+                    $table->dropForeign(['updated_by']);
+                    $table->dropColumn('updated_by');
+                });
+            }
+        }
     }
 };
