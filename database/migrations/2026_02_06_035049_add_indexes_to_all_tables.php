@@ -34,11 +34,6 @@ return new class extends Migration
             $table->index(['order_item_id', 'is_current']);
         });
 
-        Schema::table('fabrics', function (Blueprint $table) {
-            $table->index(['order_item_id', 'status']);
-            $table->index(['fabric_type', 'color']);
-        });
-
         Schema::table('tailor_assignments', function (Blueprint $table) {
             $table->index(['tailor_id', 'status_id']);
             $table->index(['order_item_id', 'status_id']);
