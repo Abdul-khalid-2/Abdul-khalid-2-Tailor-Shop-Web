@@ -27,7 +27,8 @@
             <div class="col-lg-8">
                 <div class="card shadow">
                     <div class="card-body">
-                        <form id="customerForm">
+                        <form action="{{ route('customers.store') }}" method="POST" id="customerForm">
+                            @csrf
                             <!-- Basic Information -->
                             <div class="card mb-4">
                                 <div class="card-header bg-light">
@@ -37,7 +38,11 @@
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Full Name *</label>
-                                            <input type="text" class="form-control" placeholder="Enter customer name" required>
+                                            <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
+                                                placeholder="Enter customer name" value="{{ old('name') }}" required>
+                                            @error('name')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Customer ID</label>
@@ -53,28 +58,43 @@
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text">+92</span>
                                                 </div>
-                                                <input type="tel" class="form-control" placeholder="300 1234567" required>
+                                                <input type="tel" name="phone" class="form-control @error('phone') is-invalid @enderror" 
+                                                    placeholder="300 1234567" value="{{ old('phone') }}" required>
                                             </div>
+                                            @error('phone')
+                                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Email Address</label>
-                                            <input type="email" class="form-control" placeholder="customer@example.com">
+                                            <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" 
+                                                placeholder="customer@example.com" value="{{ old('email') }}">
+                                            @error('email')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                     
+                                    <!-- Add branch selection -->
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Gender</label>
-                                            <select class="form-control">
-                                                <option value="">Select Gender</option>
-                                                <option value="male">Male</option>
-                                                <option value="female">Female</option>
-                                                <option value="other">Other</option>
+                                            <label class="form-label">Branch *</label>
+                                            <select name="branch_id" class="form-control select2 @error('branch_id') is-invalid @enderror" required>
+                                                <option value="">Select Branch</option>
+                                                @foreach($branches as $branch)
+                                                    <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
+                                                        {{ $branch->name }}
+                                                    </option>
+                                                @endforeach
                                             </select>
+                                            @error('branch_id')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Date of Birth</label>
-                                            <input type="date" class="form-control">
+                                            <label class="form-label">Reference/Source</label>
+                                            <input type="text" name="reference" class="form-control" 
+                                                placeholder="How did they hear about us?" value="{{ old('reference') }}">
                                         </div>
                                     </div>
                                 </div>
@@ -634,5 +654,43 @@
             font-weight: 300;
         }
     </style>
+
+    <script>
+        function confirmDelete(event) {
+            event.preventDefault();
+            if (confirm('Are you sure you want to delete this customer? This action cannot be undone.')) {
+                event.target.submit();
+            }
+            return false;
+        }
+
+        // Update the deleteCustomer function
+        function deleteCustomer(customerId) {
+            if (confirm('Are you sure you want to delete this customer? This action cannot be undone.')) {
+                // In real app: AJAX call to delete customer
+                fetch(`/customers/${customerId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Error deleting customer');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error deleting customer');
+                });
+            }
+        }
+    </script>
+
     @endpush
 </x-app-layout>

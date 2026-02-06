@@ -51,4 +51,43 @@ class Customer extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    // Accessor for customer's email (from user table)
+    public function getEmailAttribute()
+    {
+        return $this->user ? $this->user->email : null;
+    }
+
+    // Get total spent amount
+    public function getTotalSpentAttribute()
+    {
+        return $this->orders()->sum('final_amount');
+    }
+
+    // Get orders count
+    public function getOrdersCountAttribute()
+    {
+        return $this->orders()->count();
+    }
+
+    // Get last order date
+    public function getLastOrderDateAttribute()
+    {
+        $lastOrder = $this->orders()->latest()->first();
+        return $lastOrder ? $lastOrder->order_date : null;
+    }
+
+    // Scope for active customers (customers with recent orders)
+    public function scopeActive($query, $months = 3)
+    {
+        return $query->whereHas('orders', function ($q) use ($months) {
+            $q->where('order_date', '>=', now()->subMonths($months));
+        });
+    }
+
+    // Scope for new customers (created within last month)
+    public function scopeNewCustomers($query)
+    {
+        return $query->where('created_at', '>=', now()->subMonth());
+    }
 }

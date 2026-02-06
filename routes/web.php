@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -43,21 +44,15 @@ Route::prefix('orders')->name('orders.')->group(function () {
 });
 
 // Customers
-Route::prefix('customers')->name('customers.')->group(function () {
-    Route::get('/', function () {
-        return view('dashboard.customers.index');
-    })->name('index');
-    Route::get('/create', function () {
-        return view('dashboard.customers.create');
-    })->name('create');
-
-    Route::get('/{id}', function ($id) {
-        return view('dashboard.customers.show', ['id' => $id]);
-    })->name('show');
-
-    Route::get('/{id}/edit', function ($id) {
-        return view('dashboard.customers.edit', ['id' => $id]);
-    })->name('edit');
+// Replace your customer routes with:
+Route::prefix('dashboard/customers')->name('customers.')->group(function () {
+    Route::get('/', [CustomerController::class, 'index'])->name('index');
+    Route::get('/create', [CustomerController::class, 'create'])->name('create');
+    Route::post('/', [CustomerController::class, 'store'])->name('store');
+    Route::get('/{customer}', [CustomerController::class, 'show'])->name('show');
+    Route::get('/{customer}/edit', [CustomerController::class, 'edit'])->name('edit');
+    Route::put('/{customer}', [CustomerController::class, 'update'])->name('update');
+    Route::delete('/{customer}', [CustomerController::class, 'destroy'])->name('destroy');
 });
 
 // Tailors
