@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -136,18 +138,27 @@ Route::prefix('reports')->name('reports.')->group(function () {
     })->name('financial');
 });
 
-// Settings
-Route::prefix('settings')->name('settings.')->group(function () {
-    Route::get('/general', function () {
-        return view('dashboard.dashboard');
-    })->name('general');
+// Branches
+Route::prefix('branches')->name('branches.')->group(function () {
+    Route::get('/', [BranchController::class, 'index'])->name('index');
+    Route::get('/create', [BranchController::class, 'create'])->name('create');
+    Route::post('/', [BranchController::class, 'store'])->name('store');
+    Route::get('/{branch}', [BranchController::class, 'show'])->name('show');
+    Route::get('/{branch}/edit', [BranchController::class, 'edit'])->name('edit');
+    Route::put('/{branch}', [BranchController::class, 'update'])->name('update');
+    Route::delete('/{branch}', [BranchController::class, 'destroy'])->name('destroy');
+    Route::post('/{branch}/toggle-status', [BranchController::class, 'toggleStatus'])->name('toggle-status');
 });
 
-// Branches
-Route::get('branches', function () {
-    return view('dashboard.dashboard');
-})->name('branches.index');
-
+// Settings
+Route::prefix('settings')->name('settings.')->group(function () {
+    Route::get('/', [SettingController::class, 'index'])->name('index');
+    Route::put('/', [SettingController::class, 'update'])->name('update');
+    Route::get('/general', [SettingController::class, 'general'])->name('general');
+    Route::put('/general', [SettingController::class, 'updateGeneral'])->name('update.general');
+    Route::get('/branch/{branch}', [SettingController::class, 'branch'])->name('branch');
+    Route::put('/branch/{branch}', [SettingController::class, 'updateBranch'])->name('update.branch');
+});
 // Users
 Route::get('users', function () {
     return view('dashboard.dashboard');

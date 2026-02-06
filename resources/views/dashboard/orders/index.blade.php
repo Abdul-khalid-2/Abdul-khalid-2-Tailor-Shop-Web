@@ -1,11 +1,10 @@
 <x-app-layout>
     @push('css')
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css')}}">
     @endpush
 
     <div class="container-fluid">
@@ -138,7 +137,7 @@
                         </thead>
                         <tbody>
                             @for($i = 1; $i <= 10; $i++)
-                            <tr>
+                                <tr>
                                 <td>TS-00{{ 125 + $i }}</td>
                                 <td>
                                     <div class="d-flex align-items-center">
@@ -170,15 +169,15 @@
                                 </td>
                                 <td>
                                     @php
-                                        $statuses = [
-                                            ['badge' => 'warning', 'text' => 'Pending'],
-                                            ['badge' => 'info', 'text' => 'Measurements'],
-                                            ['badge' => 'primary', 'text' => 'Cutting'],
-                                            ['badge' => 'secondary', 'text' => 'Stitching'],
-                                            ['badge' => 'success', 'text' => 'Ready'],
-                                            ['badge' => 'dark', 'text' => 'Delivered']
-                                        ];
-                                        $status = $statuses[$i % 6];
+                                    $statuses = [
+                                    ['badge' => 'warning', 'text' => 'Pending'],
+                                    ['badge' => 'info', 'text' => 'Measurements'],
+                                    ['badge' => 'primary', 'text' => 'Cutting'],
+                                    ['badge' => 'secondary', 'text' => 'Stitching'],
+                                    ['badge' => 'success', 'text' => 'Ready'],
+                                    ['badge' => 'dark', 'text' => 'Delivered']
+                                    ];
+                                    $status = $statuses[$i % 6];
                                     @endphp
                                     <span class="badge badge-{{ $status['badge'] }}">{{ $status['text'] }}</span>
                                 </td>
@@ -205,14 +204,14 @@
                                         </button>
                                     </div>
                                 </td>
-                            </tr>
-                            @endfor
+                                </tr>
+                                @endfor
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        
+
         <!-- Orders Summary -->
         <div class="row mt-4">
             <div class="col-lg-6">
@@ -233,7 +232,7 @@
                     <div class="card-body">
                         <div class="list-group list-group-flush">
                             @for($i = 1; $i <= 5; $i++)
-                            <div class="list-group-item list-group-item-action border-0 px-0 py-2">
+                                <div class="list-group-item list-group-item-action border-0 px-0 py-2">
                                 <div class="d-flex align-items-center">
                                     <div class="avatar avatar-sm mr-3">
                                         <span class="avatar-title rounded-circle bg-info text-white">
@@ -246,13 +245,13 @@
                                     </div>
                                     <span class="badge badge-{{ $i % 2 == 0 ? 'success' : 'warning' }}">{{ $i % 2 == 0 ? 'Completed' : 'In Progress' }}</span>
                                 </div>
-                            </div>
-                            @endfor
                         </div>
+                        @endfor
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     @push('js')
@@ -272,23 +271,25 @@
 
     <!-- app JavaScript -->
     <script src="{{ asset('backend/assets/js/app.js') }}"></script>
-    
+
     <script>
         $(document).ready(function() {
             // Initialize DataTable
             $('#ordersTable').DataTable({
                 pageLength: 10,
-                order: [[3, 'desc']],
+                order: [
+                    [3, 'desc']
+                ],
                 language: {
                     search: "_INPUT_",
                     searchPlaceholder: "Search orders..."
                 }
             });
-            
+
             // Initialize orders chart
             initOrdersChart();
         });
-        
+
         function initOrdersChart() {
             const ctx = document.getElementById('ordersChart').getContext('2d');
             new Chart(ctx, {
@@ -312,24 +313,24 @@
                 }
             });
         }
-        
+
         function deleteOrder(orderId) {
             if (confirm('Are you sure you want to delete this order?')) {
                 alert('Order deleted successfully!');
                 // In real app: AJAX call to delete order
             }
         }
-        
+
         function exportOrders() {
             alert('Exporting orders data...');
             // In real app: Generate and download export
         }
-        
+
         function printOrders() {
             window.print();
         }
     </script>
-    
+
     <style>
         .avatar {
             width: 40px;
@@ -338,16 +339,19 @@
             align-items: center;
             justify-content: center;
         }
+
         .avatar-sm {
             width: 30px;
             height: 30px;
             font-size: 12px;
         }
+
         .avatar-xs {
             width: 24px;
             height: 24px;
             font-size: 10px;
         }
+
         .avatar-title {
             display: flex;
             align-items: center;
@@ -356,24 +360,32 @@
             height: 100%;
             font-weight: bold;
         }
+
         .card {
             border-radius: 0.5rem;
         }
+
         .table th {
             border-top: none;
             font-weight: 600;
             color: #6c757d;
         }
+
         .badge {
             font-size: 0.75em;
             font-weight: 500;
             padding: 0.35em 0.65em;
         }
+
         .btn-group .btn {
             padding: 0.25rem 0.5rem;
         }
+
         @media print {
-            .btn, .d-flex.align-items-center.justify-content-between, .row.mb-4 {
+
+            .btn,
+            .d-flex.align-items-center.justify-content-between,
+            .row.mb-4 {
                 display: none !important;
             }
         }
