@@ -91,11 +91,20 @@ Route::get('dress-types', function () {
 // Fabrics
 Route::prefix('fabrics')->name('fabrics.')->group(function () {
     Route::get('/', function () {
-        return view('dashboard.dashboard');
+        return view('dashboard.fabrics.index');
     })->name('index');
+
     Route::get('/create', function () {
-        return view('dashboard.dashboard');
+        return view('dashboard.fabrics.create');
     })->name('create');
+
+    Route::get('/{id}', function ($id) {
+        return view('dashboard.fabrics.show', ['id' => $id]);
+    })->name('show');
+
+    Route::get('/{id}/edit', function ($id) {
+        return view('dashboard.fabrics.edit', ['id' => $id]);
+    })->name('edit');
 });
 
 // Payments

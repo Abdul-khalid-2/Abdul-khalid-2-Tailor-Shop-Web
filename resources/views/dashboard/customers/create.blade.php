@@ -5,6 +5,7 @@
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/select2/css/select2.min.css') }}">
     @endpush
 
     <div class="container-fluid">
@@ -417,6 +418,7 @@
 
     @push('js')
     <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/select2/js/select2.min.js') }}"></script>
 
     <!-- Table Treeview JavaScript -->
     <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
@@ -552,6 +554,7 @@
                 $('.custom-file-label').removeClass('selected').html('Choose photo');
                 // Keep only first measurement template
                 $('.template-item:not(:first)').remove();
+                $('.select2').val(null).trigger('change');
             }
         }
         
@@ -580,7 +583,6 @@
             // In real app: Generate customer card PDF
         }
     </script>
-    @endpush
     
     <style>
         .avatar-upload {
@@ -598,5 +600,39 @@
         .custom-file-label.selected::after {
             content: "" !important;
         }
+        .card {
+            border-radius: 0.5rem;
+        }
+        .card-header.bg-light {
+            background-color: #f8f9fa !important;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .btn {
+            border-radius: 0.375rem;
+        }
+        .form-control {
+            border-radius: 0.375rem;
+        }
+        .badge {
+            font-size: 0.75em;
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+        }
+        .list-group-item {
+            border: none;
+            padding: 0.75rem 0;
+        }
+        .d-grid.gap-2 {
+            gap: 0.5rem !important;
+        }
+        .modal-content {
+            border-radius: 0.5rem;
+            border: none;
+        }
+        .close {
+            font-size: 1.5rem;
+            font-weight: 300;
+        }
     </style>
+    @endpush
 </x-app-layout>

@@ -1,4 +1,3 @@
-resources\views\dashboard\tailor-assignments\index.blade.php
 <x-app-layout>
     @push('css')
         <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
@@ -6,6 +5,8 @@ resources\views\dashboard\tailor-assignments\index.blade.php
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/daterangepicker/daterangepicker.css') }}">
     @endpush
 
     <div class="container-fluid">
@@ -198,6 +199,14 @@ resources\views\dashboard\tailor-assignments\index.blade.php
                                 $assignedDate = now()->subDays(rand(1, 10));
                                 $expectedDate = $assignedDate->copy()->addDays(rand(3, 7));
                                 $amount = rand(800, 2500);
+                                $specializations = [
+                                    'Sherwani & Suits',
+                                    'Ladies Wear',
+                                    'Traditional Wear',
+                                    'Kids Wear',
+                                    'Formal Wear',
+                                    'Casual Wear'
+                                ];
                             @endphp
                             <tr>
                                 <td>
@@ -218,7 +227,7 @@ resources\views\dashboard\tailor-assignments\index.blade.php
                                         </div>
                                         <div>
                                             <div class="font-weight-bold">Tailor {{ $i % 5 + 1 }}</div>
-                                            {{-- Undefined variable $specializations <small class="text-muted">{{ $specializations[($i % 5 + 1) % 6] }}</small> --}}
+                                            <small class="text-muted">{{ $specializations[($i % 5 + 1) % 6] }}</small>
                                         </div>
                                     </div>
                                 </td>
@@ -246,7 +255,7 @@ resources\views\dashboard\tailor-assignments\index.blade.php
                                     </div>
                                 </td>
                                 <td class="font-weight-bold text-success">
-                                    ₹ {{ number_format($amount) }}
+                                    Rs {{ number_format($amount) }}
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
@@ -354,6 +363,10 @@ resources\views\dashboard\tailor-assignments\index.blade.php
 
     @push('js')
         <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
+        <script src="{{ asset('backend/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
+        <script src="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+        <script src="{{ asset('backend/assets/vendor/daterangepicker/moment.min.js') }}"></script>
+        <script src="{{ asset('backend/assets/vendor/daterangepicker/daterangepicker.js') }}"></script>
 
         <!-- Table Treeview JavaScript -->
         <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
@@ -479,5 +492,44 @@ resources\views\dashboard\tailor-assignments\index.blade.php
             // In real app: Generate and download export
         }
     </script>
+    
+    <style>
+        .avatar {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .avatar-sm {
+            width: 30px;
+            height: 30px;
+            font-size: 12px;
+        }
+        .avatar-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            font-weight: bold;
+        }
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: #6c757d;
+        }
+        .badge {
+            font-size: 0.75em;
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+        }
+        .card {
+            border-radius: 0.5rem;
+        }
+        .btn-group .btn {
+            padding: 0.25rem 0.5rem;
+        }
+    </style>
     @endpush
 </x-app-layout>

@@ -1,11 +1,11 @@
-resources\views\dashboard\dress-types\index.blade.php
 <x-app-layout>
     @push('css')
-            <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}">
     @endpush
 
     <div class="container-fluid">
@@ -52,10 +52,10 @@ resources\views\dashboard\dress-types\index.blade.php
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                     Avg. Base Price</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">₹ 4,850</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">Rs 4,850</div>
                                 <div class="mt-2 mb-0 text-muted text-xs">
-                                    <span class="text-success mr-2">Highest: ₹ 12,000</span>
-                                    <span class="text-muted">Lowest: ₹ 1,500</span>
+                                    <span class="text-success mr-2">Highest: Rs 12,000</span>
+                                    <span class="text-muted">Lowest: Rs 1,500</span>
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -175,7 +175,7 @@ resources\views\dashboard\dress-types\index.blade.php
                                     </div>
                                 </td>
                                 <td class="font-weight-bold text-success">
-                                    ₹ {{ number_format($type['price']) }}
+                                    Rs {{ number_format($type['price']) }}
                                 </td>
                                 <td>
                                     <span class="badge badge-info">{{ $type['days'] }} days</span>
@@ -290,7 +290,7 @@ resources\views\dashboard\dress-types\index.blade.php
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label class="form-label">Base Price (₹) *</label>
+                                <label class="form-label">Base Price (Rs) *</label>
                                 <input type="number" class="form-control" placeholder="12000" required>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -353,6 +353,9 @@ resources\views\dashboard\dress-types\index.blade.php
 
     @push('js')
     <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/chart.js/Chart.min.js') }}"></script>
 
     <!-- Table Treeview JavaScript -->
     <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
@@ -482,6 +485,29 @@ resources\views\dashboard\dress-types\index.blade.php
             width: 100%;
             height: 100%;
             font-weight: bold;
+        }
+        .card {
+            border-radius: 0.5rem;
+        }
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: #6c757d;
+        }
+        .badge {
+            font-size: 0.75em;
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+        }
+        .btn-group .btn {
+            padding: 0.25rem 0.5rem;
+        }
+        .list-group-item {
+            border: none;
+            padding: 0.75rem 0;
+        }
+        .list-group-item:hover {
+            background-color: #f8f9fa;
         }
     </style>
     @endpush

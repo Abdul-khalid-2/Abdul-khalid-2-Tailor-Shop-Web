@@ -1,4 +1,3 @@
-resources\views\dashboard\orders\index.blade.php
 <x-app-layout>
     @push('css')
         <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
@@ -6,6 +5,7 @@ resources\views\dashboard\orders\index.blade.php
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}">
     @endpush
 
     <div class="container-fluid">
@@ -109,7 +109,17 @@ resources\views\dashboard\orders\index.blade.php
 
         <!-- Orders Table -->
         <div class="card shadow">
-           
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">Orders List</h6>
+                <div>
+                    <button class="btn btn-sm btn-outline-secondary mr-2" onclick="exportOrders()">
+                        <i class="las la-download"></i> Export
+                    </button>
+                    <button class="btn btn-sm btn-outline-info" onclick="printOrders()">
+                        <i class="las la-print"></i> Print
+                    </button>
+                </div>
+            </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-bordered" id="ordersTable" width="100%" cellspacing="0">
@@ -156,7 +166,7 @@ resources\views\dashboard\orders\index.blade.php
                                     @endif
                                 </td>
                                 <td class="font-weight-bold">
-                                    ₹ {{ number_format(5000 + ($i * 1500)) }}
+                                    Rs{{ number_format(5000 + ($i * 1500)) }}
                                 </td>
                                 <td>
                                     @php
@@ -202,10 +212,54 @@ resources\views\dashboard\orders\index.blade.php
                 </div>
             </div>
         </div>
+        
+        <!-- Orders Summary -->
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Orders by Status</h6>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="ordersChart" height="150"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Recent Activities</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush">
+                            @for($i = 1; $i <= 5; $i++)
+                            <div class="list-group-item list-group-item-action border-0 px-0 py-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-sm mr-3">
+                                        <span class="avatar-title rounded-circle bg-info text-white">
+                                            {{ substr('Customer ' . $i, 0, 1) }}
+                                        </span>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="font-weight-bold">Order TS-00{{ 130 + $i }} updated</div>
+                                        <small class="text-muted">{{ now()->subHours($i)->diffForHumans() }}</small>
+                                    </div>
+                                    <span class="badge badge-{{ $i % 2 == 0 ? 'success' : 'warning' }}">{{ $i % 2 == 0 ? 'Completed' : 'In Progress' }}</span>
+                                </div>
+                            </div>
+                            @endfor
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     @push('js')
     <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/chart.js/Chart.min.js') }}"></script>
 
     <!-- Table Treeview JavaScript -->
     <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
@@ -218,5 +272,111 @@ resources\views\dashboard\orders\index.blade.php
 
     <!-- app JavaScript -->
     <script src="{{ asset('backend/assets/js/app.js') }}"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTable
+            $('#ordersTable').DataTable({
+                pageLength: 10,
+                order: [[3, 'desc']],
+                language: {
+                    search: "_INPUT_",
+                    searchPlaceholder: "Search orders..."
+                }
+            });
+            
+            // Initialize orders chart
+            initOrdersChart();
+        });
+        
+        function initOrdersChart() {
+            const ctx = document.getElementById('ordersChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Pending', 'In Progress', 'Completed', 'Delivered'],
+                    datasets: [{
+                        data: [24, 18, 203, 156],
+                        backgroundColor: ['#F59E0B', '#3B82F6', '#10B981', '#6B7280'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+        
+        function deleteOrder(orderId) {
+            if (confirm('Are you sure you want to delete this order?')) {
+                alert('Order deleted successfully!');
+                // In real app: AJAX call to delete order
+            }
+        }
+        
+        function exportOrders() {
+            alert('Exporting orders data...');
+            // In real app: Generate and download export
+        }
+        
+        function printOrders() {
+            window.print();
+        }
+    </script>
+    
+    <style>
+        .avatar {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .avatar-sm {
+            width: 30px;
+            height: 30px;
+            font-size: 12px;
+        }
+        .avatar-xs {
+            width: 24px;
+            height: 24px;
+            font-size: 10px;
+        }
+        .avatar-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            font-weight: bold;
+        }
+        .card {
+            border-radius: 0.5rem;
+        }
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: #6c757d;
+        }
+        .badge {
+            font-size: 0.75em;
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+        }
+        .btn-group .btn {
+            padding: 0.25rem 0.5rem;
+        }
+        @media print {
+            .btn, .d-flex.align-items-center.justify-content-between, .row.mb-4 {
+                display: none !important;
+            }
+        }
+    </style>
     @endpush
 </x-app-layout>

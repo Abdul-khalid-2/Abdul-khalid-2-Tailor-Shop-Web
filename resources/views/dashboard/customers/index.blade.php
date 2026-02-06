@@ -1,4 +1,3 @@
-resources\views\dashboard\customers\index.blade.php
 <x-app-layout>
     @push('css')
         <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
@@ -6,6 +5,8 @@ resources\views\dashboard\customers\index.blade.php
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/daterangepicker/daterangepicker.css') }}">
     @endpush
 
     <div class="container-fluid">
@@ -452,8 +453,13 @@ resources\views\dashboard\customers\index.blade.php
             </div>
         </div>
     </div>
+    
     @push('js')
     <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/daterangepicker/moment.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/daterangepicker/daterangepicker.js') }}"></script>
 
     <!-- Table Treeview JavaScript -->
     <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
@@ -466,7 +472,6 @@ resources\views\dashboard\customers\index.blade.php
 
     <!-- app JavaScript -->
     <script src="{{ asset('backend/assets/js/app.js') }}"></script>
-   
     
     <script>
         $(document).ready(function() {
@@ -570,7 +575,6 @@ resources\views\dashboard\customers\index.blade.php
             // In real app: Generate and download export file
         }
     </script>
-    @endpush
     
     <style>
         .avatar {
@@ -598,5 +602,33 @@ resources\views\dashboard\customers\index.blade.php
             height: 100%;
             font-weight: bold;
         }
+        .card {
+            border-radius: 0.5rem;
+        }
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: #6c757d;
+        }
+        .badge {
+            font-size: 0.75em;
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+        }
+        .dropdown-menu {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            border: none;
+        }
+        .list-group-item {
+            border: none;
+            padding: 0.75rem 0;
+        }
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+        }
+        .custom-file-label::after {
+            content: "Browse";
+        }
     </style>
+    @endpush
 </x-app-layout>

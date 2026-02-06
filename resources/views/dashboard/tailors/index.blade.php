@@ -1,4 +1,3 @@
-resources\views\dashboard\tailors\index.blade.php
 <x-app-layout>
     @push('css')
         <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
@@ -6,6 +5,8 @@ resources\views\dashboard\tailors\index.blade.php
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/select2/css/select2.min.css') }}">
     @endpush
 
     <div class="container-fluid">
@@ -238,9 +239,9 @@ resources\views\dashboard\tailors\index.blade.php
                                         {{ ucfirst($type) }}
                                     </span>
                                     @if($type == 'permanent')
-                                    <div class="small text-muted">Salary: ₹{{ number_format(rand(25000, 50000)) }}</div>
+                                    <div class="small text-muted">Salary: Rs{{ number_format(rand(25000, 50000)) }}</div>
                                     @elseif($type == 'contract')
-                                    <div class="small text-muted">Rate: ₹{{ number_format(rand(500, 1500)) }}/order</div>
+                                    <div class="small text-muted">Rate: Rs{{ number_format(rand(500, 1500)) }}/order</div>
                                     @endif
                                 </td>
                                 <td>
@@ -384,7 +385,7 @@ resources\views\dashboard\tailors\index.blade.php
                                             <small>{{ number_format($quality, 1) }}/5.0</small>
                                         </td>
                                         <td class="font-weight-bold text-success">
-                                            ₹ {{ number_format($earnings) }}
+                                            Rs {{ number_format($earnings) }}
                                         </td>
                                     </tr>
                                     @endfor
@@ -449,7 +450,7 @@ resources\views\dashboard\tailors\index.blade.php
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label>Stitching Charges (₹)</label>
+                                <label>Stitching Charges (Rs)</label>
                                 <input type="number" class="form-control" id="stitchingCharges" value="1200" required>
                             </div>
                             <div class="col-md-6 mb-3">
@@ -481,6 +482,11 @@ resources\views\dashboard\tailors\index.blade.php
 
     @push('js')
     <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/select2/js/select2.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/chart.js/Chart.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/daterangepicker/moment.min.js') }}"></script>
 
     <!-- Table Treeview JavaScript -->
     <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
@@ -634,6 +640,19 @@ resources\views\dashboard\tailors\index.blade.php
         }
         .star-rating .las {
             font-size: 14px;
+        }
+        .card {
+            border-radius: 0.5rem;
+        }
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: #6c757d;
+        }
+        .badge {
+            font-size: 0.75em;
+            font-weight: 500;
+            padding: 0.35em 0.65em;
         }
     </style>
     @endpush
