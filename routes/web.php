@@ -2,14 +2,6 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TransactionController;
-
-
-
-
-
-
-
 
 
 
@@ -23,124 +15,143 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-
-Route::get('/', function () {
-    return view('welcome');
-});
-
 // Orders
 Route::prefix('orders')->name('orders.')->group(function () {
     Route::get('/', function () {
-        return 'index.blade.php';
+        return view('dashboard.orders.index');
     })->name('index');
     Route::get('/create', function () {
-        return 'create.blade.php';
+        return view('dashboard.orders.create');
     })->name('create');
     Route::get('/pending', function () {
-        return 'pending.blade.php';
+        return view('dashboard.orders.pending');
     })->name('pending');
     Route::get('/in-progress', function () {
-        return 'inprogress.blade.php';
+        return view('dashboard.orders.in-progress');
     })->name('in-progress');
     Route::get('/completed', function () {
-        return 'completed.blade.php';
+        return view('dashboard.orders.completed');
     })->name('completed');
+
+    Route::get('/{id}/edit', function ($id) {
+        return view('dashboard.orders.edit', ['id' => $id]);
+    })->name('edit');
+
+    Route::get('/{id}', function ($id) {
+        return view('dashboard.orders.show', ['id' => $id]);
+    })->name('show');
 });
 
 // Customers
 Route::prefix('customers')->name('customers.')->group(function () {
     Route::get('/', function () {
-        return 'index.blade.php';
+        return view('dashboard.customers.index');
     })->name('index');
     Route::get('/create', function () {
-        return 'create.blade.php';
+        return view('dashboard.customers.create');
     })->name('create');
+
+    Route::get('/{id}', function ($id) {
+        return view('dashboard.customers.show', ['id' => $id]);
+    })->name('show');
+
+    Route::get('/{id}/edit', function ($id) {
+        return view('dashboard.customers.edit', ['id' => $id]);
+    })->name('edit');
 });
 
 // Tailors
 Route::prefix('tailors')->name('tailors.')->group(function () {
     Route::get('/', function () {
-        return 'index.blade.php';
+        return view('dashboard.tailors.index');
     })->name('index');
     Route::get('/create', function () {
-        return 'create.blade.php';
+        return view('dashboard.tailors.create');
     })->name('create');
+
+    Route::get('/{id}', function ($id) {
+        return view('dashboard.tailors.show', ['id' => $id]);
+    })->name('show');
+
+    Route::get('/{id}/edit', function ($id) {
+        return view('dashboard.tailors.edit', ['id' => $id]);
+    })->name('edit');
 });
 
 // Tailor Assignments
 Route::get('tailor-assignments', function () {
-    return 'create.blade.php';
+    return view('dashboard.tailor-assignments.index');
 })->name('tailor-assignments.index');
 
 // Dress Types
 Route::get('dress-types', function () {
-    return 'create.blade.php';
+    return view('dashboard.dress-types.index');
 })->name('dress-types.index');
 
 // Fabrics
 Route::prefix('fabrics')->name('fabrics.')->group(function () {
     Route::get('/', function () {
-        return 'create.blade.php';
+        return view('dashboard.dashboard');
     })->name('index');
     Route::get('/create', function () {
-        return 'create.blade.php';
+        return view('dashboard.dashboard');
     })->name('create');
 });
 
 // Payments
 Route::prefix('payments')->name('payments.')->group(function () {
     Route::get('/', function () {
-        return 'create.blade.php';
+        return view('dashboard.dashboard');
     })->name('index');
     Route::get('/create', function () {
-        return 'create.blade.php';
+        return view('dashboard.dashboard');
     })->name('create');
     Route::get('/overdue', function () {
-        return 'create.blade.php';
+        return view('dashboard.dashboard');
     })->name('overdue');
 });
 
 // Expenses
 Route::get('expenses', function () {
-    return 'create.blade.php';
+    return view('dashboard.dashboard');
 })->name('expenses.index');
 
 // Reports
 Route::prefix('reports')->name('reports.')->group(function () {
     Route::get('/sales', function () {
-        return 'create.blade.php';
+        return view('dashboard.dashboard');
     })->name('sales');
     Route::get('/tailor-performance', function () {
-        return 'create.blade.php';
+        return view('dashboard.dashboard');
     })->name('tailor-performance');
     Route::get('/inventory', function () {
-        return 'create.blade.php';
+        return view('dashboard.dashboard');
     })->name('inventory');
     Route::get('/financial', function () {
-        return 'create.blade.php';
+        return view('dashboard.dashboard');
     })->name('financial');
 });
 
 // Settings
 Route::prefix('settings')->name('settings.')->group(function () {
     Route::get('/general', function () {
-        return 'create.blade.php';
+        return view('dashboard.dashboard');
     })->name('general');
 });
 
 // Branches
 Route::get('branches', function () {
-    return 'create.blade.php';
+    return view('dashboard.dashboard');
 })->name('branches.index');
 
 // Users
 Route::get('users', function () {
-    return 'create.blade.php';
+    return view('dashboard.dashboard');
 })->name('users.index');
 
 // Discounts
 Route::get('discounts', function () {
-    return 'create.blade.php';
+    return view('dashboard.dashboard');
 })->name('discounts.index');
 
 require __DIR__ . '/auth.php';
