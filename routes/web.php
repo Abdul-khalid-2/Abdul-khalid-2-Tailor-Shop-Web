@@ -12,8 +12,6 @@ use App\Http\Controllers\TransactionController;
 
 
 
-// Transactions Routes
-Route::resource('transactions', TransactionController::class);
 
 Route::get('/dashboard', function () {
     return view('dashboard.dashboard');
