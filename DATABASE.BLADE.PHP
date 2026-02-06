@@ -837,11 +837,6 @@ return new class extends Migration
             $table->index(['order_item_id', 'is_current']);
         });
 
-        Schema::table('fabrics', function (Blueprint $table) {
-            $table->index(['order_item_id', 'status']);
-            $table->index(['fabric_type', 'color']);
-        });
-
         Schema::table('tailor_assignments', function (Blueprint $table) {
             $table->index(['tailor_id', 'status_id']);
             $table->index(['order_item_id', 'status_id']);
@@ -884,6 +879,7 @@ return new class extends Migration
             $table->dropIndex(['branches_code_index']);
             $table->dropIndex(['is_active']);
         });
+        
 
         Schema::table('customers', function (Blueprint $table) {
             $table->dropIndex(['branch_id', 'created_at']);
