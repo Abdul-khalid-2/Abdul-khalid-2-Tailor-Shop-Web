@@ -1,11 +1,11 @@
 <x-app-layout>
     @push('css')
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/select2/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/select2/css/select2.min.css') }}">
     @endpush
 
     <div class="container-fluid">
@@ -45,7 +45,7 @@
                                             <small class="text-muted">Auto-generated</small>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Fabric Type *</label>
@@ -75,7 +75,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Pattern/Design</label>
@@ -95,7 +95,7 @@
                                             <input type="number" class="form-control" placeholder="e.g., 120 (grams per square meter)">
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label class="form-label">Description</label>
                                         <textarea class="form-control" rows="3" placeholder="Description of fabric quality, texture, features..."></textarea>
@@ -120,27 +120,27 @@
                                             <small class="text-muted">Low stock alert will trigger below this level</small>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Purchase Rate/m (₹) *</label>
+                                            <label class="form-label">Purchase Rate/m (Rs) *</label>
                                             <input type="number" class="form-control" min="1" id="purchaseRate" required>
                                             <small class="text-muted">Cost price per meter</small>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Selling Rate/m (₹) *</label>
+                                            <label class="form-label">Selling Rate/m (Rs) *</label>
                                             <input type="number" class="form-control" min="1" id="sellingRate" required>
                                             <small class="text-muted">Selling price per meter</small>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Profit Margin (%)</label>
                                             <input type="number" class="form-control" id="profitMargin" readonly>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Total Value (₹)</label>
+                                            <label class="form-label">Total Value (Rs)</label>
                                             <input type="number" class="form-control" id="totalValue" readonly>
                                             <small class="text-muted">Stock × Purchase Rate</small>
                                         </div>
@@ -172,7 +172,7 @@
                                             <input type="text" class="form-control" placeholder="Supplier item code or reference">
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Purchase Date</label>
@@ -183,7 +183,7 @@
                                             <input type="text" class="form-control" placeholder="Purchase invoice number">
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label class="form-label">Supplier Notes</label>
                                         <textarea class="form-control" rows="2" placeholder="Any notes about this supplier..."></textarea>
@@ -217,7 +217,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label class="form-label">Suitable For</label>
                                         <select class="form-control select2" multiple="multiple">
@@ -233,7 +233,7 @@
                                         </select>
                                         <small class="text-muted">Select dress types this fabric is suitable for</small>
                                     </div>
-                                    
+
                                     <div class="form-check mb-2">
                                         <input type="checkbox" class="form-check-input" id="premiumQuality">
                                         <label class="form-check-label" for="premiumQuality">Premium Quality Fabric</label>
@@ -269,12 +269,12 @@
                                             </select>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label class="form-label">Notes</label>
                                         <textarea class="form-control" rows="3" placeholder="Any additional notes about this fabric..."></textarea>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label class="form-label">Fabric Images</label>
                                         <div class="custom-file">
@@ -342,7 +342,7 @@
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center px-0">
                                 <span>Total Stock Value</span>
-                                <span class="badge badge-success">₹ 245,800</span>
+                                <span class="badge badge-success">Rs 245,800</span>
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center px-0">
                                 <span>Low Stock Items</span>
@@ -397,38 +397,38 @@
 
     <!-- app JavaScript -->
     <script src="{{ asset('backend/assets/js/app.js') }}"></script>
-    
+
     <script>
         $(document).ready(function() {
             // Initialize Select2
             $('.select2').select2({
                 theme: 'bootstrap'
             });
-            
+
             // File input label
             $('.custom-file-input').on('change', function() {
                 let fileName = $(this).val().split('\\').pop();
                 $(this).next('.custom-file-label').addClass("selected").html(fileName);
             });
-            
+
             // Update fabric preview
             $('#fabricType, input[type="color"], input[placeholder="e.g., Navy Blue"]').on('change input', function() {
                 updateFabricPreview();
             });
-            
+
             // Calculate profit margin and total value
             $('#purchaseRate, #sellingRate, input[placeholder="Initial Stock (m)"]').on('input', function() {
                 calculatePricing();
             });
-            
+
             // Form submission
             $('#fabricForm').submit(function(e) {
                 e.preventDefault();
-                
+
                 // Form validation
                 const requiredFields = $(this).find('[required]');
                 let valid = true;
-                
+
                 requiredFields.each(function() {
                     if (!$(this).val().trim()) {
                         valid = false;
@@ -437,59 +437,59 @@
                         $(this).removeClass('is-invalid');
                     }
                 });
-                
+
                 if (!valid) {
                     alert('Please fill in all required fields.');
                     return;
                 }
-                
+
                 // Simulate form submission
                 alert('Fabric added to inventory successfully!');
                 window.location.href = "{{ route('fabrics.index') }}";
             });
-            
+
             // Initialize calculations and preview
             updateFabricPreview();
             calculatePricing();
         });
-        
+
         function updateFabricPreview() {
             const type = $('#fabricType').val() || '-';
             const color = $('input[placeholder="e.g., Navy Blue"]').val() || '-';
             const colorPicker = $('input[type="color"]').val();
-            
+
             $('#previewType').text(type.charAt(0).toUpperCase() + type.slice(1));
             $('#previewColor').text(color);
-            
+
             // Update preview background with selected color
             if (colorPicker) {
                 $('#fabricPreview').css('background', colorPicker);
             }
         }
-        
+
         function calculatePricing() {
             const purchaseRate = parseFloat($('#purchaseRate').val()) || 0;
             const sellingRate = parseFloat($('#sellingRate').val()) || 0;
             const stock = parseFloat($('input[placeholder="Initial Stock (m)"]').val()) || 0;
-            
+
             // Calculate profit margin
             let profitMargin = 0;
             if (purchaseRate > 0) {
                 profitMargin = ((sellingRate - purchaseRate) / purchaseRate) * 100;
             }
-            
+
             // Calculate total value
             const totalValue = stock * purchaseRate;
-            
+
             $('#profitMargin').val(profitMargin.toFixed(2));
             $('#totalValue').val(totalValue.toFixed(2));
         }
-        
+
         function addSupplier() {
             alert('Opening add supplier form...');
             // In real app: Open supplier modal
         }
-        
+
         function resetForm() {
             if (confirm('Are you sure you want to reset the form? All data will be lost.')) {
                 document.getElementById('fabricForm').reset();
@@ -500,25 +500,25 @@
                 calculatePricing();
             }
         }
-        
+
         function saveAsDraft() {
             alert('Fabric saved as draft!');
             // In real app: AJAX call to save as draft
         }
-        
+
         function quickReorder() {
             alert('Opening quick reorder tool...');
         }
-        
+
         function viewLowStock() {
             alert('Showing low stock items...');
         }
-        
+
         function generateReport() {
             alert('Generating inventory report...');
         }
     </script>
-    
+
     <style>
         .fabric-preview {
             border: 1px solid #e5e7eb;
@@ -526,40 +526,50 @@
             padding: 10px;
             background: #f9fafb;
         }
+
         input[type="color"] {
             cursor: pointer;
             border: none;
             padding: 0;
             height: 38px;
         }
+
         .custom-file-label.selected::after {
             content: "" !important;
         }
+
         .card {
             border-radius: 0.5rem;
         }
+
         .card-header.bg-light {
             background-color: #f8f9fa !important;
             border-bottom: 1px solid #e9ecef;
         }
+
         .btn {
             border-radius: 0.375rem;
         }
+
         .form-control {
             border-radius: 0.375rem;
         }
+
         .badge {
             font-size: 0.75em;
             font-weight: 500;
             padding: 0.35em 0.65em;
         }
+
         .list-group-item {
             border: none;
             padding: 0.75rem 0;
         }
+
         .d-grid.gap-2 {
             gap: 0.5rem !important;
         }
+
         .select2-container--bootstrap .select2-selection {
             border-radius: 0.375rem;
         }

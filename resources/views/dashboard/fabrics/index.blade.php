@@ -1,12 +1,12 @@
 <x-app-layout>
     @push('css')
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/select2/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/select2/css/select2.min.css') }}">
     @endpush
 
     <div class="container-fluid">
@@ -32,7 +32,7 @@
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Total Stock Value</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">₹ 245,800</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">Rs 245,800</div>
                                 <div class="mt-2 mb-0 text-muted text-xs">
                                     <span class="text-success mr-2">1825 m</span>
                                     <span>in stock</span>
@@ -97,7 +97,7 @@
                                     This Month Usage</div>
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">245 m</div>
                                 <div class="mt-2 mb-0 text-muted text-xs">
-                                    <span class="text-info mr-2">≈ ₹ 85,400</span>
+                                    <span class="text-info mr-2">≈ Rs 85,400</span>
                                     <span>worth</span>
                                 </div>
                             </div>
@@ -206,8 +206,8 @@
                                 <th>Type</th>
                                 <th>Color</th>
                                 <th>Stock (m)</th>
-                                <th>Rate/m (₹)</th>
-                                <th>Value (₹)</th>
+                                <th>Rate/m (Rs)</th>
+                                <th>Value (Rs)</th>
                                 <th>Status</th>
                                 <th>Last Updated</th>
                                 <th>Actions</th>
@@ -215,37 +215,37 @@
                         </thead>
                         <tbody>
                             @php
-                                $fabrics = [
-                                    ['name' => 'Pure Silk', 'type' => 'Silk', 'color' => 'Navy Blue', 'stock' => 45.5, 'rate' => 850, 'status' => 'in_stock'],
-                                    ['name' => 'Egyptian Cotton', 'type' => 'Cotton', 'color' => 'White', 'stock' => 120.0, 'rate' => 320, 'status' => 'in_stock'],
-                                    ['name' => 'Italian Linen', 'type' => 'Linen', 'color' => 'Beige', 'stock' => 65.2, 'rate' => 620, 'status' => 'in_stock'],
-                                    ['name' => 'Merino Wool', 'type' => 'Wool', 'color' => 'Charcoal', 'stock' => 35.8, 'rate' => 950, 'status' => 'in_stock'],
-                                    ['name' => 'Premium Polyester', 'type' => 'Polyester', 'color' => 'Black', 'stock' => 85.0, 'rate' => 280, 'status' => 'in_stock'],
-                                    ['name' => 'Georgette', 'type' => 'Silk', 'color' => 'Red', 'stock' => 25.5, 'rate' => 720, 'status' => 'low_stock'],
-                                    ['name' => 'Chiffon', 'type' => 'Silk', 'color' => 'Pink', 'stock' => 8.5, 'rate' => 680, 'status' => 'low_stock'],
-                                    ['name' => 'Velvet', 'type' => 'Cotton', 'color' => 'Burgundy', 'stock' => 15.2, 'rate' => 920, 'status' => 'low_stock'],
-                                    ['name' => 'Satin', 'type' => 'Silk', 'color' => 'Gold', 'stock' => 5.8, 'rate' => 1100, 'status' => 'out_of_stock'],
-                                    ['name' => 'Denim', 'type' => 'Cotton', 'color' => 'Blue', 'stock' => 0, 'rate' => 450, 'status' => 'out_of_stock'],
-                                    ['name' => 'Linen Cotton Blend', 'type' => 'Linen', 'color' => 'Cream', 'stock' => 42.5, 'rate' => 480, 'status' => 'in_stock'],
-                                    ['name' => 'Silk Satin', 'type' => 'Silk', 'color' => 'Silver', 'stock' => 18.8, 'rate' => 1250, 'status' => 'in_stock'],
-                                ];
+                            $fabrics = [
+                            ['name' => 'Pure Silk', 'type' => 'Silk', 'color' => 'Navy Blue', 'stock' => 45.5, 'rate' => 850, 'status' => 'in_stock'],
+                            ['name' => 'Egyptian Cotton', 'type' => 'Cotton', 'color' => 'White', 'stock' => 120.0, 'rate' => 320, 'status' => 'in_stock'],
+                            ['name' => 'Italian Linen', 'type' => 'Linen', 'color' => 'Beige', 'stock' => 65.2, 'rate' => 620, 'status' => 'in_stock'],
+                            ['name' => 'Merino Wool', 'type' => 'Wool', 'color' => 'Charcoal', 'stock' => 35.8, 'rate' => 950, 'status' => 'in_stock'],
+                            ['name' => 'Premium Polyester', 'type' => 'Polyester', 'color' => 'Black', 'stock' => 85.0, 'rate' => 280, 'status' => 'in_stock'],
+                            ['name' => 'Georgette', 'type' => 'Silk', 'color' => 'Red', 'stock' => 25.5, 'rate' => 720, 'status' => 'low_stock'],
+                            ['name' => 'Chiffon', 'type' => 'Silk', 'color' => 'Pink', 'stock' => 8.5, 'rate' => 680, 'status' => 'low_stock'],
+                            ['name' => 'Velvet', 'type' => 'Cotton', 'color' => 'Burgundy', 'stock' => 15.2, 'rate' => 920, 'status' => 'low_stock'],
+                            ['name' => 'Satin', 'type' => 'Silk', 'color' => 'Gold', 'stock' => 5.8, 'rate' => 1100, 'status' => 'out_of_stock'],
+                            ['name' => 'Denim', 'type' => 'Cotton', 'color' => 'Blue', 'stock' => 0, 'rate' => 450, 'status' => 'out_of_stock'],
+                            ['name' => 'Linen Cotton Blend', 'type' => 'Linen', 'color' => 'Cream', 'stock' => 42.5, 'rate' => 480, 'status' => 'in_stock'],
+                            ['name' => 'Silk Satin', 'type' => 'Silk', 'color' => 'Silver', 'stock' => 18.8, 'rate' => 1250, 'status' => 'in_stock'],
+                            ];
                             @endphp
                             @foreach($fabrics as $index => $fabric)
                             @php
-                                $value = $fabric['stock'] * $fabric['rate'];
-                                $statusColors = [
-                                    'in_stock' => 'success',
-                                    'low_stock' => 'warning',
-                                    'out_of_stock' => 'danger',
-                                    'ordered' => 'info'
-                                ];
-                                $statusTexts = [
-                                    'in_stock' => 'In Stock',
-                                    'low_stock' => 'Low Stock',
-                                    'out_of_stock' => 'Out of Stock',
-                                    'ordered' => 'Ordered'
-                                ];
-                                $lastUpdated = now()->subDays(rand(1, 30));
+                            $value = $fabric['stock'] * $fabric['rate'];
+                            $statusColors = [
+                            'in_stock' => 'success',
+                            'low_stock' => 'warning',
+                            'out_of_stock' => 'danger',
+                            'ordered' => 'info'
+                            ];
+                            $statusTexts = [
+                            'in_stock' => 'In Stock',
+                            'low_stock' => 'Low Stock',
+                            'out_of_stock' => 'Out of Stock',
+                            'ordered' => 'Ordered'
+                            ];
+                            $lastUpdated = now()->subDays(rand(1, 30));
                             @endphp
                             <tr>
                                 <td>
@@ -271,21 +271,21 @@
                                     <div class="d-flex align-items-center">
                                         <div class="progress flex-grow-1" style="height: 8px; width: 80px;">
                                             @php
-                                                $maxStock = 150;
-                                                $stockPercent = ($fabric['stock'] / $maxStock) * 100;
+                                            $maxStock = 150;
+                                            $stockPercent = ($fabric['stock'] / $maxStock) * 100;
                                             @endphp
-                                            <div class="progress-bar bg-{{ $fabric['status'] == 'in_stock' ? 'success' : ($fabric['status'] == 'low_stock' ? 'warning' : 'danger') }}" 
-                                                 style="width: {{ $stockPercent }}%">
+                                            <div class="progress-bar bg-{{ $fabric['status'] == 'in_stock' ? 'success' : ($fabric['status'] == 'low_stock' ? 'warning' : 'danger') }}"
+                                                style="width: {{ $stockPercent }}%">
                                             </div>
                                         </div>
                                         <div class="ml-2 font-weight-bold">{{ $fabric['stock'] }} m</div>
                                     </div>
                                 </td>
                                 <td class="font-weight-bold text-success">
-                                    ₹ {{ number_format($fabric['rate']) }}
+                                    Rs {{ number_format($fabric['rate']) }}
                                 </td>
                                 <td class="font-weight-bold">
-                                    ₹ {{ number_format($value) }}
+                                    Rs {{ number_format($value) }}
                                 </td>
                                 <td>
                                     <span class="badge badge-{{ $statusColors[$fabric['status']] }}">
@@ -403,7 +403,7 @@
                                 <input type="number" class="form-control" id="addQuantity" min="0.1" step="0.1" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>New Rate/m (₹)</label>
+                                <label>New Rate/m (Rs)</label>
                                 <input type="number" class="form-control" id="newRate" min="1">
                                 <small class="text-muted">Leave empty to keep current rate</small>
                             </div>
@@ -454,7 +454,7 @@
                                 <input type="number" class="form-control" id="orderQuantity" min="1" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>Expected Rate/m (₹)</label>
+                                <label>Expected Rate/m (Rs)</label>
                                 <input type="number" class="form-control" id="expectedRate" min="1" required>
                             </div>
                         </div>
@@ -508,7 +508,7 @@
 
     <!-- app JavaScript -->
     <script src="{{ asset('backend/assets/js/app.js') }}"></script>
-    
+
     <script>
         $(document).ready(function() {
             // Initialize DataTable
@@ -516,48 +516,48 @@
                 pageLength: 10,
                 responsive: true,
                 dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
-                     '<"row"<"col-sm-12"tr>>' +
-                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
+                    '<"row"<"col-sm-12"tr>>' +
+                    '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
                 language: {
                     search: "_INPUT_",
                     searchPlaceholder: "Search fabrics..."
                 }
             });
-            
+
             // Custom search
             $('#fabricSearch').on('keyup', function() {
                 table.search(this.value).draw();
             });
-            
+
             // Filter by type
             $('#filterType').change(function() {
                 table.column(2).search(this.value).draw();
             });
-            
+
             // Filter by status
             $('#filterStatus').change(function() {
                 table.column(7).search(this.value).draw();
             });
-            
+
             // Filter by color
             $('#filterColor').change(function() {
                 table.column(3).search(this.value).draw();
             });
-            
+
             // Select all checkbox
             $('#selectAll').click(function() {
                 $('.fabricCheckbox').prop('checked', this.checked);
             });
-            
+
             // Set expected delivery date (tomorrow)
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             $('#expectedDelivery').val(tomorrow.toISOString().split('T')[0]);
-            
+
             // Initialize inventory chart
             initInventoryChart();
         });
-        
+
         function initInventoryChart() {
             const ctx = document.getElementById('inventoryChart').getContext('2d');
             window.inventoryChart = new Chart(ctx, {
@@ -588,7 +588,7 @@
                 }
             });
         }
-        
+
         function filterOverview(select) {
             if (select.value === 'value') {
                 // Update chart with value data
@@ -600,41 +600,41 @@
                 window.inventoryChart.update();
             }
         }
-        
+
         function viewFabric(index) {
             const fabric = @json($fabrics)[index];
-            alert(`Viewing: ${fabric.name}\nType: ${fabric.type}\nColor: ${fabric.color}\nStock: ${fabric.stock}m\nRate: ₹${fabric.rate}/m`);
+            alert(`Viewing: ${fabric.name}\nType: ${fabric.type}\nColor: ${fabric.color}\nStock: ${fabric.stock}m\nRate: Rs${fabric.rate}/m`);
         }
-        
+
         function editFabric(index) {
             alert(`Editing fabric #${index + 1}`);
             // In real app: Open edit modal
         }
-        
+
         function addStock(index) {
             const fabric = @json($fabrics)[index];
             $('#fabricName').val(fabric.name + ' - ' + fabric.color);
             $('#addStockModal').modal('show');
         }
-        
+
         function saveStockAddition() {
             const quantity = $('#addQuantity').val();
             if (!quantity || quantity <= 0) {
                 alert('Please enter valid quantity');
                 return;
             }
-            
+
             alert(`Added ${quantity}m to fabric stock`);
             $('#addStockModal').modal('hide');
             $('#addStockForm')[0].reset();
         }
-        
+
         function useFabric(index) {
             const fabric = @json($fabrics)[index];
             alert(`Opening fabric usage form for: ${fabric.name}`);
             // In real app: Open usage modal
         }
-        
+
         function reorderFabric(index) {
             const fabric = @json($fabrics)[index];
             $('#reorderFabricName').val(fabric.name + ' - ' + fabric.color);
@@ -642,38 +642,38 @@
             $('#expectedRate').val(fabric.rate);
             $('#reorderModal').modal('show');
         }
-        
+
         function placeReorder() {
             const quantity = $('#orderQuantity').val();
             const supplier = $('#reorderSupplier').val();
-            
+
             if (!quantity || quantity <= 0) {
                 alert('Please enter valid quantity');
                 return;
             }
-            
+
             if (!supplier) {
                 alert('Please select a supplier');
                 return;
             }
-            
+
             alert(`Order placed for ${quantity}m of fabric`);
             $('#reorderModal').modal('hide');
             $('#reorderForm')[0].reset();
         }
-        
+
         function deleteFabric(index) {
             if (confirm('Are you sure you want to remove this fabric from inventory?')) {
                 alert('Fabric removed from inventory');
                 // In real app: AJAX call to delete
             }
         }
-        
+
         function viewLowStock() {
             $('#filterStatus').val('low_stock').trigger('change');
             $('#filterStatus').val('out_of_stock').trigger('change');
         }
-        
+
         function quickReorder() {
             const selected = $('.fabricCheckbox:checked');
             if (selected.length === 0) {
@@ -682,24 +682,24 @@
             }
             alert(`Opening bulk reorder for ${selected.length} fabrics`);
         }
-        
+
         function placeBulkOrder() {
             alert('Opening bulk order placement tool...');
         }
-        
+
         function updatePrices() {
             alert('Opening price update tool...');
         }
-        
+
         function exportInventory() {
             alert('Exporting inventory data...');
         }
-        
+
         function generateReport() {
             alert('Generating inventory report...');
         }
     </script>
-    
+
     <style>
         .fabric-swatch {
             width: 30px;
@@ -707,45 +707,56 @@
             border: 1px solid #dee2e6;
             border-radius: 4px;
         }
+
         .card {
             border-radius: 0.5rem;
         }
+
         .table th {
             border-top: none;
             font-weight: 600;
             color: #6c757d;
         }
+
         .badge {
             font-size: 0.75em;
             font-weight: 500;
             padding: 0.35em 0.65em;
         }
+
         .dropdown-menu {
             box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
             border: none;
         }
+
         .list-group-item {
             border: none;
             padding: 0.75rem 0;
         }
+
         .list-group-item:hover {
             background-color: #f8f9fa;
         }
+
         .progress {
             background-color: #e9ecef;
             border-radius: 0.25rem;
         }
+
         .progress-bar {
             border-radius: 0.25rem;
         }
+
         .btn-sm {
             padding: 0.25rem 0.5rem;
             font-size: 0.875rem;
         }
+
         .modal-content {
             border-radius: 0.5rem;
             border: none;
         }
+
         .close {
             font-size: 1.5rem;
             font-weight: 300;

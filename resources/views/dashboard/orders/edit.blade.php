@@ -1,10 +1,10 @@
 <x-app-layout>
     @push('css')
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
     @endpush
     <div class="container-fluid">
         <!-- Page Header -->
@@ -97,18 +97,18 @@
                                             <th>Dress Type</th>
                                             <th>Description</th>
                                             <th>Quantity</th>
-                                            <th>Price (₹)</th>
-                                            <th>Total (₹)</th>
+                                            <th>Price (Rs)</th>
+                                            <th>Total (Rs)</th>
                                             <th>Status</th>
                                             <th>Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @php
-                                            $dressTypes = ['Sherwani', 'Suit', 'Kurta', 'Shalwar Kameez', 'Gown', 'Lehenga'];
+                                        $dressTypes = ['Sherwani', 'Suit', 'Kurta', 'Shalwar Kameez', 'Gown', 'Lehenga'];
                                         @endphp
                                         @for($i = 1; $i <= 2; $i++)
-                                        <tr>
+                                            <tr>
                                             <td>
                                                 <select class="form-control form-control-sm">
                                                     @foreach($dressTypes as $index => $type)
@@ -119,18 +119,18 @@
                                                 </select>
                                             </td>
                                             <td>
-                                                <input type="text" class="form-control form-control-sm" 
-                                                       value="{{ $i == 1 ? 'Embroidered silk sherwani' : 'Formal business suit' }}">
+                                                <input type="text" class="form-control form-control-sm"
+                                                    value="{{ $i == 1 ? 'Embroidered silk sherwani' : 'Formal business suit' }}">
                                             </td>
                                             <td>
                                                 <input type="number" class="form-control form-control-sm" value="1" min="1">
                                             </td>
                                             <td>
-                                                <input type="number" class="form-control form-control-sm" 
-                                                       value="{{ 3000 + ($i * 1000) }}" step="0.01">
+                                                <input type="number" class="form-control form-control-sm"
+                                                    value="{{ 3000 + ($i * 1000) }}" step="0.01">
                                             </td>
                                             <td class="font-weight-bold item-total">
-                                                ₹ {{ number_format(3000 + ($i * 1000)) }}
+                                                Rs {{ number_format(3000 + ($i * 1000)) }}
                                             </td>
                                             <td>
                                                 <select class="form-control form-control-sm">
@@ -146,13 +146,13 @@
                                                     <i class="las la-trash"></i>
                                                 </button>
                                             </td>
-                                        </tr>
-                                        @endfor
+                                            </tr>
+                                            @endfor
                                     </tbody>
                                     <tfoot>
                                         <tr>
                                             <td colspan="4" class="text-right font-weight-bold">Subtotal:</td>
-                                            <td id="subtotal" class="font-weight-bold">₹ {{ number_format(6000 + ($id * 1500)) }}</td>
+                                            <td id="subtotal" class="font-weight-bold">Rs {{ number_format(6000 + ($id * 1500)) }}</td>
                                             <td colspan="2"></td>
                                         </tr>
                                     </tfoot>
@@ -237,11 +237,11 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label">Rate per Meter (₹)</label>
+                                    <label class="form-label">Rate per Meter (Rs)</label>
                                     <input type="number" step="0.01" class="form-control" value="800">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label">Fabric Cost (₹)</label>
+                                    <label class="form-label">Fabric Cost (Rs)</label>
                                     <input type="number" step="0.01" class="form-control" value="2800" readonly>
                                 </div>
                                 <div class="col-md-4 mb-3">
@@ -294,7 +294,7 @@
                                     <input type="date" class="form-control" value="{{ date('Y-m-d', strtotime('+3 days')) }}">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label">Stitching Charges (₹)</label>
+                                    <label class="form-label">Stitching Charges (Rs)</label>
                                     <input type="number" step="0.01" class="form-control" value="1500">
                                 </div>
                             </div>
@@ -313,42 +313,42 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label">Items Total (₹)</label>
+                                    <label class="form-label">Items Total (Rs)</label>
                                     <input type="number" step="0.01" class="form-control" value="{{ 6000 + ($id * 1500) }}" id="itemsTotal">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label">Fabric Cost (₹)</label>
+                                    <label class="form-label">Fabric Cost (Rs)</label>
                                     <input type="number" step="0.01" class="form-control" value="2800" id="fabricCost">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label">Stitching Charges (₹)</label>
+                                    <label class="form-label">Stitching Charges (Rs)</label>
                                     <input type="number" step="0.01" class="form-control" value="1500" id="stitchingCharges">
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label">Additional Charges (₹)</label>
+                                    <label class="form-label">Additional Charges (Rs)</label>
                                     <input type="number" step="0.01" class="form-control" value="0" id="additionalCharges">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label">Discount (₹)</label>
+                                    <label class="form-label">Discount (Rs)</label>
                                     <input type="number" step="0.01" class="form-control" value="0" id="discount">
                                 </div>
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label">Total Amount (₹)</label>
-                                    <input type="number" step="0.01" class="form-control font-weight-bold text-primary" 
-                                           value="{{ 8500 + ($id * 1500) }}" id="totalAmount" readonly>
+                                    <label class="form-label">Total Amount (Rs)</label>
+                                    <input type="number" step="0.01" class="form-control font-weight-bold text-primary"
+                                        value="{{ 8500 + ($id * 1500) }}" id="totalAmount" readonly>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Advance Paid (₹)</label>
+                                    <label class="form-label">Advance Paid (Rs)</label>
                                     <input type="number" step="0.01" class="form-control" value="2500" id="advancePaid">
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Balance Due (₹)</label>
-                                    <input type="number" step="0.01" class="form-control font-weight-bold text-danger" 
-                                           value="{{ 6000 + ($id * 1500) }}" id="balanceDue" readonly>
+                                    <label class="form-label">Balance Due (Rs)</label>
+                                    <input type="number" step="0.01" class="form-control font-weight-bold text-danger"
+                                        value="{{ 6000 + ($id * 1500) }}" id="balanceDue" readonly>
                                 </div>
                             </div>
                             <div class="row">
@@ -434,14 +434,14 @@
             let additionalCharges = parseFloat($('#additionalCharges').val()) || 0;
             let discount = parseFloat($('#discount').val()) || 0;
             let advancePaid = parseFloat($('#advancePaid').val()) || 0;
-            
+
             let subtotal = itemsTotal + fabricCost + stitchingCharges + additionalCharges;
             let totalAmount = subtotal - discount;
             let balanceDue = totalAmount - advancePaid;
-            
+
             $('#totalAmount').val(totalAmount.toFixed(2));
             $('#balanceDue').val(balanceDue.toFixed(2));
-            
+
             // Update payment status based on amounts
             if (balanceDue <= 0) {
                 $('#paymentStatus').val('paid');
@@ -451,38 +451,38 @@
                 $('#paymentStatus').val('pending');
             }
         }
-        
+
         // Initialize calculations
         $(document).ready(function() {
             calculateTotals();
-            
+
             // Update totals when inputs change
             $('#itemsTotal, #fabricCost, #stitchingCharges, #additionalCharges, #discount, #advancePaid').on('input', calculateTotals);
-            
+
             // Item row calculations
             $('#orderItemsTable tbody').on('input', 'input', function() {
                 const row = $(this).closest('tr');
                 const quantity = parseFloat(row.find('input[type="number"]').eq(0).val()) || 0;
                 const price = parseFloat(row.find('input[type="number"]').eq(1).val()) || 0;
                 const total = quantity * price;
-                row.find('.item-total').text('₹ ' + total.toFixed(2));
+                row.find('.item-total').text('Rs ' + total.toFixed(2));
                 updateSubtotal();
             });
         });
-        
+
         // Update subtotal
         function updateSubtotal() {
             let subtotal = 0;
             $('#orderItemsTable tbody tr').each(function() {
                 const totalText = $(this).find('.item-total').text();
-                const total = parseFloat(totalText.replace('₹ ', '')) || 0;
+                const total = parseFloat(totalText.replace('Rs ', '')) || 0;
                 subtotal += total;
             });
-            $('#subtotal').text('₹ ' + subtotal.toFixed(2));
+            $('#subtotal').text('Rs ' + subtotal.toFixed(2));
             $('#itemsTotal').val(subtotal);
             calculateTotals();
         }
-        
+
         // Add new item
         function addNewItem() {
             const newRow = `
@@ -507,7 +507,7 @@
                         <input type="number" class="form-control form-control-sm" value="3000" step="0.01">
                     </td>
                     <td class="font-weight-bold item-total">
-                        ₹ 3000.00
+                        Rs 3000.00
                     </td>
                     <td>
                         <select class="form-control form-control-sm">
@@ -528,7 +528,7 @@
             $('#orderItemsTable tbody').append(newRow);
             updateSubtotal();
         }
-        
+
         // Remove item
         function removeItem(button) {
             if ($('#orderItemsTable tbody tr').length > 1) {
@@ -540,7 +540,7 @@
                 alert('Order must have at least one item');
             }
         }
-        
+
         // Form submission
         $('#editOrderForm').submit(function(e) {
             e.preventDefault();
@@ -549,19 +549,19 @@
                 window.location.href = "{{ route('orders.show', ['id' => $id]) }}";
             }
         });
-        
+
         // Save as draft
         function saveAsDraft() {
             alert('Changes saved as draft!');
         }
-        
+
         // Reset form
         function resetForm() {
             if (confirm('Reset all changes?')) {
                 location.reload();
             }
         }
-        
+
         // Delete order
         function deleteOrder() {
             if (confirm('Are you sure you want to delete this order? This action cannot be undone.')) {

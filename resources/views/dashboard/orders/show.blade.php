@@ -1,10 +1,10 @@
 <x-app-layout>
     @push('css')
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
     @endpush
 
     <div class="container-fluid">
@@ -61,15 +61,15 @@
                         <div class="bg-light p-3 rounded">
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Total Amount:</span>
-                                <span class="font-weight-bold text-primary">₹ {{ number_format(5000 + ($id * 1500)) }}</span>
+                                <span class="font-weight-bold text-primary">Rs {{ number_format(5000 + ($id * 1500)) }}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Advance Paid:</span>
-                                <span class="font-weight-bold text-success">₹ {{ number_format(2000 + ($id * 500)) }}</span>
+                                <span class="font-weight-bold text-success">Rs {{ number_format(2000 + ($id * 500)) }}</span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Balance Due:</span>
-                                <span class="font-weight-bold text-danger">₹ {{ number_format(3000 + ($id * 1000)) }}</span>
+                                <span class="font-weight-bold text-danger">Rs {{ number_format(3000 + ($id * 1000)) }}</span>
                             </div>
                             <div class="d-flex justify-content-between">
                                 <span>Payment Status:</span>
@@ -137,12 +137,12 @@
                                 </thead>
                                 <tbody>
                                     @php
-                                        $dressTypes = ['Sherwani', 'Suit', 'Kurta', 'Shalwar Kameez', 'Gown', 'Lehenga'];
-                                        $itemStatus = ['pending', 'cutting', 'stitching', 'ready', 'delivered'];
-                                        $statusColors = ['warning', 'primary', 'secondary', 'success', 'dark'];
+                                    $dressTypes = ['Sherwani', 'Suit', 'Kurta', 'Shalwar Kameez', 'Gown', 'Lehenga'];
+                                    $itemStatus = ['pending', 'cutting', 'stitching', 'ready', 'delivered'];
+                                    $statusColors = ['warning', 'primary', 'secondary', 'success', 'dark'];
                                     @endphp
                                     @for($i = 1; $i <= 2; $i++)
-                                    <tr>
+                                        <tr>
                                         <td>{{ $i }}</td>
                                         <td class="font-weight-bold">{{ $dressTypes[($id + $i) % 6] }}</td>
                                         <td>
@@ -151,8 +151,8 @@
                                             </small>
                                         </td>
                                         <td>1</td>
-                                        <td>₹ {{ number_format(3000 + ($i * 1000)) }}</td>
-                                        <td class="font-weight-bold">₹ {{ number_format(3000 + ($i * 1000)) }}</td>
+                                        <td>Rs {{ number_format(3000 + ($i * 1000)) }}</td>
+                                        <td class="font-weight-bold">Rs {{ number_format(3000 + ($i * 1000)) }}</td>
                                         <td>
                                             @php $statusIndex = ($i % 5); @endphp
                                             <span class="badge badge-{{ $statusColors[$statusIndex] }}">
@@ -164,28 +164,28 @@
                                                 <i class="las la-eye"></i>
                                             </button>
                                         </td>
-                                    </tr>
-                                    @endfor
+                                        </tr>
+                                        @endfor
                                 </tbody>
                                 <tfoot>
                                     <tr>
                                         <td colspan="5" class="text-right font-weight-bold">Subtotal:</td>
-                                        <td class="font-weight-bold">₹ {{ number_format(6000 + ($id * 1500)) }}</td>
+                                        <td class="font-weight-bold">Rs {{ number_format(6000 + ($id * 1500)) }}</td>
                                         <td colspan="2"></td>
                                     </tr>
                                     <tr>
                                         <td colspan="5" class="text-right font-weight-bold">Fabric Cost:</td>
-                                        <td class="font-weight-bold">₹ {{ number_format(1500) }}</td>
+                                        <td class="font-weight-bold">Rs {{ number_format(1500) }}</td>
                                         <td colspan="2"></td>
                                     </tr>
                                     <tr>
                                         <td colspan="5" class="text-right font-weight-bold">Stitching Charges:</td>
-                                        <td class="font-weight-bold">₹ {{ number_format(1000) }}</td>
+                                        <td class="font-weight-bold">Rs {{ number_format(1000) }}</td>
                                         <td colspan="2"></td>
                                     </tr>
                                     <tr>
                                         <td colspan="5" class="text-right font-weight-bold">Total:</td>
-                                        <td class="font-weight-bold text-primary">₹ {{ number_format(8500 + ($id * 1500)) }}</td>
+                                        <td class="font-weight-bold text-primary">Rs {{ number_format(8500 + ($id * 1500)) }}</td>
                                         <td colspan="2"></td>
                                     </tr>
                                 </tfoot>
@@ -284,11 +284,11 @@
                                         </div>
                                         <div class="mb-3">
                                             <label class="text-muted">Rate per Meter</label>
-                                            <div class="font-weight-bold">₹ 800</div>
+                                            <div class="font-weight-bold">Rs 800</div>
                                         </div>
                                         <div class="mb-3">
                                             <label class="text-muted">Total Fabric Cost</label>
-                                            <div class="font-weight-bold text-primary">₹ 2,800</div>
+                                            <div class="font-weight-bold text-primary">Rs 2,800</div>
                                         </div>
                                     </div>
                                 </div>
@@ -385,15 +385,15 @@
                                         </div>
                                         <div class="mb-3">
                                             <label class="text-muted">Stitching Charges</label>
-                                            <div class="font-weight-bold">₹ 1,500</div>
+                                            <div class="font-weight-bold">Rs 1,500</div>
                                         </div>
                                         <div class="mb-3">
                                             <label class="text-muted">Advance Paid to Tailor</label>
-                                            <div class="font-weight-bold text-success">₹ 500</div>
+                                            <div class="font-weight-bold text-success">Rs 500</div>
                                         </div>
                                         <div class="mb-3">
                                             <label class="text-muted">Balance to Tailor</label>
-                                            <div class="font-weight-bold text-danger">₹ 1,000</div>
+                                            <div class="font-weight-bold text-danger">Rs 1,000</div>
                                         </div>
                                     </div>
                                 </div>
@@ -438,15 +438,15 @@
                                                 </thead>
                                                 <tbody>
                                                     @for($i = 1; $i <= 2; $i++)
-                                                    <tr>
+                                                        <tr>
                                                         <td>{{ now()->subDays($i)->format('d M, Y') }}</td>
                                                         <td>REC-{{ str_pad($id * 10 + $i, 4, '0', STR_PAD_LEFT) }}</td>
                                                         <td>{{ $i == 1 ? 'Cash' : 'Bank Transfer' }}</td>
-                                                        <td class="font-weight-bold text-success">₹ {{ number_format(1500 + ($i * 500)) }}</td>
+                                                        <td class="font-weight-bold text-success">Rs {{ number_format(1500 + ($i * 500)) }}</td>
                                                         <td>Staff {{ $i }}</td>
                                                         <td><span class="badge badge-success">Verified</span></td>
-                                                    </tr>
-                                                    @endfor
+                                                        </tr>
+                                                        @endfor
                                                 </tbody>
                                             </table>
                                         </div>
@@ -461,15 +461,15 @@
                                     <div class="card-body">
                                         <div class="mb-3">
                                             <label class="text-muted">Total Order Amount</label>
-                                            <div class="font-weight-bold">₹ {{ number_format(8500 + ($id * 1500)) }}</div>
+                                            <div class="font-weight-bold">Rs {{ number_format(8500 + ($id * 1500)) }}</div>
                                         </div>
                                         <div class="mb-3">
                                             <label class="text-muted">Total Paid</label>
-                                            <div class="font-weight-bold text-success">₹ {{ number_format(2500) }}</div>
+                                            <div class="font-weight-bold text-success">Rs {{ number_format(2500) }}</div>
                                         </div>
                                         <div class="mb-3">
                                             <label class="text-muted">Balance Due</label>
-                                            <div class="font-weight-bold text-danger">₹ {{ number_format(6000 + ($id * 1500)) }}</div>
+                                            <div class="font-weight-bold text-danger">Rs {{ number_format(6000 + ($id * 1500)) }}</div>
                                         </div>
                                         <div class="mb-3">
                                             <label class="text-muted">Next Payment Due</label>
@@ -581,41 +581,41 @@
             alert('Viewing details for item #' + itemId);
             // In real app: Open item details modal
         }
-        
+
         function updateMeasurements() {
             alert('Opening measurements update form');
             // In real app: window.location.href = `/orders/{{ $id }}/measurements/edit`;
         }
-        
+
         function updateProgress() {
             alert('Opening progress update form');
             // In real app: Open progress update modal
         }
-        
+
         function changeTailor() {
             alert('Opening tailor assignment form');
             // In real app: Open tailor assignment modal
         }
-        
+
         function recordPayment() {
             alert('Opening payment recording form');
             // In real app: Open payment modal
         }
-        
+
         function printOrder() {
             window.open('/orders/{{ $id }}/print', '_blank');
         }
-        
+
         function updateStatus() {
             alert('Opening status update form');
             // In real app: Open status update modal
         }
-        
+
         function sendNotification() {
             alert('Sending notification to customer');
             // In real app: AJAX call to send notification
         }
-        
+
         function cancelOrder() {
             if (confirm('Are you sure you want to cancel this order?')) {
                 alert('Order cancellation initiated');
@@ -623,16 +623,18 @@
             }
         }
     </script>
-    
+
     <style>
         .timeline {
             position: relative;
             padding-left: 2rem;
         }
+
         .timeline-item {
             position: relative;
             padding-bottom: 1.5rem;
         }
+
         .timeline-marker {
             position: absolute;
             left: -1.2rem;
@@ -641,6 +643,7 @@
             height: 1rem;
             border-radius: 50%;
         }
+
         .timeline-content {
             padding-left: 1rem;
         }

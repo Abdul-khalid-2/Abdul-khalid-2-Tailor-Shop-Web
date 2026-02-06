@@ -53,7 +53,7 @@
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Revenue</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">₹ 245,800</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">Rs 245,800</div>
                                 <div class="mt-2 mb-0 text-muted text-xs">
                                     <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> 8.2%</span>
                                     <span>growth</span>
@@ -141,70 +141,70 @@
                         </thead>
                         <tbody>
                             @for($i = 1; $i <= 12; $i++)
-                            @php
-                                $deliveryDate = now()->subDays(rand(1, 30));
+                                @php
+                                $deliveryDate=now()->subDays(rand(1, 30));
                                 $orderDate = $deliveryDate->copy()->subDays(rand(3, 7));
                                 $rating = rand(4, 5);
-                            @endphp
-                            <tr>
-                                <td>TS-00{{ 150 + $i }}</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-sm mr-2">
-                                            <span class="avatar-title rounded-circle bg-info text-white">
-                                                C{{ $i }}
-                                            </span>
+                                @endphp
+                                <tr>
+                                    <td>TS-00{{ 150 + $i }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar avatar-sm mr-2">
+                                                <span class="avatar-title rounded-circle bg-info text-white">
+                                                    C{{ $i }}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <div class="font-weight-bold">Customer {{ $i }}</div>
+                                                <small class="text-muted">Delivered {{ $deliveryDate->diffForHumans() }}</small>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <div class="font-weight-bold">Customer {{ $i }}</div>
-                                            <small class="text-muted">Delivered {{ $deliveryDate->diffForHumans() }}</small>
+                                    </td>
+                                    <td>
+                                        @php $types = ['Sherwani', 'Suit', 'Kurta', 'Gown', 'Lehenga']; @endphp
+                                        {{ $types[$i % 5] }}
+                                    </td>
+                                    <td>{{ $orderDate->format('d M, Y') }}</td>
+                                    <td>
+                                        <span class="badge badge-success">{{ $deliveryDate->format('d M, Y') }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar avatar-xs mr-2">
+                                                <span class="avatar-title rounded-circle bg-primary text-white">
+                                                    T{{ $i % 4 + 1 }}
+                                                </span>
+                                            </div>
+                                            <span>Tailor {{ $i % 4 + 1 }}</span>
                                         </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    @php $types = ['Sherwani', 'Suit', 'Kurta', 'Gown', 'Lehenga']; @endphp
-                                    {{ $types[$i % 5] }}
-                                </td>
-                                <td>{{ $orderDate->format('d M, Y') }}</td>
-                                <td>
-                                    <span class="badge badge-success">{{ $deliveryDate->format('d M, Y') }}</span>
-                                </td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-xs mr-2">
-                                            <span class="avatar-title rounded-circle bg-primary text-white">
-                                                T{{ $i % 4 + 1 }}
-                                            </span>
+                                    </td>
+                                    <td class="font-weight-bold text-success">
+                                        Rs {{ number_format(3000 + ($i * 1200)) }}
+                                    </td>
+                                    <td>
+                                        <div class="star-rating">
+                                            @for($j = 1; $j <= 5; $j++)
+                                                <i class="las la-star {{ $j <= $rating ? 'text-warning' : 'text-muted' }}"></i>
+                                                @endfor
                                         </div>
-                                        <span>Tailor {{ $i % 4 + 1 }}</span>
-                                    </div>
-                                </td>
-                                <td class="font-weight-bold text-success">
-                                    ₹ {{ number_format(3000 + ($i * 1200)) }}
-                                </td>
-                                <td>
-                                    <div class="star-rating">
-                                        @for($j = 1; $j <= 5; $j++)
-                                            <i class="las la-star {{ $j <= $rating ? 'text-warning' : 'text-muted' }}"></i>
-                                        @endfor
-                                    </div>
-                                    <small class="text-muted">{{ $rating }}.0</small>
-                                </td>
-                                <td>
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ route('orders.show', ['id' => $i]) }}" class="btn btn-sm btn-outline-primary">
-                                            <i class="las la-eye"></i> View
-                                        </a>
-                                        <button class="btn btn-sm btn-outline-info" onclick="printReceipt({{ $i }})">
-                                            <i class="las la-print"></i> Receipt
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-secondary" onclick="repeatOrder({{ $i }})">
-                                            <i class="las la-redo"></i> Repeat
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            @endfor
+                                        <small class="text-muted">{{ $rating }}.0</small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ route('orders.show', ['id' => $i]) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="las la-eye"></i> View
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-info" onclick="printReceipt({{ $i }})">
+                                                <i class="las la-print"></i> Receipt
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-secondary" onclick="repeatOrder({{ $i }})">
+                                                <i class="las la-redo"></i> Repeat
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endfor
                         </tbody>
                     </table>
                 </div>
@@ -216,18 +216,20 @@
     <script src="{{ asset('backend/assets/vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('backend/assets/vendor/daterangepicker/moment.min.js') }}"></script>
     <script src="{{ asset('backend/assets/vendor/daterangepicker/daterangepicker.js') }}"></script>
-    
+
     <script>
         $(document).ready(function() {
             // Initialize DataTable
             var table = $('#completedOrdersTable').DataTable({
                 pageLength: 10,
-                order: [[4, 'desc']],
+                order: [
+                    [4, 'desc']
+                ],
                 dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>' +
-                     '<"row"<"col-sm-12"tr>>' +
-                     '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
+                    '<"row"<"col-sm-12"tr>>' +
+                    '<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>'
             });
-            
+
             // Date range picker
             $('#dateRangePicker').daterangepicker({
                 ranges: {
@@ -241,7 +243,7 @@
                 startDate: moment().subtract(30, 'days'),
                 endDate: moment()
             });
-            
+
             // Date range change handler
             $('#dateRangePicker').on('apply.daterangepicker', function(ev, picker) {
                 const start = picker.startDate.format('YYYY-MM-DD');
@@ -250,22 +252,22 @@
                 // In real app: AJAX call to filter orders
             });
         });
-        
+
         function exportCompletedOrders() {
             alert('Exporting completed orders report...');
             // In real app: Generate and download report
         }
-        
+
         function generateInvoice() {
             alert('Generating invoice for selected orders...');
             // In real app: Show invoice generation modal
         }
-        
+
         function printReceipt(orderId) {
             alert('Printing receipt for order #TS-' + orderId);
             // In real app: Open print preview
         }
-        
+
         function repeatOrder(orderId) {
             if (confirm('Create a new order with same details?')) {
                 alert('Creating repeat order...');
@@ -277,6 +279,7 @@
         .star-rating {
             display: inline-block;
         }
+
         .star-rating .las {
             font-size: 14px;
         }

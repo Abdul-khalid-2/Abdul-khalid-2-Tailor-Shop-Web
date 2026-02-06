@@ -1,11 +1,11 @@
 <x-app-layout>
     @push('css')
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/select2/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/select2/css/select2.min.css') }}">
     @endpush>
 
     <div class="container-fluid">
@@ -46,7 +46,7 @@
                                             </select>
                                             <small class="text-muted">Or <a href="{{ route('customers.create') }}">add new customer</a></small>
                                         </div>
-                                        
+
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Order Date *</label>
                                             <input type="date" class="form-control" value="{{ date('Y-m-d') }}" required>
@@ -68,13 +68,13 @@
                                                 <option value="abaya" data-price="5500">Abaya</option>
                                             </select>
                                         </div>
-                                        
+
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Delivery Date *</label>
                                             <input type="date" class="form-control" id="deliveryDate" value="{{ date('Y-m-d', strtotime('+7 days')) }}" required>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label class="form-label">Order Description</label>
                                         <textarea class="form-control" rows="2" placeholder="Brief description of the order..."></textarea>
@@ -168,11 +168,11 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Fabric Rate/m (₹)</label>
+                                            <label class="form-label">Fabric Rate/m (Rs)</label>
                                             <input type="number" class="form-control" id="fabricRate" value="0">
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Fabric Cost (₹)</label>
+                                            <label class="form-label">Fabric Cost (Rs)</label>
                                             <input type="number" class="form-control" id="fabricCost" value="0" readonly>
                                         </div>
                                     </div>
@@ -187,29 +187,29 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-3 mb-3">
-                                            <label class="form-label">Base Price (₹)</label>
+                                            <label class="form-label">Base Price (Rs)</label>
                                             <input type="number" class="form-control" id="basePrice" value="0" readonly>
                                         </div>
                                         <div class="col-md-3 mb-3">
-                                            <label class="form-label">Stitching Charges (₹)</label>
+                                            <label class="form-label">Stitching Charges (Rs)</label>
                                             <input type="number" class="form-control" id="stitchingCharges" value="1000">
                                         </div>
                                         <div class="col-md-3 mb-3">
-                                            <label class="form-label">Additional Charges (₹)</label>
+                                            <label class="form-label">Additional Charges (Rs)</label>
                                             <input type="number" class="form-control" id="additionalCharges" value="0">
                                         </div>
                                         <div class="col-md-3 mb-3">
-                                            <label class="form-label">Discount (₹)</label>
+                                            <label class="form-label">Discount (Rs)</label>
                                             <input type="number" class="form-control" id="discount" value="0">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Total Amount (₹)</label>
+                                            <label class="form-label">Total Amount (Rs)</label>
                                             <input type="number" class="form-control font-weight-bold" id="totalAmount" value="0" readonly style="font-size: 1.2rem;">
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Advance Paid (₹)</label>
+                                            <label class="form-label">Advance Paid (Rs)</label>
                                             <input type="number" class="form-control" id="advancePaid" value="0">
                                         </div>
                                     </div>
@@ -224,7 +224,7 @@
                                             </select>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Balance Due (₹)</label>
+                                            <label class="form-label">Balance Due (Rs)</label>
                                             <input type="number" class="form-control font-weight-bold text-danger" id="balanceDue" value="0" readonly>
                                         </div>
                                     </div>
@@ -373,7 +373,7 @@
                                     <th>Fabric Type</th>
                                     <th>Color</th>
                                     <th>Available (m)</th>
-                                    <th>Rate/m (₹)</th>
+                                    <th>Rate/m (Rs)</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
@@ -432,14 +432,14 @@
 
     <!-- app JavaScript -->
     <script src="{{ asset('backend/assets/js/app.js') }}"></script>
-    
+
     <script>
         $(document).ready(function() {
             // Initialize Select2
             $('.select2').select2({
                 theme: 'bootstrap'
             });
-            
+
             // Update base price when dress type changes
             $('#dressType').change(function() {
                 const selectedOption = $(this).find('option:selected');
@@ -447,7 +447,7 @@
                 $('#basePrice').val(basePrice);
                 calculateTotal();
             });
-            
+
             // Calculate fabric cost
             $('#meterRequired, #fabricRate').on('input', function() {
                 const meter = parseFloat($('#meterRequired').val()) || 0;
@@ -456,19 +456,19 @@
                 $('#fabricCost').val(fabricCost.toFixed(2));
                 calculateTotal();
             });
-            
+
             // Calculate total amount
             $('#stitchingCharges, #additionalCharges, #discount').on('input', calculateTotal);
             $('#advancePaid').on('input', calculateBalance);
-            
+
             // Form submission
             $('#orderForm').submit(function(e) {
                 e.preventDefault();
-                
+
                 // Form validation
                 const requiredFields = $(this).find('[required]');
                 let valid = true;
-                
+
                 requiredFields.each(function() {
                     if (!$(this).val().trim()) {
                         valid = false;
@@ -477,48 +477,48 @@
                         $(this).removeClass('is-invalid');
                     }
                 });
-                
+
                 if (!valid) {
                     alert('Please fill in all required fields.');
                     return;
                 }
-                
+
                 // Check if total amount is valid
                 const totalAmount = parseFloat($('#totalAmount').val()) || 0;
                 if (totalAmount <= 0) {
                     alert('Please check pricing. Total amount should be greater than 0.');
                     return;
                 }
-                
+
                 // Simulate form submission
                 alert('Order created successfully! Order #: TS-' + Math.floor(1000 + Math.random() * 9000));
                 window.location.href = "{{ route('orders.index') }}";
             });
-            
+
             // Initialize calculations
             calculateTotal();
             calculateBalance();
         });
-        
+
         function calculateTotal() {
             const basePrice = parseFloat($('#basePrice').val()) || 0;
             const fabricCost = parseFloat($('#fabricCost').val()) || 0;
             const stitching = parseFloat($('#stitchingCharges').val()) || 0;
             const additional = parseFloat($('#additionalCharges').val()) || 0;
             const discount = parseFloat($('#discount').val()) || 0;
-            
+
             const total = basePrice + fabricCost + stitching + additional - discount;
             $('#totalAmount').val(total.toFixed(2));
             calculateBalance();
         }
-        
+
         function calculateBalance() {
             const totalAmount = parseFloat($('#totalAmount').val()) || 0;
             const advancePaid = parseFloat($('#advancePaid').val()) || 0;
             const balance = totalAmount - advancePaid;
             $('#balanceDue').val(balance.toFixed(2));
         }
-        
+
         function applyTemplate(height, chest, waist, hips, shoulder, sleeve, pant, inseam) {
             $('input[placeholder="170"]').val(height);
             $('input[placeholder="42"]').val(chest);
@@ -528,21 +528,21 @@
             $('input[placeholder="60"]').val(sleeve);
             $('input[placeholder="100"]').val(pant);
             $('input[placeholder="80"]').val(inseam);
-            
+
             $('#measurementModal').modal('hide');
             alert('Measurement template applied successfully!');
         }
-        
+
         function selectFabric(type, color, rate) {
             $('#fabricSelect').val(type.toLowerCase()).trigger('change');
             $('#fabricColor').val(color);
             $('#fabricRate').val(rate);
             $('#fabricModal').modal('hide');
-            
+
             // Suggest meter requirement based on dress type
             const dressType = $('#dressType').val();
             let suggestedMeters = 0;
-            
+
             if (dressType === 'sherwani' || dressType === 'gown') {
                 suggestedMeters = 5.5;
             } else if (dressType === 'suit') {
@@ -554,17 +554,17 @@
             } else {
                 suggestedMeters = 2.5;
             }
-            
+
             $('#meterRequired').val(suggestedMeters);
-            
+
             // Calculate fabric cost
             const fabricCost = suggestedMeters * rate;
             $('#fabricCost').val(fabricCost.toFixed(2));
             calculateTotal();
-            
+
             alert('Fabric selected: ' + type + ' (' + color + ')');
         }
-        
+
         function resetForm() {
             if (confirm('Are you sure you want to reset the form? All data will be lost.')) {
                 document.getElementById('orderForm').reset();
@@ -576,59 +576,70 @@
                 alert('Form reset successfully!');
             }
         }
-        
+
         function saveAsDraft() {
             alert('Order saved as draft!');
             // In real app: AJAX call to save as draft
         }
     </script>
-    
+
     <style>
         .card {
             border-radius: 0.5rem;
         }
+
         .card-header.bg-light {
             background-color: #f8f9fa !important;
             border-bottom: 1px solid #e9ecef;
         }
+
         .btn {
             border-radius: 0.375rem;
         }
+
         .form-control {
             border-radius: 0.375rem;
         }
+
         .modal-content {
             border-radius: 0.5rem;
             border: none;
         }
+
         .close {
             font-size: 1.5rem;
             font-weight: 300;
         }
+
         .table th {
             border-top: none;
             font-weight: 600;
             color: #6c757d;
         }
+
         .badge {
             font-size: 0.75em;
             font-weight: 500;
             padding: 0.35em 0.65em;
         }
+
         #totalAmount {
             background-color: #f8f9fa;
             font-weight: bold;
             color: #28a745;
         }
+
         #balanceDue {
             background-color: #f8f9fa;
             font-weight: bold;
             color: #dc3545;
         }
+
         .form-check-input:checked {
             background-color: #ffc107;
             border-color: #ffc107;
         }
+
         .select2-container--bootstrap .select2-selection {
             border-radius: 0.375rem;
         }

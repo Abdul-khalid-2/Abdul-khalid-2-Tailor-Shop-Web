@@ -1,11 +1,11 @@
 <x-app-layout>
     @push('css')
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/select2/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
+    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/select2/css/select2.min.css') }}">
     @endpush
 
     <div class="container-fluid">
@@ -45,7 +45,7 @@
                                             <small class="text-muted">Auto-generated</small>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">CNIC Number *</label>
@@ -56,7 +56,7 @@
                                             <input type="date" class="form-control" id="dateOfBirth">
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Phone Number *</label>
@@ -72,7 +72,7 @@
                                             <input type="tel" class="form-control" id="emergencyContact" placeholder="Emergency phone number">
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Email Address</label>
@@ -112,7 +112,7 @@
                                             <input type="date" class="form-control" id="joiningDate" value="{{ date('Y-m-d') }}" required>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Branch *</label>
@@ -133,11 +133,11 @@
                                             </select>
                                         </div>
                                     </div>
-                                    
+
                                     <div id="salarySection">
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Monthly Salary (₹)</label>
+                                                <label class="form-label">Monthly Salary (Rs)</label>
                                                 <input type="number" class="form-control" id="monthlySalary" placeholder="25000" min="0">
                                             </div>
                                             <div class="col-md-6 mb-3">
@@ -147,7 +147,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    
+
                                     <div id="contractSection" style="display: none;">
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
@@ -155,7 +155,7 @@
                                                 <input type="number" class="form-control" id="contractDuration" placeholder="6" min="1">
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Rate per Order (₹)</label>
+                                                <label class="form-label">Rate per Order (Rs)</label>
                                                 <input type="number" class="form-control" id="ratePerOrder" placeholder="1000" min="0">
                                             </div>
                                         </div>
@@ -187,7 +187,7 @@
                                         </select>
                                         <small class="text-muted">Select all dress types this tailor specializes in</small>
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Experience (Years)</label>
@@ -204,7 +204,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label class="form-label">Additional Skills</label>
                                         <textarea class="form-control" id="additionalSkills" rows="3" placeholder="Any additional skills like embroidery, bead work, etc..."></textarea>
@@ -228,7 +228,7 @@
                                             <input type="text" class="form-control" id="addressLine2" placeholder="Area, Sector">
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">City</label>
@@ -243,7 +243,7 @@
                                             <input type="text" class="form-control" id="zipCode" placeholder="Postal Code">
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label class="form-label">Bank Account Details (Optional)</label>
                                         <div class="input-group">
@@ -279,12 +279,12 @@
                                             </select>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="mb-3">
                                         <label class="form-label">Notes</label>
                                         <textarea class="form-control" id="notes" rows="3" placeholder="Any additional notes about this tailor..."></textarea>
                                     </div>
-                                    
+
                                     <div class="form-check mb-3">
                                         <input type="checkbox" class="form-check-input" id="sendCredentials">
                                         <label class="form-check-label" for="sendCredentials">Send login credentials via SMS/Email</label>
@@ -404,20 +404,20 @@
 
     <!-- app JavaScript -->
     <script src="{{ asset('backend/assets/js/app.js') }}"></script>
-    
+
     <script>
         $(document).ready(function() {
             // Initialize Select2
             $('.select2').select2({
                 theme: 'bootstrap'
             });
-            
+
             // File input label
             $('.custom-file-input').on('change', function() {
                 let fileName = $(this).val().split('\\').pop();
                 $(this).next('.custom-file-label').addClass("selected").html(fileName);
             });
-            
+
             // Employment type change
             $('#employmentType').change(function() {
                 if (this.value === 'permanent') {
@@ -431,7 +431,7 @@
                     $('#contractSection').hide();
                 }
             });
-            
+
             // CNIC validation
             $('#cnicNumber').on('input', function() {
                 const cnic = $(this).val().replace(/\D/g, '');
@@ -440,15 +440,15 @@
                     $(this).val(formatted);
                 }
             });
-            
+
             // Form submission
             $('#tailorForm').submit(function(e) {
                 e.preventDefault();
-                
+
                 // Form validation
                 const requiredFields = $(this).find('[required]');
                 let valid = true;
-                
+
                 requiredFields.each(function() {
                     if (!$(this).val().trim()) {
                         valid = false;
@@ -457,12 +457,12 @@
                         $(this).removeClass('is-invalid');
                     }
                 });
-                
+
                 if (!valid) {
                     alert('Please fill in all required fields.');
                     return;
                 }
-                
+
                 // CNIC validation
                 const cnic = $('#cnicNumber').val();
                 if (!/^\d{5}-\d{7}-\d{1}$/.test(cnic)) {
@@ -470,7 +470,7 @@
                     $('#cnicNumber').addClass('is-invalid');
                     return;
                 }
-                
+
                 // Phone number validation
                 const phone = $('#phoneNumber').val();
                 if (!/^\d{10}$/.test(phone.replace(/\D/g, ''))) {
@@ -478,7 +478,7 @@
                     $('#phoneNumber').addClass('is-invalid');
                     return;
                 }
-                
+
                 // Specializations validation
                 const specializations = $('#specializations').val();
                 if (!specializations || specializations.length === 0) {
@@ -486,7 +486,7 @@
                     $('#specializations').addClass('is-invalid');
                     return;
                 }
-                
+
                 // Employment type specific validation
                 const employmentType = $('#employmentType').val();
                 if (employmentType === 'permanent') {
@@ -504,13 +504,13 @@
                         return;
                     }
                 }
-                
+
                 // Simulate form submission
                 alert('Tailor added successfully!');
                 window.location.href = "{{ route('tailors.index') }}";
             });
         });
-        
+
         function previewImage(input) {
             const preview = document.getElementById('imagePreview');
             if (input.files && input.files[0]) {
@@ -521,7 +521,7 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
-        
+
         function resetForm() {
             if (confirm('Are you sure you want to reset the form? All data will be lost.')) {
                 document.getElementById('tailorForm').reset();
@@ -533,66 +533,79 @@
                 alert('Form reset successfully!');
             }
         }
-        
+
         function saveAsDraft() {
             alert('Tailor saved as draft!');
             // In real app: AJAX call to save as draft
         }
-        
+
         function generateIDCard() {
             const name = $('#fullName').val() || 'Tailor Name';
             const id = $('input[value^="T-"]').val();
             alert('Generating ID card for: ' + name + ' (' + id + ')');
             // In real app: Generate ID card PDF
         }
-        
+
         function viewSchedule() {
             alert('Opening tailor schedule...');
             // In real app: Open schedule view
         }
     </script>
-    
+
     <style>
         .avatar-upload {
             position: relative;
         }
+
         .avatar-preview {
             position: relative;
         }
+
         .custom-file-label.selected::after {
             content: "" !important;
         }
-        #salarySection, #contractSection {
+
+        #salarySection,
+        #contractSection {
             transition: all 0.3s ease;
         }
+
         .card {
             border-radius: 0.5rem;
         }
+
         .card-header.bg-light {
             background-color: #f8f9fa !important;
             border-bottom: 1px solid #e9ecef;
         }
+
         .btn {
             border-radius: 0.375rem;
         }
+
         .form-control {
             border-radius: 0.375rem;
         }
+
         .badge {
             font-size: 0.75em;
             font-weight: 500;
             padding: 0.35em 0.65em;
         }
+
         .list-group-item {
             border: none;
             padding: 0.75rem 0;
         }
+
         .d-grid.gap-2 {
             gap: 0.5rem !important;
         }
+
         .select2-container--bootstrap .select2-selection {
             border-radius: 0.375rem;
         }
+
         .input-group-text {
             border-radius: 0.375rem 0 0 0.375rem;
         }
