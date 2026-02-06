@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('phone', 20)->index();
             $table->text('address')->nullable();
+            $table->foreignId('user_id')->nullable()->unique()->constrained('users')->onDelete('set null');
             $table->string('reference')->nullable();
             $table->text('notes')->nullable();
             $table->foreignId('branch_id')->nullable()->constrained('branches')->onDelete('set null');

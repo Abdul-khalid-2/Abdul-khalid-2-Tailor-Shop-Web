@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('tailors', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->foreignId('user_id')->nullable()->unique()->constrained('users')->onDelete('set null');
             $table->string('phone', 20)->unique();
             $table->string('cnic', 15)->nullable()->unique();
             $table->string('address')->nullable();
