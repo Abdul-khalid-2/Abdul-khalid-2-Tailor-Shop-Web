@@ -4,8 +4,7 @@
         <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/bootstrap-timepicker/css/bootstrap-timepicker.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css')}}">
     @endpush
 
     <div class="container-fluid">
@@ -146,16 +145,16 @@
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Opening Time *</label>
-                                    <input type="text" name="opening_time" class="form-control timepicker @error('opening_time') is-invalid @enderror" 
-                                           placeholder="09:00" value="{{ old('opening_time', $branch->opening_time) }}" required>
+                                    <input type="time" name="opening_time" class="form-control @error('opening_time') is-invalid @enderror"
+                                        value="{{ old('opening_time', \Carbon\Carbon::parse($branch->opening_time)->format('H:i')) }}" required>
                                     @error('opening_time')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Closing Time *</label>
-                                    <input type="text" name="closing_time" class="form-control timepicker @error('closing_time') is-invalid @enderror" 
-                                           placeholder="18:00" value="{{ old('closing_time', $branch->closing_time) }}" required>
+                                    <input type="time"  name="closing_time" class="form-control @error('closing_time') is-invalid @enderror"
+                                        value="{{ old('closing_time', \Carbon\Carbon::parse($branch->closing_time)->format('H:i')) }}" required>
                                     @error('closing_time')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -289,8 +288,11 @@
     
     @push('js')
     <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
-    <script src="{{ asset('backend/assets/vendor/bootstrap-timepicker/js/bootstrap-timepicker.min.js') }}"></script>
-    
+    <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
+    <script src="{{ asset('backend/assets/js/customizer.js') }}"></script>
+    <script async src="{{ asset('backend/assets/js/chart-custom.js') }}"></script>
+    <script src="{{ asset('backend/assets/js/app.js') }}"></script>
+
     <script>
         $(document).ready(function() {
             // Initialize timepicker

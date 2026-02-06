@@ -308,145 +308,20 @@
 </div>
 
 <style>
-    /* Fix sidebar height and scrolling */
-    .iq-sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 260px;
-        height: 100vh;
-        z-index: 1000;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-    }
+    .sidebar-default {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
 
-    .iq-sidebar-logo {
-        flex-shrink: 0;
-        height: 70px;
-        padding: 0 20px;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    }
+.data-scrollbar {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
 
-    .data-scrollbar {
-        flex: 1;
-        overflow-y: auto;
-        overflow-x: hidden;
-        height: calc(100vh - 70px) !important;
-        max-height: calc(100vh - 70px) !important;
-    }
-
-    /* Ensure the menu takes full height */
-    .iq-sidebar-menu {
-        min-height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .iq-menu {
-        flex: 1;
-        padding-bottom: 20px; /* Add padding at bottom */
-    }
-
-    /* Custom scrollbar styling */
-    .data-scrollbar::-webkit-scrollbar {
-        width: 5px;
-    }
-
-    .data-scrollbar::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-
-    .data-scrollbar::-webkit-scrollbar-thumb {
-        background: #888;
-        border-radius: 10px;
-    }
-
-    .data-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #555;
-    }
-
-    /* Fix submenu items visibility */
-    .iq-submenu {
-        max-height: 500px; /* Set a reasonable max height */
-        overflow-y: auto;
-        overflow-x: hidden;
-    }
-
-    .iq-submenu::-webkit-scrollbar {
-        width: 3px;
-    }
-
-    .iq-submenu::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
-
-    .iq-submenu::-webkit-scrollbar-thumb {
-        background: #ccc;
-        border-radius: 10px;
-    }
-
-    /* Ensure last items are visible */
-    .iq-menu li:last-child {
-        margin-bottom: 30px; /* Extra margin for last item */
-    }
-
-    /* Active menu styling */
-    .iq-sidebar .iq-menu > li.active > a {
-        background: rgba(59, 130, 246, 0.1);
-        color: #3B82F6;
-        border-left: 3px solid #3B82F6;
-    }
-
-    .iq-sidebar .iq-submenu li.active a {
-        color: #3B82F6;
-        font-weight: 500;
-    }
-
-    .iq-sidebar .iq-submenu {
-        padding-left: 20px;
-    }
-
-    .iq-sidebar .iq-submenu li {
-        margin: 5px 0;
-    }
-
-    /* Arrow rotation for active menu */
-    .iq-arrow-right.arrow-active {
-        transform: rotate(90deg);
-        transition: transform 0.3s ease;
-    }
-
-    /* Fix for expanded menus - ensure they don't push content */
-    .iq-submenu.collapse:not(.show) {
-        display: none;
-    }
-
-    .iq-submenu.collapse.show {
-        display: block;
-        position: relative;
-        z-index: 1;
-    }
-
-    /* Adjust main content when sidebar is open */
-    .iq-sidebar.sidebar-default ~ .content-page {
-        margin-left: 260px;
-        transition: margin-left 0.3s ease;
-    }
-
-    @media (max-width: 991px) {
-        .iq-sidebar {
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
-        }
-        
-        .iq-sidebar.sidebar-default.mobile-open {
-            transform: translateX(0);
-        }
-        
-        .iq-sidebar.sidebar-default ~ .content-page {
-            margin-left: 0;
-        }
-    }
+.iq-sidebar-menu {
+    min-height: 100%;
+    padding-bottom: 20px; /* Add some padding at bottom */
+}
 </style>
