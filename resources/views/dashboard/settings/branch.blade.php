@@ -19,12 +19,25 @@
                 <a href="{{ route('branches.show', $branch) }}" class="btn btn-outline-secondary mr-2">
                     <i class="las la-arrow-left mr-1"></i> Back to Branch
                 </a>
+                <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">
+                    <i class="las la-cog mr-1"></i> All Settings
+                </a>
             </div>
         </div>
 
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="las la-check-circle mr-2"></i> {{ session('success') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
+
         <!-- Settings Form -->
-        <form action="{{ route('settings.update.branch', $branch) }}" method="POST" id="branchSettingsForm">
+        <form action="{{ route('settings.update.branch', $branch) }}" method="POST" id="branchSettingsForm" enctype="multipart/form-data">
             @csrf
+            @method('PUT')
             
             <div class="row">
                 <div class="col-lg-8">
@@ -146,7 +159,7 @@
                                           rows="3" placeholder="Text to appear at the top of receipts">{{ old('receipt_header', $setting->receipt_header) }}</textarea>
                                 @error('receipt_header')
                                     <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                    @enderror
                             </div>
                             
                             <div class="mb-3">
@@ -195,22 +208,52 @@
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Logo Settings -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-light py-3">
+                            <h6 class="mb-0">Logo Settings</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
                                 <div class="col-md-6">
-                                    <label class="form-label">Default Tailor Assignment</label>
-                                    <select name="default_tailor_id" class="form-control select2">
-                                        <option value="">Select Default Tailor</option>
-                                        @php
-                                            $tailors = \App\Models\Tailor::where('branch_id', $branch->id)
-                                                ->where('status', 'active')
-                                                ->get();
-                                        @endphp
-                                        @foreach($tailors as $tailor)
-                                        <option value="{{ $tailor->id }}" {{ old('default_tailor_id', $setting->default_tailor_id ?? '') == $tailor->id ? 'selected' : '' }}>
-                                            {{ $tailor->name }}
-                                        </option>
-                                        @endforeach
-                                    </select>
-                                    <small class="text-muted">Default tailor for new assignments</small>
+                                    <div class="mb-3">
+                                        <label class="form-label">Upload Branch Logo</label>
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="logo" name="logo" accept="image/*">
+                                            <label class="custom-file-label" for="logo">Choose file...</label>
+                                        </div>
+                                        <small class="text-muted">Max size: 2MB, Formats: JPG, PNG, SVG</small>
+                                        @error('logo')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    
+                                    @if($setting->logo_path)
+                                    <div class="mb-3">
+                                        <label class="form-label">Current Logo</label>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ Storage::url($setting->logo_path) }}" alt="Logo" class="img-thumbnail mr-3" style="max-height: 60px;">
+                                            <button type="button" class="btn btn-sm btn-danger" onclick="confirmDeleteLogo()">
+                                                <i class="las la-trash mr-1"></i> Delete Logo
+                                            </button>
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="alert alert-info">
+                                        <h6><i class="las la-info-circle mr-2"></i> Note:</h6>
+                                        <ul class="mb-0 pl-3">
+                                            <li>Branch logo overrides general logo</li>
+                                            <li>Will appear on branch-specific receipts</li>
+                                            <li>Leave empty to use general logo</li>
+                                            <li>Recommended: Square logo with transparent background</li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -218,12 +261,15 @@
 
                     <!-- Form Actions -->
                     <div class="d-flex justify-content-between">
-                        <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='{{ route('branches.show', $branch) }}'">
-                            <i class="las la-times"></i> Cancel
+                        <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='{{ route('settings.index') }}'">
+                            <i class="las la-times mr-1"></i> Cancel
                         </button>
                         <div>
+                            <button type="reset" class="btn btn-outline-warning mr-2">
+                                <i class="las la-redo mr-1"></i> Reset
+                            </button>
                             <button type="submit" class="btn btn-primary">
-                                <i class="las la-save"></i> Save Settings
+                                <i class="las la-save mr-1"></i> Save Settings
                             </button>
                         </div>
                     </div>
@@ -260,8 +306,16 @@
                                     <div>{{ $branch->phone ?? 'N/A' }}</div>
                                 </div>
                                 <div class="mb-2">
+                                    <label class="text-muted">Email:</label>
+                                    <div>{{ $branch->email ?? 'N/A' }}</div>
+                                </div>
+                                <div class="mb-2">
                                     <label class="text-muted">Hours:</label>
-                                    <div>{{ $branch->opening_time }} - {{ $branch->closing_time }}</div>
+                                    <div>{{ $branch->opening_time->format('h:i A') }} - {{ $branch->closing_time->format('h:i A') }}</div>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="text-muted">Manager:</label>
+                                    <div>{{ $branch->manager_name ?? 'N/A' }}</div>
                                 </div>
                             </div>
                         </div>
@@ -283,7 +337,7 @@
                                 <button type="button" class="btn btn-outline-info btn-block text-left" onclick="copyFromGeneral()">
                                     <i class="las la-copy mr-2"></i> Copy from General
                                 </button>
-                                <button type="button" class="btn btn-outline-warning btn-block text-left" onclick="resetBranchSettings()">
+                                <button type="button" class="btn btn-outline-warning btn-block text-left" onclick="resetToDefaults()">
                                     <i class="las la-undo mr-2"></i> Reset to Defaults
                                 </button>
                             </div>
@@ -298,18 +352,29 @@
                         <div class="card-body">
                             <div class="small">
                                 <div class="mb-2">
-                                    <label class="text-muted">Last Updated:</label>
-                                    <div>{{ $setting->updated_at ? $setting->updated_at->format('d M, Y h:i A') : 'Never' }}</div>
+                                    <label class="text-muted">Created:</label>
+                                    <div>{{ $setting->created_at->format('d M, Y h:i A') }}</div>
                                 </div>
+                                <div class="mb-2">
+                                    <label class="text-muted">Last Updated:</label>
+                                    <div>{{ $setting->updated_at->format('d M, Y h:i A') }}</div>
+                                </div>
+                                @if($setting->createdBy)
+                                <div class="mb-2">
+                                    <label class="text-muted">Created By:</label>
+                                    <div>{{ $setting->createdBy->name }}</div>
+                                </div>
+                                @endif
                                 @if($setting->updatedBy)
                                 <div>
-                                    <label class="text-muted">Updated By:</label>
+                                    <label class="text-muted">Last Updated By:</label>
                                     <div>{{ $setting->updatedBy->name }}</div>
                                 </div>
                                 @endif
                                 <div class="mt-3">
                                     <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="overrideGeneral" checked>
+                                        <input type="checkbox" class="form-check-input" id="overrideGeneral" 
+                                               {{ $setting->override_general ?? false ? 'checked' : '' }}>
                                         <label class="form-check-label" for="overrideGeneral">Override General Settings</label>
                                         <small class="text-muted d-block">When checked, branch settings override general settings</small>
                                     </div>
@@ -330,7 +395,14 @@
         $(document).ready(function() {
             // Initialize Select2
             $('.select2').select2({
-                theme: 'bootstrap'
+                theme: 'bootstrap',
+                width: '100%'
+            });
+            
+            // File input label
+            $('.custom-file-input').on('change', function() {
+                let fileName = $(this).val().split('\\').pop();
+                $(this).next('.custom-file-label').addClass("selected").html(fileName);
             });
             
             // Form validation
@@ -357,76 +429,64 @@
         function copyFromGeneral() {
             if (confirm('Copy settings from general settings? This will overwrite current values.')) {
                 // In real app: AJAX call to get general settings
-                const generalSettings = {
-                    shop_name: 'Tailor Shop',
-                    shop_phone: '+92 300 1234567',
-                    shop_email: 'info@tailorshop.com',
-                    currency: 'PKR',
-                    currency_symbol: 'Rs',
-                    tax_rate: 0,
-                    receipt_prefix: 'TS',
-                    next_receipt_number: 1000,
-                    default_delivery_days: 7,
-                    receipt_header: 'Thank you for your business!',
-                    receipt_footer: 'Visit us again!',
-                    sms_notifications: true,
-                    email_notifications: true,
-                    reminder_days_before: 1
-                };
-                
-                Object.keys(generalSettings).forEach(key => {
-                    const element = $(`[name="${key}"]`);
-                    if (element.length) {
-                        if (element.attr('type') === 'checkbox') {
-                            element.prop('checked', generalSettings[key]);
-                        } else {
-                            element.val(generalSettings[key]);
-                        }
-                    }
-                });
-                
-                // Update select2 if needed
-                $('.select2').trigger('change');
-                
-                alert('Settings copied from general settings.');
+                fetch('{{ route("settings.general") }}/data')
+                    .then(response => response.json())
+                    .then(data => {
+                        Object.keys(data).forEach(key => {
+                            const element = $(`[name="${key}"]`);
+                            if (element.length) {
+                                if (element.attr('type') === 'checkbox') {
+                                    element.prop('checked', data[key]);
+                                } else if (element.is('select')) {
+                                    element.val(data[key]).trigger('change');
+                                } else {
+                                    element.val(data[key]);
+                                }
+                            }
+                        });
+                        
+                        // Update select2
+                        $('.select2').trigger('change');
+                        
+                        alert('Settings copied from general settings.');
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Unable to fetch general settings.');
+                    });
             }
         }
         
-        function resetBranchSettings() {
+        function resetToDefaults() {
             if (confirm('Reset branch settings to defaults?')) {
-                const defaults = {
-                    shop_name: '{{ $branch->name }}',
-                    shop_phone: '{{ $branch->phone }}',
-                    shop_email: '{{ $branch->email }}',
-                    shop_address: '{{ $branch->address }}',
-                    currency: 'PKR',
-                    currency_symbol: 'Rs',
-                    tax_rate: 0,
-                    receipt_prefix: '{{ strtoupper(substr($branch->code, 0, 2)) }}',
-                    next_receipt_number: 1000,
-                    default_delivery_days: 7,
-                    receipt_header: 'Thank you for your business!',
-                    receipt_footer: 'Visit us again!',
-                    sms_notifications: true,
-                    email_notifications: true,
-                    reminder_days_before: 1
-                };
+                // Get original values from database
+                const defaults = @json($setting->toArray());
                 
                 Object.keys(defaults).forEach(key => {
-                    const element = $(`[name="${key}"]`);
-                    if (element.length) {
-                        if (element.attr('type') === 'checkbox') {
-                            element.prop('checked', defaults[key]);
-                        } else {
-                            element.val(defaults[key]);
+                    if (key !== 'id' && key !== 'created_at' && key !== 'updated_at' && key !== 'created_by' && key !== 'updated_by') {
+                        const element = $(`[name="${key}"]`);
+                        if (element.length) {
+                            if (element.attr('type') === 'checkbox') {
+                                element.prop('checked', defaults[key]);
+                            } else if (element.is('select')) {
+                                element.val(defaults[key]).trigger('change');
+                            } else {
+                                element.val(defaults[key]);
+                            }
                         }
                     }
                 });
                 
-                // Update select2 if needed
+                // Update select2
                 $('.select2').trigger('change');
                 
-                alert('Branch settings reset to defaults.');
+                alert('Branch settings reset to saved values.');
+            }
+        }
+        
+        function confirmDeleteLogo() {
+            if (confirm('Are you sure you want to delete the branch logo? This cannot be undone.')) {
+                window.location.href = "{{ route('settings.delete.logo', ['type' => 'branch', 'branch' => $branch]) }}";
             }
         }
     </script>
@@ -463,6 +523,13 @@
         .form-check.form-switch .form-check-input {
             width: 3em;
             height: 1.5em;
+        }
+        .img-thumbnail {
+            border-radius: 0.375rem;
+        }
+        .alert {
+            border-radius: 0.375rem;
+            border: none;
         }
     </style>
     @endpush

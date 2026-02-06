@@ -151,14 +151,43 @@ Route::prefix('branches')->name('branches.')->group(function () {
 });
 
 // Settings
+// Route::prefix('settings')->name('settings.')->group(function () {
+//     Route::get('/', [SettingController::class, 'index'])->name('index');
+//     Route::put('/', [SettingController::class, 'update'])->name('update');
+//     Route::get('/general', [SettingController::class, 'general'])->name('general');
+//     Route::post('/general', [SettingController::class, 'updateGeneral'])->name('update.general');
+//     Route::get('/branch/{branch}', [SettingController::class, 'branch'])->name('branch');
+//     Route::put('/branch/{branch}', [SettingController::class, 'updateBranch'])->name('update.branch');
+// });
+
+// Settings Routes
 Route::prefix('settings')->name('settings.')->group(function () {
     Route::get('/', [SettingController::class, 'index'])->name('index');
-    Route::put('/', [SettingController::class, 'update'])->name('update');
+
+    // General Settings
     Route::get('/general', [SettingController::class, 'general'])->name('general');
     Route::put('/general', [SettingController::class, 'updateGeneral'])->name('update.general');
+
+    // Branch Settings
     Route::get('/branch/{branch}', [SettingController::class, 'branch'])->name('branch');
     Route::put('/branch/{branch}', [SettingController::class, 'updateBranch'])->name('update.branch');
+
+    // Lookup Tables
+    Route::get('/lookups', [SettingController::class, 'lookups'])->name('lookups');
+
+    // System Info
+    Route::get('/system-info', [SettingController::class, 'systemInfo'])->name('system-info');
+
+    // Backup
+    Route::get('/backup', [SettingController::class, 'backup'])->name('backup');
+
+    // Logo Management
+    Route::get('/logo/delete/{type}/{branch?}', [SettingController::class, 'deleteLogo'])->name('delete.logo');
+
+    // Reset to General
+    Route::post('/branch/{branch}/reset', [SettingController::class, 'resetToGeneral'])->name('reset.to.general');
 });
+
 // Users
 Route::get('users', function () {
     return view('dashboard.dashboard');

@@ -21,9 +21,19 @@
             </div>
         </div>
 
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="las la-check-circle mr-2"></i> {{ session('success') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
+
         <!-- Settings Form -->
-        <form action="{{ route('settings.update.general') }}" method="POST" id="settingsForm">
+        <form action="{{ route('settings.update.general') }}" method="POST" id="settingsForm" enctype="multipart/form-data">
             @csrf
+            @method('PUT')
             
             <div class="row">
                 <div class="col-lg-8">
@@ -69,6 +79,7 @@
                                         <option value="EUR" {{ old('currency', $setting->currency) == 'EUR' ? 'selected' : '' }}>Euro (EUR)</option>
                                         <option value="GBP" {{ old('currency', $setting->currency) == 'GBP' ? 'selected' : '' }}>British Pound (GBP)</option>
                                         <option value="AED" {{ old('currency', $setting->currency) == 'AED' ? 'selected' : '' }}>UAE Dirham (AED)</option>
+                                        <option value="SAR" {{ old('currency', $setting->currency) == 'SAR' ? 'selected' : '' }}>Saudi Riyal (SAR)</option>
                                     </select>
                                     @error('currency')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -80,7 +91,7 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Currency Symbol *</label>
                                     <input type="text" name="currency_symbol" class="form-control @error('currency_symbol') is-invalid @enderror" 
-                                           value="{{ old('currency_symbol', $setting->currency_symbol) }}" required maxlength="5">
+                                           value="{{ old('currency_symbol', $setting->currency_symbol) }}" required maxlength="10">
                                     @error('currency_symbol')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -209,17 +220,35 @@
                                 <div class="border rounded p-3">
                                     <div class="row">
                                         @php
-                                            $defaultFields = ['height', 'weight', 'chest', 'waist', 'hips', 'shoulder', 'sleeve_length', 'sleeve_width'];
-                                            $currentFields = old('measurement_fields', $setting->measurement_fields ?? $defaultFields);
+                                            $defaultFields = [
+                                                'height' => 'Height',
+                                                'weight' => 'Weight',
+                                                'chest' => 'Chest',
+                                                'waist' => 'Waist',
+                                                'hips' => 'Hips',
+                                                'shoulder' => 'Shoulder',
+                                                'sleeve_length' => 'Sleeve Length',
+                                                'sleeve_width' => 'Sleeve Width',
+                                                'collar' => 'Collar',
+                                                'bicep' => 'Bicep',
+                                                'wrist' => 'Wrist',
+                                                'pant_length' => 'Pant Length',
+                                                'inseam' => 'Inseam',
+                                                'thigh' => 'Thigh',
+                                                'knee' => 'Knee',
+                                                'bottom' => 'Bottom',
+                                                'ankle' => 'Ankle'
+                                            ];
+                                            $currentFields = old('measurement_fields', $setting->measurement_fields ?? []);
                                             $currentFields = is_array($currentFields) ? $currentFields : [];
                                         @endphp
-                                        @foreach($defaultFields as $field)
+                                        @foreach($defaultFields as $key => $label)
                                         <div class="col-md-3 mb-2">
                                             <div class="form-check">
                                                 <input type="checkbox" name="measurement_fields[]" class="form-check-input" 
-                                                       id="field_{{ $field }}" value="{{ $field }}"
-                                                       {{ in_array($field, $currentFields) ? 'checked' : '' }}>
-                                                <label class="form-check-label text-capitalize" for="field_{{ $field }}">{{ str_replace('_', ' ', $field) }}</label>
+                                                       id="field_{{ $key }}" value="{{ $key }}"
+                                                       {{ in_array($key, $currentFields) ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="field_{{ $key }}">{{ $label }}</label>
                                             </div>
                                         </div>
                                         @endforeach
@@ -230,14 +259,64 @@
                         </div>
                     </div>
 
+                    <!-- Logo Settings -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-light py-3">
+                            <h6 class="mb-0">Logo Settings</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Upload Logo</label>
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="logo" name="logo" accept="image/*">
+                                            <label class="custom-file-label" for="logo">Choose file...</label>
+                                        </div>
+                                        <small class="text-muted">Max size: 2MB, Formats: JPG, PNG, SVG</small>
+                                        @error('logo')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    
+                                    @if($setting->logo_path)
+                                    <div class="mb-3">
+                                        <label class="form-label">Current Logo</label>
+                                        <div class="d-flex align-items-center">
+                                            <img src="{{ Storage::url($setting->logo_path) }}" alt="Logo" class="img-thumbnail mr-3" style="max-height: 60px;">
+                                            <button type="button" class="btn btn-sm btn-danger" onclick="confirmDeleteLogo()">
+                                                <i class="las la-trash mr-1"></i> Delete Logo
+                                            </button>
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="alert alert-info">
+                                        <h6><i class="las la-info-circle mr-2"></i> Logo Requirements:</h6>
+                                        <ul class="mb-0 pl-3">
+                                            <li>Recommended size: 300x300 pixels</li>
+                                            <li>Transparent background recommended</li>
+                                            <li>Will appear on receipts and reports</li>
+                                            <li>SVG format for best quality</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Form Actions -->
                     <div class="d-flex justify-content-between">
                         <button type="button" class="btn btn-outline-secondary" onclick="window.location.href='{{ route('settings.index') }}'">
-                            <i class="las la-times"></i> Cancel
+                            <i class="las la-times mr-1"></i> Cancel
                         </button>
                         <div>
+                            <button type="reset" class="btn btn-outline-warning mr-2">
+                                <i class="las la-redo mr-1"></i> Reset
+                            </button>
                             <button type="submit" class="btn btn-primary">
-                                <i class="las la-save"></i> Save Settings
+                                <i class="las la-save mr-1"></i> Save Settings
                             </button>
                         </div>
                     </div>
@@ -253,7 +332,7 @@
                         <div class="card-body">
                             <div class="text-center mb-4">
                                 @if($setting->logo_path)
-                                <img src="{{ asset('storage/' . $setting->logo_path) }}" alt="Shop Logo" class="img-fluid mb-3" style="max-height: 100px;">
+                                <img src="{{ Storage::url($setting->logo_path) }}" alt="Shop Logo" class="img-fluid mb-3" style="max-height: 100px;">
                                 @else
                                 <div class="avatar-placeholder mb-3">
                                     <i class="las la-store fa-4x text-muted"></i>
@@ -286,10 +365,12 @@
                                             <span>Subtotal:</span>
                                             <span>{{ $setting->currency_symbol }} 5,000</span>
                                         </div>
+                                        @if($setting->tax_rate > 0)
                                         <div class="d-flex justify-content-between">
                                             <span>Tax ({{ $setting->tax_rate }}%):</span>
                                             <span>{{ $setting->currency_symbol }} {{ number_format(5000 * $setting->tax_rate / 100, 2) }}</span>
                                         </div>
+                                        @endif
                                         <div class="d-flex justify-content-between font-weight-bold">
                                             <span>Total:</span>
                                             <span>{{ $setting->currency_symbol }} {{ number_format(5000 * (1 + $setting->tax_rate / 100), 2) }}</span>
@@ -301,7 +382,7 @@
                             
                             <div class="text-center">
                                 <button type="button" class="btn btn-sm btn-outline-primary" onclick="updatePreview()">
-                                    <i class="las la-redo-alt"></i> Update Preview
+                                    <i class="las la-redo-alt mr-1"></i> Update Preview
                                 </button>
                             </div>
                         </div>
@@ -314,14 +395,11 @@
                         </div>
                         <div class="card-body">
                             <div class="d-grid gap-2">
-                                <button type="button" class="btn btn-outline-primary btn-block text-left" data-toggle="modal" data-target="#logoModal">
-                                    <i class="las la-image mr-2"></i> Upload Logo
+                                <button type="button" class="btn btn-outline-primary btn-block text-left" onclick="copyFromTemplate()">
+                                    <i class="las la-copy mr-2"></i> Use Template
                                 </button>
-                                <button type="button" class="btn btn-outline-success btn-block text-left" onclick="resetToDefaults()">
+                                <button type="button" class="btn btn-outline-warning btn-block text-left" onclick="resetToDefaults()">
                                     <i class="las la-undo mr-2"></i> Reset to Defaults
-                                </button>
-                                <button type="button" class="btn btn-outline-info btn-block text-left" onclick="testNotifications()">
-                                    <i class="las la-bell mr-2"></i> Test Notifications
                                 </button>
                                 <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary btn-block text-left">
                                     <i class="las la-cog mr-2"></i> All Settings
@@ -330,20 +408,30 @@
                         </div>
                     </div>
 
-                    <!-- System Info -->
+                    <!-- Settings Info -->
                     <div class="card shadow">
                         <div class="card-header bg-light py-3">
-                            <h6 class="mb-0">System Information</h6>
+                            <h6 class="mb-0">Settings Information</h6>
                         </div>
                         <div class="card-body">
                             <div class="small">
                                 <div class="mb-2">
-                                    <label class="text-muted">Last Updated:</label>
-                                    <div>{{ $setting->updated_at ? $setting->updated_at->format('d M, Y h:i A') : 'Never' }}</div>
+                                    <label class="text-muted">Created:</label>
+                                    <div>{{ $setting->created_at->format('d M, Y h:i A') }}</div>
                                 </div>
+                                <div class="mb-2">
+                                    <label class="text-muted">Last Updated:</label>
+                                    <div>{{ $setting->updated_at->format('d M, Y h:i A') }}</div>
+                                </div>
+                                @if($setting->createdBy)
+                                <div class="mb-2">
+                                    <label class="text-muted">Created By:</label>
+                                    <div>{{ $setting->createdBy->name }}</div>
+                                </div>
+                                @endif
                                 @if($setting->updatedBy)
                                 <div>
-                                    <label class="text-muted">Updated By:</label>
+                                    <label class="text-muted">Last Updated By:</label>
                                     <div>{{ $setting->updatedBy->name }}</div>
                                 </div>
                                 @endif
@@ -353,47 +441,6 @@
                 </div>
             </div>
         </form>
-    </div>
-
-    <!-- Logo Modal -->
-    <div class="modal fade" id="logoModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Upload Logo</h5>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <form id="logoForm" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label>Select Logo</label>
-                            <div class="custom-file">
-                                <input type="file" class="custom-file-input" id="logoFile" accept="image/*" onchange="previewLogo(this)">
-                                <label class="custom-file-label" for="logoFile">Choose file</label>
-                            </div>
-                            <small class="text-muted">Max size: 2MB, Formats: JPG, PNG, SVG</small>
-                        </div>
-                        <div class="form-group text-center">
-                            <div id="logoPreview" class="mb-3">
-                                @if($setting->logo_path)
-                                <img src="{{ asset('storage/' . $setting->logo_path) }}" alt="Current Logo" class="img-fluid" style="max-height: 100px;">
-                                @else
-                                <div class="avatar-placeholder">
-                                    <i class="las la-store fa-4x text-muted"></i>
-                                </div>
-                                @endif
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="uploadLogo()">
-                        <i class="las la-upload mr-1"></i> Upload Logo
-                    </button>
-                </div>
-            </div>
-        </div>
     </div>
     
     @push('js')
@@ -416,7 +463,8 @@
         $(document).ready(function() {
             // Initialize Select2
             $('.select2').select2({
-                theme: 'bootstrap'
+                theme: 'bootstrap',
+                width: '100%'
             });
             
             // File input label
@@ -461,19 +509,36 @@
             // Update receipt header/footer
             const header = $('textarea[name="receipt_header"]').val();
             const footer = $('textarea[name="receipt_footer"]').val();
+            const prefix = $('input[name="receipt_prefix"]').val();
+            const nextNumber = $('input[name="next_receipt_number"]').val();
+            const currencySymbol = $('input[name="currency_symbol"]').val();
+            const taxRate = $('input[name="tax_rate"]').val();
+            
             if (header) $('#previewReceiptHeader').text(header);
             if (footer) $('#previewReceiptFooter').text(footer);
+            
+            // Update receipt number in preview
+            $('.receipt-preview .d-flex span:contains("Order #:")').next().text(prefix + '-' + nextNumber);
+            
+            // Update currency symbol and tax calculation
+            const subtotal = 5000;
+            const taxAmount = subtotal * (taxRate / 100);
+            const total = subtotal + taxAmount;
+            
+            $('.receipt-preview span:contains("Subtotal:")').next().text(currencySymbol + ' ' + subtotal.toLocaleString());
+            $('.receipt-preview span:contains("Tax (")').next().text(currencySymbol + ' ' + taxAmount.toFixed(2));
+            $('.receipt-preview span:contains("Total:")').next().text(currencySymbol + ' ' + total.toFixed(2));
             
             alert('Preview updated!');
         }
         
-        function resetToDefaults() {
-            if (confirm('Are you sure you want to reset all settings to defaults?')) {
-                // Reset form values to defaults
-                const defaults = {
-                    shop_name: 'Tailor Shop',
+        function copyFromTemplate() {
+            if (confirm('Apply default template settings? This will overwrite current values.')) {
+                const template = {
+                    shop_name: 'Tailor Shop Management System',
                     shop_phone: '+92 300 1234567',
                     shop_email: 'info@tailorshop.com',
+                    shop_address: 'Main Street, City, Country',
                     currency: 'PKR',
                     currency_symbol: 'Rs',
                     tax_rate: 0,
@@ -481,76 +546,74 @@
                     next_receipt_number: 1000,
                     default_delivery_days: 7,
                     receipt_header: 'Thank you for your business!',
-                    receipt_footer: 'Visit us again!',
+                    receipt_footer: 'Visit us again soon!',
                     sms_notifications: true,
                     email_notifications: true,
                     reminder_days_before: 1
                 };
                 
-                Object.keys(defaults).forEach(key => {
+                Object.keys(template).forEach(key => {
                     const element = $(`[name="${key}"]`);
                     if (element.length) {
                         if (element.attr('type') === 'checkbox') {
-                            element.prop('checked', defaults[key]);
+                            element.prop('checked', template[key]);
                         } else {
-                            element.val(defaults[key]);
+                            element.val(template[key]);
                         }
                     }
                 });
                 
-                // Reset measurement fields
+                // Set measurement fields
+                const defaultFields = ['height', 'weight', 'chest', 'waist', 'hips', 'shoulder', 'sleeve_length'];
                 $('input[name="measurement_fields[]"]').prop('checked', false);
-                const defaultFields = ['height', 'weight', 'chest', 'waist', 'hips', 'shoulder', 'sleeve_length', 'sleeve_width'];
                 defaultFields.forEach(field => {
                     $(`#field_${field}`).prop('checked', true);
                 });
                 
+                // Update select2
+                $('.select2').trigger('change');
+                
                 updatePreview();
-                alert('Settings reset to defaults.');
+                alert('Template applied successfully!');
             }
         }
         
-        function testNotifications() {
-            if (confirm('Send test notifications? This will send SMS and email if enabled.')) {
-                alert('Test notifications sent!');
-                // In real app: AJAX call to send test notifications
+        function resetToDefaults() {
+            if (confirm('Are you sure you want to reset all settings to defaults? This cannot be undone.')) {
+                const defaults = @json($setting->toArray());
+                
+                Object.keys(defaults).forEach(key => {
+                    if (key !== 'id' && key !== 'created_at' && key !== 'updated_at' && key !== 'created_by' && key !== 'updated_by') {
+                        const element = $(`[name="${key}"]`);
+                        if (element.length) {
+                            if (element.attr('type') === 'checkbox') {
+                                element.prop('checked', defaults[key]);
+                            } else if (element.is('select')) {
+                                element.val(defaults[key]).trigger('change');
+                            } else {
+                                element.val(defaults[key]);
+                            }
+                        }
+                    }
+                });
+                
+                // Handle measurement fields
+                if (defaults.measurement_fields && Array.isArray(defaults.measurement_fields)) {
+                    $('input[name="measurement_fields[]"]').prop('checked', false);
+                    defaults.measurement_fields.forEach(field => {
+                        $(`#field_${field}`).prop('checked', true);
+                    });
+                }
+                
+                updatePreview();
+                alert('Settings reset to saved values!');
             }
         }
         
-        function previewLogo(input) {
-            const preview = document.getElementById('logoPreview');
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    preview.innerHTML = `<img src="${e.target.result}" class="img-fluid" style="max-height: 100px;">`;
-                };
-                reader.readAsDataURL(input.files[0]);
+        function confirmDeleteLogo() {
+            if (confirm('Are you sure you want to delete the logo? This cannot be undone.')) {
+                window.location.href = "{{ route('settings.delete.logo', ['type' => 'general']) }}";
             }
-        }
-        
-        function uploadLogo() {
-            const file = $('#logoFile')[0].files[0];
-            if (!file) {
-                alert('Please select a logo file');
-                return;
-            }
-            
-            // Check file size (max 2MB)
-            if (file.size > 2 * 1024 * 1024) {
-                alert('File size must be less than 2MB');
-                return;
-            }
-            
-            // Check file type
-            const validTypes = ['image/jpeg', 'image/png', 'image/svg+xml'];
-            if (!validTypes.includes(file.type)) {
-                alert('Only JPG, PNG, and SVG files are allowed');
-                return;
-            }
-            
-            alert('Logo uploaded successfully!');
-            $('#logoModal').modal('hide');
-            // In real app: AJAX call to upload logo
         }
     </script>
     
@@ -570,6 +633,9 @@
         }
         .receipt-preview {
             font-family: 'Courier New', monospace;
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 0.375rem;
         }
         .form-check.form-switch .form-check-input {
             width: 3em;
@@ -588,8 +654,12 @@
         .border {
             border-radius: 0.375rem;
         }
-        .modal-content {
-            border-radius: 0.5rem;
+        .img-thumbnail {
+            border-radius: 0.375rem;
+        }
+        .alert {
+            border-radius: 0.375rem;
+            border: none;
         }
     </style>
     @endpush
