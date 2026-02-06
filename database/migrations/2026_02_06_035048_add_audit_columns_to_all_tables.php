@@ -19,8 +19,8 @@ return new class extends Migration
         });
 
         Schema::table('fabrics', function (Blueprint $table) {
-            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->index(['type', 'color']);
+            $table->index(['status', 'branch_id']);
         });
 
         Schema::table('measurements', function (Blueprint $table) {

@@ -50,6 +50,34 @@ return new class extends Migration
     }
 };
 ```
+=>here is products table
+    Schema::create('products', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('sku')->unique()->nullable();
+
+            // fabric | readymade | accessory
+            $table->enum('type', ['fabric', 'readymade', 'accessory']);
+
+            $table->decimal('sale_price', 10, 2);
+            $table->decimal('cost_price', 10, 2)->default(0);
+
+            // fabric => meter, readymade => piece
+            $table->string('unit')->default('piece');
+
+            $table->decimal('stock_quantity', 10, 3)->default(0);
+
+            $table->string('color')->nullable();
+            $table->string('brand')->nullable();
+
+            $table->foreignId('branch_id')->nullable()
+                ->constrained('branches')->onDelete('set null');
+
+            $table->boolean('is_active')->default(true);
+
+            $table->timestamps();
+            $table->softDeletes();
+        });
 
 ## **2. create_lookup_tables.php**
 return new class extends Migration
@@ -306,6 +334,7 @@ return new class extends Migration
             $table->text('internal_notes')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->enum('order_type', ['tailoring', 'product', 'mixed'])->default('tailoring');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -326,13 +355,15 @@ return new class extends Migration
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained('orders')->onDelete('cascade');
-            $table->foreignId('dress_type_id')->constrained('dress_types')->onDelete('restrict');
+            $table->foreignId('product_id')->nullable()->constrained('products')->onDelete('set null');
+            $table->foreignId('dress_type_id')->nullable()->constrained('dress_types')->onDelete('restrict');
             $table->string('item_name')->nullable();
             $table->integer('quantity')->default(1);
             $table->decimal('price', 10, 2);
             $table->decimal('total', 10, 2);
             $table->enum('item_status', ['pending', 'cutting', 'stitching', 'ready', 'delivered'])->default('pending');
             $table->text('instructions')->nullable();
+            $table->enum('item_type', ['tailoring', 'product'])->default('tailoring');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -393,21 +424,48 @@ return new class extends Migration
     {
         Schema::create('fabrics', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_item_id')->nullable()->constrained('order_items')->onDelete('cascade');
-            $table->foreignId('order_id')->nullable()->constrained('orders')->onDelete('cascade');
-            $table->string('fabric_type');
-            $table->string('color')->nullable();
-            $table->decimal('meter', 8, 3)->default(0);
-            $table->decimal('rate_per_meter', 8, 2)->nullable();
-            $table->decimal('fabric_cost', 10, 2)->default(0);
-            $table->enum('status', ['pending', 'ordered', 'received', 'cut', 'delivered'])->default('pending');
-            $table->date('expected_date')->nullable();
-            $table->date('received_date')->nullable();
-            $table->date('cutting_date')->nullable();
-            $table->text('notes')->nullable();
+
+            // Basic Info
+            $table->string('name');
+            $table->string('fabric_code')->unique();
+            $table->string('type'); // silk, cotton
+            $table->string('color');
+            $table->string('pattern')->nullable();
+            $table->integer('gsm')->nullable();
+            $table->text('description')->nullable();
+
+            // Stock & Pricing
+            $table->decimal('stock_meter', 10, 3);
+            $table->decimal('min_stock_meter', 10, 3)->default(0);
+            $table->decimal('purchase_rate', 10, 2);
+            $table->decimal('selling_rate', 10, 2);
+
+            // Supplier
             $table->string('supplier')->nullable();
-            $table->string('supplier_invoice')->nullable();
+            $table->string('supplier_reference')->nullable();
+            $table->date('purchase_date')->nullable();
+            $table->string('invoice_number')->nullable();
+
+            // Properties
+            $table->integer('width_inches')->nullable();
+            $table->decimal('shrinkage', 5, 2)->nullable();
+            $table->string('wash_care')->nullable();
+            $table->json('suitable_for')->nullable();
+
+            // Flags
+            $table->boolean('is_premium')->default(false);
+            $table->boolean('is_imported')->default(false);
+            $table->boolean('is_eco_friendly')->default(false);
+
+            // Extra
+            $table->string('storage_location')->nullable();
+            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->text('notes')->nullable();
+
+            $table->foreignId('branch_id')->constrained()->onDelete('restrict');
+
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -674,8 +732,8 @@ return new class extends Migration
         });
 
         Schema::table('fabrics', function (Blueprint $table) {
-            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
-            $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->index(['type', 'color']);
+            $table->index(['status', 'branch_id']);
         });
 
         Schema::table('measurements', function (Blueprint $table) {
@@ -823,7 +881,7 @@ return new class extends Migration
     {
         // Remove indexes
         Schema::table('branches', function (Blueprint $table) {
-            $table->dropIndex(['code']);
+            $table->dropIndex(['branches_code_index']);
             $table->dropIndex(['is_active']);
         });
 
@@ -867,7 +925,7 @@ return new class extends Migration
 
         Schema::table('discounts', function (Blueprint $table) {
             $table->dropIndex(['is_active', 'start_date', 'end_date']);
-            $table->dropIndex(['code']);
+            $table->dropIndex(['branches_code_index']);
         });
 
         Schema::table('expenses', function (Blueprint $table) {
@@ -888,3 +946,14 @@ return new class extends Migration
         });
     }
 };
+    Schema::create('fabric_transactions', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('fabric_id')->constrained('fabrics')->onDelete('cascade');
+        $table->foreignId('order_item_id')->nullable()->constrained('order_items')->onDelete('set null');
+        $table->enum('type', ['purchase', 'cut', 'return', 'adjustment']);
+        $table->decimal('meter', 8, 3);
+        $table->decimal('rate', 8, 2);
+        $table->decimal('total', 10, 2);
+        $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+        $table->timestamps();
+    });

@@ -78,7 +78,7 @@ return new class extends Migration
     {
         // Remove indexes
         Schema::table('branches', function (Blueprint $table) {
-            $table->dropIndex(['code']);
+            $table->dropIndex(['branches_code_index']);
             $table->dropIndex(['is_active']);
         });
 
@@ -122,7 +122,7 @@ return new class extends Migration
 
         Schema::table('discounts', function (Blueprint $table) {
             $table->dropIndex(['is_active', 'start_date', 'end_date']);
-            $table->dropIndex(['code']);
+            $table->dropIndex(['branches_code_index']);
         });
 
         Schema::table('expenses', function (Blueprint $table) {

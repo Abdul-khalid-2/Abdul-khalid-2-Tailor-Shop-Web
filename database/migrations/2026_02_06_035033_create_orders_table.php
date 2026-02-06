@@ -27,6 +27,7 @@ return new class extends Migration
             $table->text('internal_notes')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->enum('order_type', ['tailoring', 'product', 'mixed'])->default('tailoring');
             $table->timestamps();
             $table->softDeletes();
         });
