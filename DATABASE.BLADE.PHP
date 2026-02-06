@@ -50,7 +50,7 @@ return new class extends Migration
     }
 };
 ```
-=>here is products table
+## **1. products**
     Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name');
