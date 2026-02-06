@@ -2,49 +2,9 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\BrandController;
-use App\Http\Controllers\CollectionController;
-use App\Http\Controllers\InventoryController;
-use App\Http\Controllers\SaleController;
-use App\Http\Controllers\SaleReturnController;
-use App\Http\Controllers\PosController;
-use App\Http\Controllers\PurchaseController;
-use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\CustomerGroupController;
-use App\Http\Controllers\StaffController;
-use App\Http\Controllers\AttendanceController;
-use App\Http\Controllers\PayrollController;
-use App\Http\Controllers\ReportController;
-use App\Http\Controllers\AccountController;
-use App\Http\Controllers\AccountingReportController;
-use App\Http\Controllers\AccountTypeController;
 use App\Http\Controllers\TransactionController;
-use App\Http\Controllers\JournalEntryController;
-use App\Http\Controllers\LedgerController;
-use App\Http\Controllers\ExpenseController;
-use App\Http\Controllers\ExpenseCategoryController;
-use App\Http\Controllers\BranchController;
-use App\Http\Controllers\StockTransferController;
-use App\Http\Controllers\ShopSettingsController;
-use App\Http\Controllers\TaxSettingsController;
-use App\Http\Controllers\UserManagementController;
-use App\Http\Controllers\BackupController;
-use App\Http\Controllers\CustomerReportController;
-use App\Http\Controllers\FinancialReportController;
-use App\Http\Controllers\InventoryReportController;
-use App\Http\Controllers\PurchaseReceiveController;
-use App\Http\Controllers\SalesReportController;
-use App\Http\Controllers\StaffReportController;
-use App\Http\Controllers\StockAdjustmentController;
-use App\Http\Controllers\StockMovementController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
 
 
 
@@ -64,5 +24,125 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+// Orders
+Route::prefix('orders')->name('orders.')->group(function () {
+    Route::get('/', function () {
+        return 'index.blade.php';
+    })->name('index');
+    Route::get('/create', function () {
+        return 'create.blade.php';
+    })->name('create');
+    Route::get('/pending', function () {
+        return 'pending.blade.php';
+    })->name('pending');
+    Route::get('/in-progress', function () {
+        return 'inprogress.blade.php';
+    })->name('in-progress');
+    Route::get('/completed', function () {
+        return 'completed.blade.php';
+    })->name('completed');
+});
+
+// Customers
+Route::prefix('customers')->name('customers.')->group(function () {
+    Route::get('/', function () {
+        return 'index.blade.php';
+    })->name('index');
+    Route::get('/create', function () {
+        return 'create.blade.php';
+    })->name('create');
+});
+
+// Tailors
+Route::prefix('tailors')->name('tailors.')->group(function () {
+    Route::get('/', function () {
+        return 'index.blade.php';
+    })->name('index');
+    Route::get('/create', function () {
+        return 'create.blade.php';
+    })->name('create');
+});
+
+// Tailor Assignments
+Route::get('tailor-assignments', function () {
+    return 'create.blade.php';
+})->name('tailor-assignments.index');
+
+// Dress Types
+Route::get('dress-types', function () {
+    return 'create.blade.php';
+})->name('dress-types.index');
+
+// Fabrics
+Route::prefix('fabrics')->name('fabrics.')->group(function () {
+    Route::get('/', function () {
+        return 'create.blade.php';
+    })->name('index');
+    Route::get('/create', function () {
+        return 'create.blade.php';
+    })->name('create');
+});
+
+// Payments
+Route::prefix('payments')->name('payments.')->group(function () {
+    Route::get('/', function () {
+        return 'create.blade.php';
+    })->name('index');
+    Route::get('/create', function () {
+        return 'create.blade.php';
+    })->name('create');
+    Route::get('/overdue', function () {
+        return 'create.blade.php';
+    })->name('overdue');
+});
+
+// Expenses
+Route::get('expenses', function () {
+    return 'create.blade.php';
+})->name('expenses.index');
+
+// Reports
+Route::prefix('reports')->name('reports.')->group(function () {
+    Route::get('/sales', function () {
+        return 'create.blade.php';
+    })->name('sales');
+    Route::get('/tailor-performance', function () {
+        return 'create.blade.php';
+    })->name('tailor-performance');
+    Route::get('/inventory', function () {
+        return 'create.blade.php';
+    })->name('inventory');
+    Route::get('/financial', function () {
+        return 'create.blade.php';
+    })->name('financial');
+});
+
+// Settings
+Route::prefix('settings')->name('settings.')->group(function () {
+    Route::get('/general', function () {
+        return 'create.blade.php';
+    })->name('general');
+});
+
+// Branches
+Route::get('branches', function () {
+    return 'create.blade.php';
+})->name('branches.index');
+
+// Users
+Route::get('users', function () {
+    return 'create.blade.php';
+})->name('users.index');
+
+// Discounts
+Route::get('discounts', function () {
+    return 'create.blade.php';
+})->name('discounts.index');
 
 require __DIR__ . '/auth.php';
