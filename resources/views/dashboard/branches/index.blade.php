@@ -122,37 +122,26 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td>
                                     <div class="font-weight-bold">{{ $branch->name }}</div>
-                                    <small class="text-muted">Code: {{ $branch->code }}</small><br>
-                                    <small class="text-muted">Opened: {{ $branch->opening_date ? $branch->opening_date->format('d M, Y') : 'N/A' }}</small>
                                 </td>
                                 <td>
-                                    <div><i class="las la-phone mr-1"></i> {{ $branch->phone ?? 'N/A' }}</div>
-                                    <div><i class="las la-envelope mr-1"></i> {{ $branch->email ?? 'N/A' }}</div>
+                                    <div> {{ $branch->phone ?? 'N/A' }}</div>
+                                    <div> {{ $branch->email ?? 'N/A' }}</div>
                                     <small class="text-muted">{{ Str::limit($branch->address, 30) }}</small>
                                 </td>
                                 <td>
                                     @if($branch->manager_name)
                                     <div class="font-weight-bold">{{ $branch->manager_name }}</div>
-                                    <div><i class="las la-phone mr-1"></i> {{ $branch->manager_phone ?? 'N/A' }}</div>
-                                    <div><i class="las la-envelope mr-1"></i> {{ $branch->manager_email ?? 'N/A' }}</div>
+                                    <div></i> {{ $branch->manager_phone ?? 'N/A' }}</div>
+                                    <div></i> {{ $branch->manager_email ?? 'N/A' }}</div>
                                     @else
                                     <span class="text-muted">Not assigned</span>
                                     @endif
                                 </td>
                                 <td>
                                     <div class="row text-center">
-                                        <div class="col-4">
-                                            <div class="font-weight-bold text-primary">{{ $branch->users_count }}</div>
-                                            <small class="text-muted">Users</small>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="font-weight-bold text-success">{{ $branch->customers_count }}</div>
-                                            <small class="text-muted">Customers</small>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="font-weight-bold text-info">{{ $branch->orders_count }}</div>
-                                            <small class="text-muted">Orders</small>
-                                        </div>
+                                            <div class="font-weight-bold text-primary">{{ $branch->users_count }} / <small class="text-muted">Users</small></div>
+                                            <div class="font-weight-bold text-success">{{ $branch->customers_count }} / <small class="text-muted">Customers</small></div>
+                                            <div class="font-weight-bold text-info">{{ $branch->orders_count }} / <small class="text-muted">Orders</small></div>
                                     </div>
                                 </td>
                                 <td>
