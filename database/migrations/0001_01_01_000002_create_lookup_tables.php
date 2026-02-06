@@ -56,35 +56,159 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Seed data
+        // Seed data - FIXED: Specify all column names
         DB::table('order_statuses')->insert([
-            ['name' => 'Pending', 'slug' => 'pending', 'sort_order' => 1, 'color' => '#f59e0b'],
-            ['name' => 'Confirmed', 'slug' => 'confirmed', 'sort_order' => 2, 'color' => '#3b82f6'],
-            ['name' => 'In Progress', 'slug' => 'in-progress', 'sort_order' => 3, 'color' => '#8b5cf6'],
-            ['name' => 'Ready', 'slug' => 'ready', 'sort_order' => 4, 'color' => '#10b981'],
-            ['name' => 'Delivered', 'slug' => 'delivered', 'sort_order' => 5, 'color' => '#059669', 'is_completed' => true],
-            ['name' => 'Cancelled', 'slug' => 'cancelled', 'sort_order' => 6, 'color' => '#ef4444', 'is_cancelled' => true],
+            [
+                'name' => 'Pending',
+                'slug' => 'pending',
+                'sort_order' => 1,
+                'color' => '#f59e0b',
+                'is_active' => true,
+                'is_completed' => false,
+                'is_cancelled' => false
+            ],
+            [
+                'name' => 'Confirmed',
+                'slug' => 'confirmed',
+                'sort_order' => 2,
+                'color' => '#3b82f6',
+                'is_active' => true,
+                'is_completed' => false,
+                'is_cancelled' => false
+            ],
+            [
+                'name' => 'In Progress',
+                'slug' => 'in-progress',
+                'sort_order' => 3,
+                'color' => '#8b5cf6',
+                'is_active' => true,
+                'is_completed' => false,
+                'is_cancelled' => false
+            ],
+            [
+                'name' => 'Ready',
+                'slug' => 'ready',
+                'sort_order' => 4,
+                'color' => '#10b981',
+                'is_active' => true,
+                'is_completed' => false,
+                'is_cancelled' => false
+            ],
+            [
+                'name' => 'Delivered',
+                'slug' => 'delivered',
+                'sort_order' => 5,
+                'color' => '#059669',
+                'is_active' => true,
+                'is_completed' => true,
+                'is_cancelled' => false
+            ],
+            [
+                'name' => 'Cancelled',
+                'slug' => 'cancelled',
+                'sort_order' => 6,
+                'color' => '#ef4444',
+                'is_active' => true,
+                'is_completed' => false,
+                'is_cancelled' => true
+            ],
         ]);
 
         DB::table('payment_statuses')->insert([
-            ['name' => 'Pending', 'slug' => 'pending', 'sort_order' => 1, 'color' => '#f59e0b'],
-            ['name' => 'Partial', 'slug' => 'partial', 'sort_order' => 2, 'color' => '#8b5cf6'],
-            ['name' => 'Paid', 'slug' => 'paid', 'sort_order' => 3, 'color' => '#10b981', 'is_paid' => true],
-            ['name' => 'Overdue', 'slug' => 'overdue', 'sort_order' => 4, 'color' => '#ef4444'],
+            [
+                'name' => 'Pending',
+                'slug' => 'pending',
+                'sort_order' => 1,
+                'color' => '#f59e0b',
+                'is_active' => true,
+                'is_paid' => false
+            ],
+            [
+                'name' => 'Partial',
+                'slug' => 'partial',
+                'sort_order' => 2,
+                'color' => '#8b5cf6',
+                'is_active' => true,
+                'is_paid' => false
+            ],
+            [
+                'name' => 'Paid',
+                'slug' => 'paid',
+                'sort_order' => 3,
+                'color' => '#10b981',
+                'is_active' => true,
+                'is_paid' => true
+            ],
+            [
+                'name' => 'Overdue',
+                'slug' => 'overdue',
+                'sort_order' => 4,
+                'color' => '#ef4444',
+                'is_active' => true,
+                'is_paid' => false
+            ],
         ]);
 
         DB::table('payment_methods')->insert([
-            ['name' => 'Cash', 'slug' => 'cash', 'sort_order' => 1],
-            ['name' => 'Credit Card', 'slug' => 'credit-card', 'sort_order' => 2],
-            ['name' => 'Bank Transfer', 'slug' => 'bank-transfer', 'sort_order' => 3],
-            ['name' => 'Mobile Payment', 'slug' => 'mobile-payment', 'sort_order' => 4],
+            [
+                'name' => 'Cash',
+                'slug' => 'cash',
+                'sort_order' => 1,
+                'is_active' => true
+            ],
+            [
+                'name' => 'Credit Card',
+                'slug' => 'credit-card',
+                'sort_order' => 2,
+                'is_active' => true
+            ],
+            [
+                'name' => 'Bank Transfer',
+                'slug' => 'bank-transfer',
+                'sort_order' => 3,
+                'is_active' => true
+            ],
+            [
+                'name' => 'Mobile Payment',
+                'slug' => 'mobile-payment',
+                'sort_order' => 4,
+                'is_active' => true
+            ],
         ]);
 
         DB::table('assignment_statuses')->insert([
-            ['name' => 'Assigned', 'slug' => 'assigned', 'sort_order' => 1, 'color' => '#3b82f6'],
-            ['name' => 'In Progress', 'slug' => 'in-progress', 'sort_order' => 2, 'color' => '#8b5cf6'],
-            ['name' => 'Completed', 'slug' => 'completed', 'sort_order' => 3, 'color' => '#10b981', 'is_completed' => true],
-            ['name' => 'Delayed', 'slug' => 'delayed', 'sort_order' => 4, 'color' => '#ef4444'],
+            [
+                'name' => 'Assigned',
+                'slug' => 'assigned',
+                'sort_order' => 1,
+                'color' => '#3b82f6',
+                'is_active' => true,
+                'is_completed' => false
+            ],
+            [
+                'name' => 'In Progress',
+                'slug' => 'in-progress',
+                'sort_order' => 2,
+                'color' => '#8b5cf6',
+                'is_active' => true,
+                'is_completed' => false
+            ],
+            [
+                'name' => 'Completed',
+                'slug' => 'completed',
+                'sort_order' => 3,
+                'color' => '#10b981',
+                'is_active' => true,
+                'is_completed' => true
+            ],
+            [
+                'name' => 'Delayed',
+                'slug' => 'delayed',
+                'sort_order' => 4,
+                'color' => '#ef4444',
+                'is_active' => true,
+                'is_completed' => false
+            ],
         ]);
     }
 
