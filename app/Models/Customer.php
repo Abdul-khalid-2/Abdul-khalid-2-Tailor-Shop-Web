@@ -17,10 +17,24 @@ class Customer extends Model
         'phone_normalized',
         'address',
         'reference',
+        'customer_type',
+        'discount_rate',
+        'occupation',
+        'anniversary_date',
+        'profile_photo',
+        'preferred_communication',
+        'send_welcome_message',
         'notes',
         'branch_id',
         'created_by',
         'updated_by'
+    ];
+
+    protected $casts = [
+        'discount_rate' => 'decimal:2',
+        'anniversary_date' => 'date',
+        'preferred_communication' => 'array',
+        'send_welcome_message' => 'boolean',
     ];
 
     public function branch()
@@ -77,6 +91,19 @@ class Customer extends Model
         return $lastOrder ? $lastOrder->order_date : null;
     }
 
+    // Get customer type label
+    public function getCustomerTypeLabelAttribute()
+    {
+        $types = [
+            'regular' => 'Regular Customer',
+            'vip' => 'VIP Customer',
+            'corporate' => 'Corporate Customer',
+            'walk_in' => 'Walk-in Customer',
+        ];
+
+        return $types[$this->customer_type] ?? $this->customer_type;
+    }
+
     // Scope for active customers (customers with recent orders)
     public function scopeActive($query, $months = 3)
     {
@@ -89,5 +116,10 @@ class Customer extends Model
     public function scopeNewCustomers($query)
     {
         return $query->where('created_at', '>=', now()->subMonth());
+    }
+    // Scope by customer type
+    public function scopeType($query, $type)
+    {
+        return $query->where('customer_type', $type);
     }
 }

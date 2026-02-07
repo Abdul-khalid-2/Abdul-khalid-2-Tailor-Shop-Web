@@ -1,12 +1,12 @@
 <x-app-layout>
     @push('css')
-    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/daterangepicker/daterangepicker.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/daterangepicker/daterangepicker.css') }}">
     @endpush
 
     <div class="container-fluid">
@@ -35,10 +35,10 @@
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['total'] }}</div>
                                 <div class="mt-2 mb-0 text-muted text-xs">
                                     @php
-                                    $lastMonth = now()->subMonth();
-                                    $newLastMonth = \App\Models\Customer::whereMonth('created_at', $lastMonth->month)->count();
-                                    $growth = $stats['new_this_month'] > 0 ?
-                                    (($stats['new_this_month'] - $newLastMonth) / max($newLastMonth, 1) * 100) : 0;
+                                        $lastMonth = now()->subMonth();
+                                        $newLastMonth = \App\Models\Customer::whereMonth('created_at', $lastMonth->month)->count();
+                                        $growth = $stats['new_this_month'] > 0 ? 
+                                                (($stats['new_this_month'] - $newLastMonth) / max($newLastMonth, 1) * 100) : 0;
                                     @endphp
                                     <span class="{{ $growth > 0 ? 'text-success' : 'text-danger' }} mr-2">
                                         <i class="fa fa-arrow-{{ $growth > 0 ? 'up' : 'down' }}"></i> {{ number_format(abs($growth), 1) }}%
@@ -106,10 +106,10 @@
                                 <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['new_this_month'] }}</div>
                                 <div class="mt-2 mb-0 text-muted text-xs">
                                     @php
-                                    $lastMonth = now()->subMonth();
-                                    $newLastMonth = \App\Models\Customer::whereMonth('created_at', $lastMonth->month)->count();
-                                    $growth = $stats['new_this_month'] > 0 ?
-                                    (($stats['new_this_month'] - $newLastMonth) / max($newLastMonth, 1) * 100) : 0;
+                                        $lastMonth = now()->subMonth();
+                                        $newLastMonth = \App\Models\Customer::whereMonth('created_at', $lastMonth->month)->count();
+                                        $growth = $stats['new_this_month'] > 0 ? 
+                                                (($stats['new_this_month'] - $newLastMonth) / max($newLastMonth, 1) * 100) : 0;
                                     @endphp
                                     <span class="text-success mr-2"><i class="fa fa-arrow-up"></i> {{ number_format($growth, 0) }}%</span>
                                     <span>growth</span>
@@ -202,95 +202,95 @@
                         <tbody>
                             @foreach($customers as $customer)
                             @php
-                            $statusColor = $customer->orders_count > 5 ? 'success' :
-                            ($customer->orders_count > 0 ? 'info' :
-                            ($customer->created_at->diffInDays() < 7 ? 'primary' : 'secondary' ));
-                                $statusText=$customer->orders_count > 5 ? 'VIP' :
-                                ($customer->orders_count > 0 ? 'Active' :
-                                ($customer->created_at->diffInDays() < 7 ? 'New' : 'Regular' ));
-                                    @endphp
-                                    <tr>
-                                    <td>{{ $loop->iteration + (($customers->currentPage() - 1) * $customers->perPage()) }}</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="avatar mr-3">
-                                                <img src="https://ui-avatars.com/api/?name={{ urlencode($customer->name) }}&background=3B82F6&color=fff&size=40"
-                                                    class="rounded-circle"
-                                                    alt="{{ $customer->name }}">
-                                            </div>
-                                            <div>
-                                                <div class="font-weight-bold">{{ $customer->name }}</div>
-                                                <small class="text-muted">ID: CUS-{{ str_pad($customer->id, 4, '0', STR_PAD_LEFT) }}</small>
-                                            </div>
+                                $statusColor = $customer->orders_count > 5 ? 'success' : 
+                                            ($customer->orders_count > 0 ? 'info' : 
+                                            ($customer->created_at->diffInDays() < 7 ? 'primary' : 'secondary'));
+                                $statusText = $customer->orders_count > 5 ? 'VIP' : 
+                                            ($customer->orders_count > 0 ? 'Active' : 
+                                            ($customer->created_at->diffInDays() < 7 ? 'New' : 'Regular'));
+                            @endphp
+                            <tr>
+                                <td>{{ $loop->iteration + (($customers->currentPage() - 1) * $customers->perPage()) }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar mr-3">
+                                            <img src="https://ui-avatars.com/api/?name={{ urlencode($customer->name) }}&background=3B82F6&color=fff&size=40" 
+                                                class="rounded-circle" 
+                                                alt="{{ $customer->name }}">
                                         </div>
-                                    </td>
-                                    <td>
-                                        <div class="font-weight-bold">{{ $customer->phone }}</div>
-                                        <small class="text-muted">Verified</small>
-                                    </td>
-                                    <td>
-                                        <div>{{ $customer->email ?? 'N/A' }}</div>
-                                        @if($customer->email)
-                                        <small class="text-success"><i class="las la-check-circle"></i> Verified</small>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <div class="text-center">
-                                            <div class="font-weight-bold">{{ $customer->orders_count }}</div>
-                                            <small class="text-muted">orders</small>
+                                        <div>
+                                            <div class="font-weight-bold">{{ $customer->name }}</div>
+                                            <small class="text-muted">ID: CUS-{{ str_pad($customer->id, 4, '0', STR_PAD_LEFT) }}</small>
                                         </div>
-                                    </td>
-                                    <td class="font-weight-bold text-success">
-                                        Rs {{ number_format($customer->total_spent ?: 0) }}
-                                    </td>
-                                    <td>
-                                        @if($customer->last_order_date)
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="font-weight-bold">{{ $customer->phone }}</div>
+                                    <small class="text-muted">Verified</small>
+                                </td>
+                                <td>
+                                    <div>{{ $customer->email ?? 'N/A' }}</div>
+                                    @if($customer->email)
+                                    <small class="text-success"><i class="las la-check-circle"></i> Verified</small>
+                                    @endif
+                                </td>
+                                <td>
+                                    <div class="text-center">
+                                        <div class="font-weight-bold">{{ $customer->orders_count }}</div>
+                                        <small class="text-muted">orders</small>
+                                    </div>
+                                </td>
+                                <td class="font-weight-bold text-success">
+                                    Rs {{ number_format($customer->total_spent ?: 0) }}
+                                </td>
+                                <td>
+                                    @if($customer->last_order_date)
                                         @php
-                                        $lastOrderDays = \Carbon\Carbon::parse($customer->last_order_date)->diffInDays();
+                                            $lastOrderDays = \Carbon\Carbon::parse($customer->last_order_date)->diffInDays();
                                         @endphp
                                         @if($lastOrderDays < 7)
-                                            <span class="badge badge-success">{{ \Carbon\Carbon::parse($customer->last_order_date)->format('d M') }}</span>
-                                            @else
-                                            <span class="text-muted">{{ \Carbon\Carbon::parse($customer->last_order_date)->format('d M, Y') }}</span>
-                                            @endif
-                                            @else
-                                            <span class="text-muted">No orders yet</span>
-                                            @endif
-                                    </td>
-                                    <td>
-                                        <span class="badge badge-{{ $statusColor }}">{{ $statusText }}</span>
-                                    </td>
-                                    <td>
-                                        <div class="dropdown">
-                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                                <i class="las la-ellipsis-h"></i>
-                                            </button>
-                                            <div class="dropdown-menu dropdown-menu-right">
-                                                <a class="dropdown-item" href="{{ route('customers.show', $customer->id) }}">
-                                                    <i class="las la-eye mr-2"></i> View Profile
-                                                </a>
-                                                <a class="dropdown-item" href="{{ route('customers.edit', $customer->id) }}">
-                                                    <i class="las la-edit mr-2"></i> Edit
-                                                </a>
-                                                <a class="dropdown-item" href="{{ route('orders.create') }}?customer={{ $customer->id }}">
-                                                    <i class="las la-plus-circle mr-2"></i> New Order
-                                                </a>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item" href="#" onclick="sendMessage({{ $customer->id }})">
-                                                    <i class="las la-envelope mr-2"></i> Send Message
-                                                </a>
-                                                <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" class="d-inline" onsubmit="return confirmDelete(event)">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="dropdown-item text-danger">
-                                                        <i class="las la-trash mr-2"></i> Delete
-                                                    </button>
-                                                </form>
-                                            </div>
+                                        <span class="badge badge-success">{{ \Carbon\Carbon::parse($customer->last_order_date)->format('d M') }}</span>
+                                        @else
+                                        <span class="text-muted">{{ \Carbon\Carbon::parse($customer->last_order_date)->format('d M, Y') }}</span>
+                                        @endif
+                                    @else
+                                    <span class="text-muted">No orders yet</span>
+                                    @endif
+                                </td>
+                                <td>
+                                    <span class="badge badge-{{ $statusColor }}">{{ $statusText }}</span>
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                            <i class="las la-ellipsis-h"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-right">
+                                            <a class="dropdown-item" href="{{ route('customers.show', $customer->id) }}">
+                                                <i class="las la-eye mr-2"></i> View Profile
+                                            </a>
+                                            <a class="dropdown-item" href="{{ route('customers.edit', $customer->id) }}">
+                                                <i class="las la-edit mr-2"></i> Edit
+                                            </a>
+                                            <a class="dropdown-item" href="{{ route('orders.create') }}?customer={{ $customer->id }}">
+                                                <i class="las la-plus-circle mr-2"></i> New Order
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item" href="#" onclick="sendMessage({{ $customer->id }})">
+                                                <i class="las la-envelope mr-2"></i> Send Message
+                                            </a>
+                                            <form action="{{ route('customers.destroy', $customer->id) }}" method="POST" class="d-inline" onsubmit="return confirmDelete(event)">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="dropdown-item text-danger">
+                                                    <i class="las la-trash mr-2"></i> Delete
+                                                </button>
+                                            </form>
                                         </div>
-                                    </td>
-                                    </tr>
-                                    @endforeach
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
 
@@ -330,12 +330,12 @@
                                 </thead>
                                 <tbody>
                                     @for($i = 1; $i <= 5; $i++)
-                                        @php
-                                        $orders=rand(8, 15);
-                                        $total=$orders * rand(5000, 12000);
-                                        $avg=round($total / $orders, 2);
-                                        @endphp
-                                        <tr>
+                                    @php
+                                        $orders = rand(8, 15);
+                                        $total = $orders * rand(5000, 12000);
+                                        $avg = round($total / $orders, 2);
+                                    @endphp
+                                    <tr>
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="avatar avatar-sm mr-2">
@@ -353,8 +353,8 @@
                                         <td class="font-weight-bold text-success">Rs {{ number_format($total) }}</td>
                                         <td>Rs {{ number_format($avg) }}</td>
                                         <td><span class="badge badge-success">{{ now()->subDays(rand(1, 7))->format('d M') }}</span></td>
-                                        </tr>
-                                        @endfor
+                                    </tr>
+                                    @endfor
                                 </tbody>
                             </table>
                         </div>

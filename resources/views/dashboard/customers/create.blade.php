@@ -27,7 +27,7 @@
             <div class="col-lg-8">
                 <div class="card shadow">
                     <div class="card-body">
-                        <form action="{{ route('customers.store') }}" method="POST" id="customerForm">
+                        <form action="{{ route('customers.store') }}" method="POST" id="customerForm" enctype="multipart/form-data">
                             @csrf
                             <!-- Basic Information -->
                             <div class="card mb-4">
@@ -106,6 +106,8 @@
                                     <h6 class="mb-0">Contact Details</h6>
                                 </div>
                                 <div class="card-body">
+
+                                    {{-- 
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Address Line 1</label>
@@ -131,10 +133,14 @@
                                             <input type="text" class="form-control" placeholder="Postal Code">
                                         </div>
                                     </div>
-                                    
+                                     --}}
                                     <div class="mb-3">
-                                        <label class="form-label">Nearest Landmark</label>
-                                        <input type="text" class="form-control" placeholder="e.g., Near Mall, Opposite Bank">
+                                        <label class="form-label">Address</label>
+                                        <textarea name="address" class="form-control @error('address') is-invalid @enderror" 
+                                            rows="3" placeholder="Full address including city and area">{{ old('address') }}</textarea>
+                                        @error('address')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
@@ -145,7 +151,7 @@
                                     <h6 class="mb-0">Business Information</h6>
                                 </div>
                                 <div class="card-body">
-                                    <div class="row">
+                                    {{-- <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Branch *</label>
                                             <select class="form-control select2" required>
@@ -166,22 +172,35 @@
                                                 <option value="advertisement">Advertisement</option>
                                             </select>
                                         </div>
-                                    </div>
-                                    
+                                    </div> --}}
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Customer Type</label>
-                                            <select class="form-control">
-                                                <option value="regular">Regular Customer</option>
-                                                <option value="vip">VIP Customer</option>
-                                                <option value="corporate">Corporate Customer</option>
-                                                <option value="walk_in">Walk-in Customer</option>
+                                            <select name="customer_type" class="form-control select2">
+                                                <option value="regular" {{ old('customer_type', 'regular') == 'regular' ? 'selected' : '' }}>Regular Customer</option>
+                                                <option value="vip" {{ old('customer_type') == 'vip' ? 'selected' : '' }}>VIP Customer</option>
+                                                <option value="corporate" {{ old('customer_type') == 'corporate' ? 'selected' : '' }}>Corporate Customer</option>
+                                                <option value="walk_in" {{ old('customer_type') == 'walk_in' ? 'selected' : '' }}>Walk-in Customer</option>
                                             </select>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Discount Rate (%)</label>
-                                            <input type="number" class="form-control" min="0" max="50" value="0">
+                                            <input type="number" name="discount_rate" class="form-control" 
+                                                min="0" max="50" step="0.01" value="{{ old('discount_rate', 0) }}">
                                             <small class="text-muted">Special discount for this customer</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Occupation</label>
+                                            <input type="text" name="occupation" class="form-control" 
+                                                placeholder="e.g., Business, Doctor, Student" value="{{ old('occupation') }}">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Anniversary Date</label>
+                                            <input type="date" name="anniversary_date" class="form-control" 
+                                                value="{{ old('anniversary_date') }}">
                                         </div>
                                     </div>
                                 </div>
@@ -197,43 +216,68 @@
                                 </div>
                                 <div class="card-body">
                                     <div id="measurementTemplates">
-                                        <div class="template-item mb-3">
+                                        <!-- Template will be added dynamically -->
+                                    </div>
+                                    <template id="templateForm">
+                                        <div class="template-item mb-3 border p-3 rounded" data-index="__INDEX__">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h6 class="mb-0">Template #<span class="template-number">1</span></h6>
+                                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeTemplate(this)">
+                                                    <i class="las la-times"></i> Remove
+                                                </button>
+                                            </div>
                                             <div class="row">
                                                 <div class="col-md-6 mb-3">
                                                     <label class="form-label">Dress Type</label>
-                                                    <select class="form-control">
+                                                    <select name="measurement_templates[__INDEX__][dress_type_id]" class="form-control select2">
                                                         <option value="">Select Dress Type</option>
-                                                        <option value="sherwani">Sherwani</option>
-                                                        <option value="suit">Suit</option>
-                                                        <option value="kurta">Kurta</option>
-                                                        <option value="gown">Gown</option>
+                                                        @foreach($dressTypes as $dressType)
+                                                            <option value="{{ $dressType->id }}">{{ $dressType->name }}</option>
+                                                        @endforeach
                                                     </select>
                                                 </div>
                                                 <div class="col-md-6 mb-3">
                                                     <label class="form-label">Template Name</label>
-                                                    <input type="text" class="form-control" placeholder="e.g., Wedding Sherwani">
+                                                    <input type="text" name="measurement_templates[__INDEX__][template_name]" 
+                                                        class="form-control" placeholder="e.g., Wedding Sherwani">
                                                 </div>
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-3 mb-2">
-                                                    <input type="number" class="form-control" placeholder="Height (cm)">
+                                                    <label class="form-label">Height (cm)</label>
+                                                    <input type="number" name="measurement_templates[__INDEX__][measurements][height]" 
+                                                        class="form-control" placeholder="Height">
                                                 </div>
                                                 <div class="col-md-3 mb-2">
-                                                    <input type="number" class="form-control" placeholder="Chest (cm)">
+                                                    <label class="form-label">Chest (cm)</label>
+                                                    <input type="number" name="measurement_templates[__INDEX__][measurements][chest]" 
+                                                        class="form-control" placeholder="Chest">
                                                 </div>
                                                 <div class="col-md-3 mb-2">
-                                                    <input type="number" class="form-control" placeholder="Waist (cm)">
+                                                    <label class="form-label">Waist (cm)</label>
+                                                    <input type="number" name="measurement_templates[__INDEX__][measurements][waist]" 
+                                                        class="form-control" placeholder="Waist">
                                                 </div>
                                                 <div class="col-md-3 mb-2">
-                                                    <input type="number" class="form-control" placeholder="Hips (cm)">
+                                                    <label class="form-label">Hips (cm)</label>
+                                                    <input type="number" name="measurement_templates[__INDEX__][measurements][hips]" 
+                                                        class="form-control" placeholder="Hips">
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-12 mb-3">
+                                                    <label class="form-label">Additional Notes</label>
+                                                    <textarea name="measurement_templates[__INDEX__][notes]" class="form-control" 
+                                                        rows="2" placeholder="Any additional notes..."></textarea>
                                                 </div>
                                             </div>
                                             <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" id="defaultTemplate">
-                                                <label class="form-check-label" for="defaultTemplate">Set as default template</label>
+                                                <input type="checkbox" class="form-check-input" 
+                                                    name="measurement_templates[__INDEX__][is_default]" value="1" id="defaultTemplate__INDEX__">
+                                                <label class="form-check-label" for="defaultTemplate__INDEX__">Set as default template</label>
                                             </div>
                                         </div>
-                                    </div>
+                                    </template>
                                 </div>
                             </div>
 
@@ -243,40 +287,37 @@
                                     <h6 class="mb-0">Additional Information</h6>
                                 </div>
                                 <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">Occupation</label>
-                                            <input type="text" class="form-control" placeholder="e.g., Business, Doctor, Student">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">Anniversary Date</label>
-                                            <input type="date" class="form-control">
-                                        </div>
-                                    </div>
-                                    
                                     <div class="mb-3">
                                         <label class="form-label">Special Notes</label>
-                                        <textarea class="form-control" rows="3" placeholder="Any special notes about this customer..."></textarea>
+                                        <textarea name="notes" class="form-control @error('notes') is-invalid @enderror" 
+                                            rows="3" placeholder="Any special notes about this customer...">{{ old('notes') }}</textarea>
+                                        @error('notes')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     
                                     <div class="mb-3">
                                         <label class="form-label">Preferred Communication</label>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="checkbox" id="smsPreferred">
+                                            <input class="form-check-input" type="checkbox" name="preferred_communication[]" 
+                                                value="sms" id="smsPreferred" {{ in_array('sms', old('preferred_communication', [])) ? 'checked' : '' }}>
                                             <label class="form-check-label" for="smsPreferred">SMS</label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="checkbox" id="emailPreferred">
+                                            <input class="form-check-input" type="checkbox" name="preferred_communication[]" 
+                                                value="email" id="emailPreferred" {{ in_array('email', old('preferred_communication', [])) ? 'checked' : '' }}>
                                             <label class="form-check-label" for="emailPreferred">Email</label>
                                         </div>
                                         <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="checkbox" id="whatsappPreferred">
+                                            <input class="form-check-input" type="checkbox" name="preferred_communication[]" 
+                                                value="whatsapp" id="whatsappPreferred" {{ in_array('whatsapp', old('preferred_communication', [])) ? 'checked' : '' }}>
                                             <label class="form-check-label" for="whatsappPreferred">WhatsApp</label>
                                         </div>
                                     </div>
                                     
                                     <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="sendWelcome">
+                                        <input type="checkbox" class="form-check-input" name="send_welcome_message" 
+                                            value="1" id="sendWelcome" {{ old('send_welcome_message') ? 'checked' : '' }}>
                                         <label class="form-check-label" for="sendWelcome">Send welcome message to customer</label>
                                     </div>
                                 </div>
@@ -288,9 +329,6 @@
                                     <i class="las la-redo-alt"></i> Reset Form
                                 </button>
                                 <div>
-                                    <button type="button" class="btn btn-outline-primary mr-2" onclick="saveAsDraft()">
-                                        <i class="las la-save"></i> Save as Draft
-                                    </button>
                                     <button type="submit" class="btn btn-primary">
                                         <i class="las la-check-circle"></i> Create Customer
                                     </button>
@@ -317,11 +355,12 @@
                             </div>
                             <div class="input-group">
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="customerPhoto" accept="image/*" onchange="previewImage(this)">
+                                    <input type="file" name="profile_photo" class="custom-file-input" id="customerPhoto" 
+                                        accept="image/*" onchange="previewImage(this)">
                                     <label class="custom-file-label" for="customerPhoto">Choose photo</label>
                                 </div>
                             </div>
-                            <small class="text-muted d-block mt-2">Max size: 2MB, Formats: JPG, PNG</small>
+                            <small class="text-muted d-block mt-2">Max size: 2MB, Formats: JPG, PNG, GIF</small>
                         </div>
                     </div>
                 </div>
@@ -363,12 +402,6 @@
                             <a href="{{ route('orders.create') }}" class="btn btn-outline-primary btn-block text-left">
                                 <i class="las la-plus-circle mr-2"></i> Create New Order
                             </a>
-                            <a href="#" class="btn btn-outline-success btn-block text-left" data-toggle="modal" data-target="#sendMessageModal">
-                                <i class="las la-envelope mr-2"></i> Send Welcome Message
-                            </a>
-                            <a href="#" class="btn btn-outline-info btn-block text-left" onclick="generateCustomerCard()">
-                                <i class="las la-id-card mr-2"></i> Generate Customer Card
-                            </a>
                             <a href="{{ route('customers.index') }}" class="btn btn-outline-secondary btn-block text-left">
                                 <i class="las la-list mr-2"></i> View All Customers
                             </a>
@@ -380,6 +413,7 @@
     </div>
 
     <!-- Send Message Modal -->
+    {{-- 
     <div class="modal fade" id="sendMessageModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -435,6 +469,7 @@
             </div>
         </div>
     </div>
+     --}}
 
     @push('js')
     <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
@@ -453,6 +488,8 @@
     <script src="{{ asset('backend/assets/js/app.js') }}"></script>
     
     <script>
+        let templateIndex = 0;
+        
         $(document).ready(function() {
             // Initialize Select2
             $('.select2').select2({
@@ -465,45 +502,8 @@
                 $(this).next('.custom-file-label').addClass("selected").html(fileName);
             });
             
-            // Message template change
-            $('#messageTemplate').change(function() {
-                const templates = {
-                    'welcome': 'Dear Customer,\n\nWelcome to our tailor shop! We\'re excited to have you as our valued customer.\n\nBest regards,\nTailor Shop Team',
-                    'welcome_discount': 'Dear Customer,\n\nWelcome to our tailor shop! As a special welcome gift, you get 10% discount on your first order.\n\nBest regards,\nTailor Shop Team',
-                    'special_welcome': 'Dear Valued Customer,\n\nWelcome to our premium tailor shop experience! We look forward to serving you with our best craftsmanship.\n\nWarm regards,\nTailor Shop Team'
-                };
-                
-                if (this.value && templates[this.value]) {
-                    $('#messageContent').val(templates[this.value]);
-                }
-            });
-            
-            // Form submission
-            $('#customerForm').submit(function(e) {
-                e.preventDefault();
-                
-                // Form validation
-                const requiredFields = $(this).find('[required]');
-                let valid = true;
-                
-                requiredFields.each(function() {
-                    if (!$(this).val().trim()) {
-                        valid = false;
-                        $(this).addClass('is-invalid');
-                    } else {
-                        $(this).removeClass('is-invalid');
-                    }
-                });
-                
-                if (!valid) {
-                    alert('Please fill in all required fields.');
-                    return;
-                }
-                
-                // Simulate form submission
-                alert('Customer created successfully!');
-                window.location.href = "{{ route('customers.index') }}";
-            });
+            // Add first template on page load
+            addMeasurementTemplate();
         });
         
         function previewImage(input) {
@@ -518,89 +518,50 @@
         }
         
         function addMeasurementTemplate() {
-            const templateHtml = `
-                <div class="template-item mb-3 border-top pt-3">
-                    <button type="button" class="btn btn-sm btn-outline-danger float-right" onclick="removeTemplate(this)">
-                        <i class="las la-times"></i>
-                    </button>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Dress Type</label>
-                            <select class="form-control">
-                                <option value="">Select Dress Type</option>
-                                <option value="sherwani">Sherwani</option>
-                                <option value="suit">Suit</option>
-                                <option value="kurta">Kurta</option>
-                                <option value="gown">Gown</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Template Name</label>
-                            <input type="text" class="form-control" placeholder="e.g., Wedding Sherwani">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-3 mb-2">
-                            <input type="number" class="form-control" placeholder="Height (cm)">
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <input type="number" class="form-control" placeholder="Chest (cm)">
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <input type="number" class="form-control" placeholder="Waist (cm)">
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <input type="number" class="form-control" placeholder="Hips (cm)">
-                        </div>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="defaultTemplateNew">
-                        <label class="form-check-label" for="defaultTemplateNew">Set as default template</label>
-                    </div>
-                </div>
-            `;
+            const template = document.getElementById('templateForm').innerHTML;
+            const newTemplate = template.replace(/__INDEX__/g, templateIndex);
             
-            $('#measurementTemplates').append(templateHtml);
+            const div = document.createElement('div');
+            div.innerHTML = newTemplate;
+            div.querySelector('.template-number').textContent = templateIndex + 1;
+            
+            document.getElementById('measurementTemplates').appendChild(div.firstElementChild);
+            
+            // Initialize Select2 for new template
+            $(div).find('.select2').select2({
+                theme: 'bootstrap'
+            });
+            
+            templateIndex++;
         }
         
         function removeTemplate(button) {
-            $(button).closest('.template-item').remove();
+            if (document.querySelectorAll('.template-item').length > 1) {
+                $(button).closest('.template-item').remove();
+                updateTemplateNumbers();
+            } else {
+                alert('At least one measurement template is required.');
+            }
+        }
+        
+        function updateTemplateNumbers() {
+            document.querySelectorAll('.template-item').forEach((item, index) => {
+                item.querySelector('.template-number').textContent = index + 1;
+            });
         }
         
         function resetForm() {
             if (confirm('Are you sure you want to reset the form? All data will be lost.')) {
                 document.getElementById('customerForm').reset();
-                $('#imagePreview').html('<i class="las la-user fa-3x text-muted"></i>');
+                document.getElementById('imagePreview').innerHTML = '<i class="las la-user fa-3x text-muted"></i>';
                 $('.custom-file-label').removeClass('selected').html('Choose photo');
-                // Keep only first measurement template
-                $('.template-item:not(:first)').remove();
                 $('.select2').val(null).trigger('change');
+                
+                // Reset templates
+                document.getElementById('measurementTemplates').innerHTML = '';
+                templateIndex = 0;
+                addMeasurementTemplate();
             }
-        }
-        
-        function saveAsDraft() {
-            alert('Customer saved as draft!');
-            // In real app: AJAX call to save as draft
-        }
-        
-        function sendWelcomeMessage() {
-            const message = $('#messageContent').val();
-            const viaSMS = $('#sendSMS').prop('checked');
-            const viaEmail = $('#sendEmail').prop('checked');
-            const viaWhatsApp = $('#sendWhatsApp').prop('checked');
-            
-            let methods = [];
-            if (viaSMS) methods.push('SMS');
-            if (viaEmail) methods.push('Email');
-            if (viaWhatsApp) methods.push('WhatsApp');
-            
-            alert('Sending welcome message via: ' + methods.join(', '));
-            $('#sendMessageModal').modal('hide');
-        }
-        
-        function generateCustomerCard() {
-            alert('Generating customer loyalty card...');
-            // In real app: Generate customer card PDF
         }
     </script>
     
@@ -613,7 +574,6 @@
         }
         .template-item {
             position: relative;
-            padding: 15px;
             background: #f8f9fa;
             border-radius: 5px;
         }
@@ -645,52 +605,7 @@
         .d-grid.gap-2 {
             gap: 0.5rem !important;
         }
-        .modal-content {
-            border-radius: 0.5rem;
-            border: none;
-        }
-        .close {
-            font-size: 1.5rem;
-            font-weight: 300;
-        }
     </style>
-
-    <script>
-        function confirmDelete(event) {
-            event.preventDefault();
-            if (confirm('Are you sure you want to delete this customer? This action cannot be undone.')) {
-                event.target.submit();
-            }
-            return false;
-        }
-
-        // Update the deleteCustomer function
-        function deleteCustomer(customerId) {
-            if (confirm('Are you sure you want to delete this customer? This action cannot be undone.')) {
-                // In real app: AJAX call to delete customer
-                fetch(`/customers/${customerId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json',
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        alert(data.message || 'Error deleting customer');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error deleting customer');
-                });
-            }
-        }
-    </script>
 
     @endpush
 </x-app-layout>

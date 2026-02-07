@@ -15,7 +15,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('phone', 20)->nullable();
             $table->string('password');
-            $table->enum('role', ['admin', 'manager', 'staff', 'tailor'])->default('staff');
+            $table->enum('role', ['admin', 'manager', 'staff', 'tailor', 'customer'])->default('staff');
             $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
             $table->foreignId('branch_id')->nullable()->constrained('branches')->onDelete('set null');
             $table->rememberToken();
