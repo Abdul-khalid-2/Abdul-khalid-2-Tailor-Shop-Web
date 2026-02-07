@@ -5,7 +5,7 @@
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/select2/css/select2.min.css') }}">
     @endpush
 
     <div class="container-fluid">
@@ -34,7 +34,18 @@
                         <div class="avatar-upload mb-3">
                             <div class="avatar-preview mb-3">
                                 <div style="width: 150px; height: 150px; margin: 0 auto; border-radius: 50%; background-color: #3b82f6; display: flex; align-items: center; justify-content: center; color: white; font-size: 48px;">
-                                    {{ strtoupper(substr($customer->name, 0, 1)) }}
+                                   @if(!empty($customer->profile_photo) && file_exists(public_path('backend/'.$customer->profile_photo)))
+                                        <img src="{{ asset('backend/'.$customer->profile_photo) }}"
+                                            class="rounded-circle"
+                                            alt="{{ $customer->name }}"
+                                            width="150"
+                                            height="150">
+                                    @else
+                                        <img src="https://ui-avatars.com/api/?name={{ urlencode($customer->name) }}&background=3B82F6&color=fff&size=40" 
+                                        class="rounded-circle" 
+                                        alt="{{ $customer->name }}">
+
+                                    @endif
                                 </div>
                             </div>
                             <div class="text-center">
@@ -373,8 +384,19 @@
 
     @push('js')
     <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
-    <script src="{{ asset('backend/assets/vendor/datatables/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/select2/js/select2.min.js') }}"></script>
+
+    <!-- Table Treeview JavaScript -->
+    <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
+
+    <!-- Chart Custom JavaScript -->
+    <script src="{{ asset('backend/assets/js/customizer.js') }}"></script>
+
+    <!-- Chart Custom JavaScript -->
+    <script async src="{{ asset('backend/assets/js/chart-custom.js') }}"></script>
+
+    <!-- app JavaScript -->
+    <script src="{{ asset('backend/assets/js/app.js') }}"></script>
 
     <script>
         $(document).ready(function() {

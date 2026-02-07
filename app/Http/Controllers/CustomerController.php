@@ -117,7 +117,7 @@ class CustomerController extends Controller
             'discount_rate' => 'nullable|numeric|min:0|max:50',
             'occupation' => 'nullable|string|max:255',
             'anniversary_date' => 'nullable|date',
-            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4048',
             'preferred_communication' => 'nullable|array',
             'preferred_communication.*' => 'in:sms,email,whatsapp',
             'send_welcome_message' => 'nullable|boolean',
@@ -249,7 +249,7 @@ class CustomerController extends Controller
             'discount_rate' => 'nullable|numeric|min:0|max:50',
             'occupation' => 'nullable|string|max:255',
             'anniversary_date' => 'nullable|date',
-            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:4048',
             'preferred_communication' => 'nullable|array',
             'preferred_communication.*' => 'in:sms,email,whatsapp',
             'send_welcome_message' => 'nullable|boolean',
@@ -264,12 +264,20 @@ class CustomerController extends Controller
 
         DB::transaction(function () use ($validated, $request, $customer) {
             // Handle profile photo upload
+            $profilePhotoPath = $customer->profile_photo; // default old image
+
             if ($request->hasFile('profile_photo')) {
-                // Delete old photo if exists
-                if ($customer->profile_photo) {
-                    Storage::disk('public')->delete($customer->profile_photo);
+
+                // 🔴 old image delete if exists
+                if (!empty($customer->profile_photo) && Storage::disk('website')->exists($customer->profile_photo)) {
+                    Storage::disk('website')->delete($customer->profile_photo);
                 }
-                $profilePhotoPath = $request->file('profile_photo')->store('customers/profile-photos', 'public');
+
+                // ✅ new image store
+                $profilePhotoPath = Storage::disk('website')->put(
+                    'assets/images/customer_images',
+                    $request->file('profile_photo')
+                );
                 $validated['profile_photo'] = $profilePhotoPath;
             }
 

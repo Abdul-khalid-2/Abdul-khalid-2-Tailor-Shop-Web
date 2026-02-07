@@ -229,9 +229,18 @@
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="avatar mr-3">
-                                            <img src="https://ui-avatars.com/api/?name={{ urlencode($customer->name) }}&background=3B82F6&color=fff&size=40" 
+                                            @if(!empty($customer->profile_photo) && file_exists(public_path('backend/'.$customer->profile_photo)))
+                                                <img src="{{ asset('backend/'.$customer->profile_photo) }}"
+                                                    class="rounded-circle"
+                                                    alt="{{ $customer->name }}"
+                                                    width="40"
+                                                    height="40">
+                                            @else
+                                                <img src="https://ui-avatars.com/api/?name={{ urlencode($customer->name) }}&background=3B82F6&color=fff&size=40" 
                                                 class="rounded-circle" 
                                                 alt="{{ $customer->name }}">
+
+                                            @endif
                                         </div>
                                         <div>
                                             <div class="font-weight-bold">{{ $customer->name }}</div>
@@ -325,7 +334,7 @@
         </div>
 
         <!-- Top Customers Widget -->
-        <div class="row mt-4">
+        <!-- <div class="row mt-4">
             <div class="col-lg-8">
                 <div class="card shadow">
                     <div class="card-header py-3">
@@ -403,7 +412,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> -->
     </div>
 
     <!-- Import Modal -->
