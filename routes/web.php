@@ -6,7 +6,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
-
+Route::get('/', function () {
+    return view('welcome');
+});
 
 Route::get('/dashboard', function () {
     return view('dashboard.dashboard');
@@ -19,7 +21,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Orders
-Route::prefix('orders')->name('orders.')->group(function () {
+Route::prefix('dashboard/orders')->name('orders.')->group(function () {
     Route::get('/', function () {
         return view('dashboard.orders.index');
     })->name('index');
@@ -58,7 +60,7 @@ Route::prefix('dashboard/customers')->name('customers.')->group(function () {
 });
 
 // Tailors
-Route::prefix('tailors')->name('tailors.')->group(function () {
+Route::prefix('dashboard/tailors')->name('tailors.')->group(function () {
     Route::get('/', function () {
         return view('dashboard.tailors.index');
     })->name('index');
@@ -139,7 +141,7 @@ Route::prefix('reports')->name('reports.')->group(function () {
 });
 
 // Branches
-Route::prefix('branches')->name('branches.')->group(function () {
+Route::prefix('dashboard/branches')->name('branches.')->group(function () {
     Route::get('/', [BranchController::class, 'index'])->name('index');
     Route::get('/create', [BranchController::class, 'create'])->name('create');
     Route::post('/', [BranchController::class, 'store'])->name('store');
@@ -161,7 +163,7 @@ Route::prefix('branches')->name('branches.')->group(function () {
 // });
 
 // Settings Routes
-Route::prefix('settings')->name('settings.')->group(function () {
+Route::prefix('dashboard/settings')->name('settings.')->group(function () {
     Route::get('/', [SettingController::class, 'index'])->name('index');
 
     // General Settings

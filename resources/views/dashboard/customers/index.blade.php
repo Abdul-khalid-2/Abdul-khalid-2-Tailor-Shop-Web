@@ -7,6 +7,21 @@
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/datatables/dataTables.bootstrap4.min.css') }}">
         <link rel="stylesheet" href="{{ asset('backend/assets/vendor/daterangepicker/daterangepicker.css') }}">
+        <style>
+            /* Fix DataTables dropdown clipping */
+            .table-responsive,
+            .dataTables_wrapper,
+            .dataTables_wrapper .row,
+            .card-body {
+                overflow: visible !important;
+            }
+
+            /* Ensure dropdown is above everything */
+            .dropdown-menu {
+                z-index: 9999 !important;
+            }
+
+        </style>
     @endpush
 
     <div class="container-fluid">
@@ -261,7 +276,7 @@
                                     <span class="badge badge-{{ $statusColor }}">{{ $statusText }}</span>
                                 </td>
                                 <td>
-                                    <div class="dropdown">
+                                    <div class="dropdown table-dropdown">
                                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                                             <i class="las la-ellipsis-h"></i>
                                         </button>
@@ -607,6 +622,29 @@
             // In real app: Generate and download export file
         }
     </script>
+    <script>
+        $(document).on('shown.bs.dropdown', '.table-dropdown', function () {
+            let $dropdown = $(this).find('.dropdown-menu');
+            $('body').append($dropdown.detach());
+
+            let offset = $(this).offset();
+            let height = $(this).outerHeight();
+
+            $dropdown.css({
+                position: 'absolute',
+                top: offset.top + height,
+                left: offset.left,
+                display: 'block'
+            });
+        });
+
+        $(document).on('hidden.bs.dropdown', '.table-dropdown', function () {
+            let $dropdown = $('body').find('.dropdown-menu');
+            $(this).append($dropdown.detach());
+            $dropdown.removeAttr('style');
+        });
+    </script>
+
 
     <style>
         .avatar {
