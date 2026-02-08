@@ -287,15 +287,7 @@
                         </tbody>
                     </table>
                     
-                    <!-- Pagination -->
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <div class="text-muted">
-                            Showing {{ $dressTypes->firstItem() }} to {{ $dressTypes->lastItem() }} of {{ $dressTypes->total() }} entries
-                        </div>
-                        <div>
-                            {{ $dressTypes->links() }}
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -466,7 +458,7 @@
             }
             
             // Fetch data from API
-            fetch(`/api/dress-types/popularity?period=${period}`)
+            fetch(`/dress-types/popularity?period=${period}`)
                 .then(response => response.json())
                 .then(data => {
                     const labels = data.map(item => item.name);
@@ -537,7 +529,7 @@
         
         function viewDetails(id) {
             $.ajax({
-                url: `/api/dress-types/${id}`,
+                url: `/dress-types/${id}`,
                 type: 'GET',
                 success: function(response) {
                     const details = `

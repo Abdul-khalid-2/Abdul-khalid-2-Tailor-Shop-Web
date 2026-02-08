@@ -295,4 +295,30 @@ class DressTypeController extends Controller
 
         return response()->json($popularity);
     }
+
+    /**
+     * Display the specified resource via API.
+     */
+    public function show(DressType $dressType)
+    {
+        return response()->json([
+            'id' => $dressType->id,
+            'name' => $dressType->name,
+            'slug' => $dressType->slug,
+            'description' => $dressType->description,
+            'base_price' => $dressType->base_price,
+            'estimated_days' => $dressType->estimated_days,
+            'is_active' => $dressType->is_active,
+            'total_orders' => $dressType->orderItems()->count(),
+            'monthly_orders' => $dressType->orderItems()
+                ->whereHas('order', function ($q) {
+                    $q->whereMonth('order_date', Carbon::now()->month)
+                        ->whereYear('order_date', Carbon::now()->year);
+                })->count(),
+            'created_by_name' => $dressType->createdBy->name ?? null,
+            'updated_by_name' => $dressType->updatedBy->name ?? null,
+            'created_at' => $dressType->created_at,
+            'updated_at' => $dressType->updated_at
+        ]);
+    }
 }

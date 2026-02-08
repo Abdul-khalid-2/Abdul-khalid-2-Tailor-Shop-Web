@@ -97,6 +97,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/export', [DressTypeController::class, 'export'])->name('export');
         Route::get('/stats', [DressTypeController::class, 'stats'])->name('stats');
     });
+
+    Route::get('/dress-types/{dressType}', [DressTypeController::class, 'show'])->name('api.dress-types.show');
+    Route::get('/dress-types/stats/popularity', [DressTypeController::class, 'popularityChart'])->name('api.dress-types.popularity');
 });
 
 // Fabrics
