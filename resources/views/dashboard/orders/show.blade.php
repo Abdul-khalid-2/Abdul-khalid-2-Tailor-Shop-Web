@@ -11,527 +11,363 @@
         <!-- Page Header -->
         <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
             <div>
-                <h4 class="mb-3">Order Details</h4>
-                <p class="mb-0">View complete order information</p>
+                <h4 class="mb-3">Order Details: {{ $order->order_number }}</h4>
+                <p class="mb-0">Complete order information and tracking</p>
             </div>
             <div class="d-flex">
-                <a href="{{ route('orders.edit', ['id' => $id]) }}" class="btn btn-outline-info mr-2">
-                    <i class="las la-edit"></i> Edit Order
+                <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary mr-2">
+                    <i class="las la-arrow-left"></i> Back
                 </a>
-                <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary">
-                    <i class="las la-arrow-left"></i> Back to Orders
+                <a href="{{ route('orders.edit', $order) }}" class="btn btn-outline-primary mr-2">
+                    <i class="las la-edit"></i> Edit
                 </a>
+                <button class="btn btn-outline-success" onclick="printOrder()">
+                    <i class="las la-print"></i> Print
+                </button>
             </div>
         </div>
 
-        <!-- Order Header Card -->
-        <div class="card shadow mb-4">
-            <div class="card-body">
+        <!-- Order Summary -->
+        <div class="row mb-4">
+            <div class="col-lg-8">
                 <div class="row">
-                    <div class="col-md-8">
-                        <div class="d-flex align-items-center mb-3">
-                            <h4 class="mb-0 mr-3">Order #TS-{{ str_pad($id, 4, '0', STR_PAD_LEFT) }}</h4>
-                            <span class="badge badge-warning">Pending</span>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-2">
-                                    <small class="text-muted">Order Date</small>
-                                    <div class="font-weight-bold">{{ now()->subDays($id)->format('d M, Y') }}</div>
-                                </div>
-                                <div class="mb-2">
-                                    <small class="text-muted">Delivery Date</small>
-                                    <div class="font-weight-bold">{{ now()->addDays($id + 3)->format('d M, Y') }}</div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-2">
-                                    <small class="text-muted">Customer</small>
-                                    <div class="font-weight-bold">Customer {{ $id }}</div>
-                                    <small class="text-muted">+92 300 123456{{ $id }}</small>
-                                </div>
-                                <div class="mb-2">
-                                    <small class="text-muted">Branch</small>
-                                    <div class="font-weight-bold">Main Branch</div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Order Status</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            <span class="badge badge-pill" style="background-color: {{ $order->status->color }}; color: white; font-size: 1rem;">
+                                                {{ $order->status->name }}
+                                            </span>
+                                        </div>
+                                        <div class="mt-2 mb-0 text-muted text-xs">
+                                            @if($order->delivery_date->isFuture())
+                                                {{ $order->delivery_date->diffInDays(now()) }} days remaining
+                                            @else
+                                                {{ $order->delivery_date->diffForHumans() }}
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="las la-{{ $order->status->slug == 'pending' ? 'clock' : ($order->status->slug == 'in-progress' ? 'tasks' : 'check-circle') }} fa-2x text-primary"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="bg-light p-3 rounded">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Total Amount:</span>
-                                <span class="font-weight-bold text-primary">Rs {{ number_format(5000 + ($id * 1500)) }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Advance Paid:</span>
-                                <span class="font-weight-bold text-success">Rs {{ number_format(2000 + ($id * 500)) }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between mb-2">
-                                <span>Balance Due:</span>
-                                <span class="font-weight-bold text-danger">Rs {{ number_format(3000 + ($id * 1000)) }}</span>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span>Payment Status:</span>
-                                <span class="badge badge-warning">Partial</span>
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Payment Status</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            <span class="badge badge-pill" style="background-color: {{ $order->paymentStatus->color }}; color: white; font-size: 1rem;">
+                                                {{ $order->paymentStatus->name }}
+                                            </span>
+                                        </div>
+                                        <div class="mt-2 mb-0 text-muted text-xs">
+                                            @if($order->paymentStatus->slug == 'partial')
+                                                Rs {{ number_format($order->remaining_amount) }} remaining
+                                            @elseif($order->paymentStatus->slug == 'paid')
+                                                Fully paid
+                                            @else
+                                            Pending
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="las la-rupee-sign fa-2x text-success"></i>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Order Details Tabs -->
-        <div class="card shadow">
-            <div class="card-header">
-                <ul class="nav nav-tabs card-header-tabs" id="orderTabs" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="items-tab" data-toggle="tab" href="#items">
-                            <i class="las la-tshirt mr-1"></i> Order Items
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="measurements-tab" data-toggle="tab" href="#measurements">
-                            <i class="las la-ruler-combined mr-1"></i> Measurements
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="fabrics-tab" data-toggle="tab" href="#fabrics">
-                            <i class="las la-layer-group mr-1"></i> Fabrics
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="tailor-tab" data-toggle="tab" href="#tailor">
-                            <i class="las la-user-secret mr-1"></i> Tailor Assignment
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="payments-tab" data-toggle="tab" href="#payments">
-                            <i class="las la-rupee-sign mr-1"></i> Payments
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="history-tab" data-toggle="tab" href="#history">
-                            <i class="las la-history mr-1"></i> Order History
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div class="card-body">
-                <div class="tab-content" id="orderTabsContent">
-                    <!-- Order Items Tab -->
-                    <div class="tab-pane fade show active" id="items" role="tabpanel">
+                <!-- Customer & Order Info -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Customer & Order Information</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6 class="font-weight-bold text-primary mb-3">Customer Details</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th width="40%">Name:</th>
+                                        <td>{{ $order->customer->name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Phone:</th>
+                                        <td>{{ $order->customer->phone }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Address:</th>
+                                        <td>{{ $order->customer->address ?? 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Customer Type:</th>
+                                        <td>
+                                            <span class="badge badge-{{ $order->customer->customer_type == 'regular' ? 'primary' : 'success' }}">
+                                                {{ ucfirst($order->customer->customer_type) }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th>Discount Rate:</th>
+                                        <td>{{ $order->customer->discount_rate }}%</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="font-weight-bold text-primary mb-3">Order Details</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th width="40%">Order Number:</th>
+                                        <td class="font-weight-bold">{{ $order->order_number }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Order Date:</th>
+                                        <td>{{ $order->order_date->format('d M, Y') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Delivery Date:</th>
+                                        <td>{{ $order->delivery_date->format('d M, Y') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Branch:</th>
+                                        <td>{{ $order->branch->name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Order Type:</th>
+                                        <td>{{ ucfirst($order->order_type) }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Items -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Order Items</h6>
+                        <button class="btn btn-sm btn-outline-primary" onclick="addItem()">
+                            <i class="las la-plus"></i> Add Item
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        @foreach($order->items as $item)
+                        <div class="card mb-3">
+                            <div class="card-header bg-light">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-0">{{ $item->item_name }}</h6>
+                                        <small class="text-muted">Item Status: 
+                                            <span class="badge badge-{{ $item->item_status == 'pending' ? 'warning' : ($item->item_status == 'ready' ? 'success' : 'info') }}">
+                                                {{ ucfirst($item->item_status) }}
+                                            </span>
+                                        </small>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-weight-bold text-success">
+                                            Rs {{ number_format($item->total) }}
+                                        </div>
+                                        <small class="text-muted">Qty: {{ $item->quantity }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                @if($item->dressType)
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h6 class="font-weight-bold">Dress Type Details</h6>
+                                        <table class="table table-sm">
+                                            <tr>
+                                                <th>Dress Type:</th>
+                                                <td>{{ $item->dressType->name }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Base Price:</th>
+                                                <td>Rs {{ number_format($item->dressType->base_price) }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Est. Days:</th>
+                                                <td>{{ $item->dressType->estimated_days }} days</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h6 class="font-weight-bold">Tailor Assignment</h6>
+                                        @if($item->tailorAssignments->count() > 0)
+                                            @php
+                                                $assignment = $item->tailorAssignments->first();
+                                            @endphp
+                                            <table class="table table-sm">
+                                                <tr>
+                                                    <th>Tailor:</th>
+                                                    <td>{{ $assignment->tailor->name }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Status:</th>
+                                                    <td>
+                                                        <span class="badge" style="background-color: {{ $assignment->status->color }}; color: white;">
+                                                            {{ $assignment->status->name }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Stitching Charge:</th>
+                                                    <td>Rs {{ number_format($assignment->stitching_charge) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Progress:</th>
+                                                    <td>
+                                                        <div class="progress" style="height: 6px;">
+                                                            <div class="progress-bar" role="progressbar" 
+                                                                 style="width: {{ $assignment->progress_percentage }}%; background-color: {{ $assignment->status->color }};">
+                                                            </div>
+                                                        </div>
+                                                        <small class="text-muted">{{ $assignment->progress_percentage }}%</small>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        @else
+                                            <div class="alert alert-warning">
+                                                <i class="las la-exclamation-triangle"></i> No tailor assigned yet.
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                                
+                                <!-- Measurements -->
+                                @if($item->measurements->count() > 0)
+                                <div class="mt-3">
+                                    <h6 class="font-weight-bold">Measurements (cm)</h6>
+                                    <div class="row">
+                                        @php
+                                            $measurement = $item->measurements->first();
+                                            $measurementFields = [
+                                                'height' => 'Height',
+                                                'chest' => 'Chest',
+                                                'waist' => 'Waist',
+                                                'hips' => 'Hips',
+                                                'shoulder' => 'Shoulder',
+                                                'sleeve_length' => 'Sleeve Length',
+                                                'pant_length' => 'Pant Length',
+                                                'inseam' => 'Inseam',
+                                            ];
+                                        @endphp
+                                        @foreach($measurementFields as $field => $label)
+                                            @if($measurement->$field)
+                                            <div class="col-md-3 mb-2">
+                                                <div class="bg-light p-2 rounded">
+                                                    <small class="text-muted">{{ $label }}</small>
+                                                    <div class="font-weight-bold">{{ $measurement->$field }} cm</div>
+                                                </div>
+                                            </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                </div>
+                                @endif
+                                
+                                <!-- Instructions -->
+                                @if($item->instructions)
+                                <div class="mt-3">
+                                    <h6 class="font-weight-bold">Special Instructions</h6>
+                                    <p class="mb-0">{{ $item->instructions }}</p>
+                                </div>
+                                @endif
+                                @endif
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+
+                <!-- Payments -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Payment History</h6>
+                        <button class="btn btn-sm btn-outline-success" onclick="addPayment()">
+                            <i class="las la-money-bill-wave"></i> Add Payment
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        @if($order->payments->count() > 0)
                         <div class="table-responsive">
-                            <table class="table table-bordered">
+                            <table class="table table-sm">
                                 <thead>
                                     <tr>
-                                        <th>#</th>
-                                        <th>Dress Type</th>
-                                        <th>Description</th>
-                                        <th>Quantity</th>
-                                        <th>Price</th>
-                                        <th>Total</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
+                                        <th>Date</th>
+                                        <th>Receipt #</th>
+                                        <th>Method</th>
+                                        <th>Amount</th>
+                                        <th>Previous Balance</th>
+                                        <th>New Balance</th>
+                                        <th>Received By</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php
-                                    $dressTypes = ['Sherwani', 'Suit', 'Kurta', 'Shalwar Kameez', 'Gown', 'Lehenga'];
-                                    $itemStatus = ['pending', 'cutting', 'stitching', 'ready', 'delivered'];
-                                    $statusColors = ['warning', 'primary', 'secondary', 'success', 'dark'];
-                                    @endphp
-                                    @for($i = 1; $i <= 2; $i++)
-                                        <tr>
-                                        <td>{{ $i }}</td>
-                                        <td class="font-weight-bold">{{ $dressTypes[($id + $i) % 6] }}</td>
-                                        <td>
-                                            <small class="text-muted">
-                                                {{ $i == 1 ? 'Embroidered silk sherwani with heavy work' : 'Formal business suit with 2-piece design' }}
-                                            </small>
-                                        </td>
-                                        <td>1</td>
-                                        <td>Rs {{ number_format(3000 + ($i * 1000)) }}</td>
-                                        <td class="font-weight-bold">Rs {{ number_format(3000 + ($i * 1000)) }}</td>
-                                        <td>
-                                            @php $statusIndex = ($i % 5); @endphp
-                                            <span class="badge badge-{{ $statusColors[$statusIndex] }}">
-                                                {{ ucfirst($itemStatus[$statusIndex]) }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary" onclick="viewItemDetails({{ $i }})">
-                                                <i class="las la-eye"></i>
-                                            </button>
-                                        </td>
-                                        </tr>
-                                        @endfor
+                                    @foreach($order->payments as $payment)
+                                    <tr>
+                                        <td>{{ $payment->payment_date->format('d M, Y') }}</td>
+                                        <td class="font-weight-bold">{{ $payment->receipt_number ??""  }}</td>
+                                        <td>{{ $payment->paymentMethod->name ??"" }}</td>
+                                        <td class="text-success font-weight-bold">Rs {{ number_format($payment->amount) }}</td>
+                                        <td>Rs {{ number_format($payment->previous_balance) }}</td>
+                                        <td>Rs {{ number_format($payment->new_balance) }}</td>
+                                        <td>{{ $payment->receivedBy->name ?? 'N/A' }}</td>
+                                    </tr>
+                                    @endforeach
                                 </tbody>
-                                <tfoot>
-                                    <tr>
-                                        <td colspan="5" class="text-right font-weight-bold">Subtotal:</td>
-                                        <td class="font-weight-bold">Rs {{ number_format(6000 + ($id * 1500)) }}</td>
-                                        <td colspan="2"></td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="5" class="text-right font-weight-bold">Fabric Cost:</td>
-                                        <td class="font-weight-bold">Rs {{ number_format(1500) }}</td>
-                                        <td colspan="2"></td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="5" class="text-right font-weight-bold">Stitching Charges:</td>
-                                        <td class="font-weight-bold">Rs {{ number_format(1000) }}</td>
-                                        <td colspan="2"></td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="5" class="text-right font-weight-bold">Total:</td>
-                                        <td class="font-weight-bold text-primary">Rs {{ number_format(8500 + ($id * 1500)) }}</td>
-                                        <td colspan="2"></td>
-                                    </tr>
-                                </tfoot>
                             </table>
                         </div>
-                    </div>
-
-                    <!-- Measurements Tab -->
-                    <div class="tab-pane fade" id="measurements" role="tabpanel">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <h6 class="mb-0">Body Measurements (in cm)</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label class="text-muted">Height</label>
-                                                <div class="font-weight-bold">170 cm</div>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="text-muted">Chest</label>
-                                                <div class="font-weight-bold">42 cm</div>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="text-muted">Waist</label>
-                                                <div class="font-weight-bold">38 cm</div>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="text-muted">Hips</label>
-                                                <div class="font-weight-bold">44 cm</div>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="text-muted">Shoulder</label>
-                                                <div class="font-weight-bold">18 cm</div>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="text-muted">Sleeve Length</label>
-                                                <div class="font-weight-bold">60 cm</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <h6 class="mb-0">Additional Details</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label class="text-muted">Fitting Preferences</label>
-                                            <div class="font-weight-bold">Regular Fit, Slightly loose sleeves</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Special Instructions</label>
-                                            <div>Extra pocket on inside, monogram on chest</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Measurement Taken By</label>
-                                            <div class="font-weight-bold">Ali Ahmed</div>
-                                            <small class="text-muted">On {{ now()->subDays(2)->format('d M, Y') }}</small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        @else
+                        <div class="alert alert-info">
+                            <i class="las la-info-circle"></i> No payments recorded yet.
                         </div>
-                        <div class="text-center">
-                            <button class="btn btn-outline-primary" onclick="updateMeasurements()">
-                                <i class="las la-ruler-combined"></i> Update Measurements
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Fabrics Tab -->
-                    <div class="tab-pane fade" id="fabrics" role="tabpanel">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <h6 class="mb-0">Fabric Details</h6>
-                                    </div>
+                        @endif
+                        
+                        <!-- Payment Summary -->
+                        <div class="row mt-4">
+                            <div class="col-md-4">
+                                <div class="card border-left-primary">
                                     <div class="card-body">
-                                        <div class="mb-3">
-                                            <label class="text-muted">Fabric Type</label>
-                                            <div class="font-weight-bold">Silk</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Color</label>
-                                            <div class="font-weight-bold">Navy Blue</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Meter Required</label>
-                                            <div class="font-weight-bold">3.5 m</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Rate per Meter</label>
-                                            <div class="font-weight-bold">Rs 800</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Total Fabric Cost</label>
-                                            <div class="font-weight-bold text-primary">Rs 2,800</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <h6 class="mb-0">Fabric Status</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label class="text-muted">Current Status</label>
-                                            <span class="badge badge-success">Received</span>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Supplier</label>
-                                            <div class="font-weight-bold">Silk Emporium</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Ordered Date</label>
-                                            <div>{{ now()->subDays(5)->format('d M, Y') }}</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Received Date</label>
-                                            <div>{{ now()->subDays(3)->format('d M, Y') }}</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Cutting Date</label>
-                                            <div>{{ now()->subDays(1)->format('d M, Y') }}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tailor Assignment Tab -->
-                    <div class="tab-pane fade" id="tailor" role="tabpanel">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <h6 class="mb-0">Assigned Tailor</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center mb-3">
-                                            <div class="avatar avatar-xl mr-3">
-                                                <span class="avatar-title rounded-circle bg-primary text-white">
-                                                    TA
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <h5 class="mb-1">Tailor Ali</h5>
-                                                <small class="text-muted">Sherwani Specialist</small>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label class="text-muted">Phone</label>
-                                                <div>+92 300 9876543</div>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="text-muted">Experience</label>
-                                                <div>5 years</div>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="text-muted">Assigned Date</label>
-                                                <div>{{ now()->subDays(2)->format('d M, Y') }}</div>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="text-muted">Expected Date</label>
-                                                <div>{{ now()->addDays(3)->format('d M, Y') }}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="card mb-4">
-                                    <div class="card-header">
-                                        <h6 class="mb-0">Progress Details</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="mb-3">
-                                            <label class="text-muted">Current Stage</label>
-                                            <span class="badge badge-primary">Cutting</span>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Progress</label>
-                                            <div class="progress mb-2">
-                                                <div class="progress-bar bg-primary" role="progressbar" style="width: 40%"></div>
-                                            </div>
-                                            <small class="text-muted">40% complete</small>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Stitching Charges</label>
-                                            <div class="font-weight-bold">Rs 1,500</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Advance Paid to Tailor</label>
-                                            <div class="font-weight-bold text-success">Rs 500</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Balance to Tailor</label>
-                                            <div class="font-weight-bold text-danger">Rs 1,000</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label class="text-muted">Tailor Instructions</label>
-                            <div class="bg-light p-3 rounded">
-                                Please ensure perfect stitching on embroidery areas. Use double stitching on stress points. Add monogram on left chest pocket.
-                            </div>
-                        </div>
-                        <div class="text-center">
-                            <button class="btn btn-outline-primary mr-2" onclick="updateProgress()">
-                                <i class="las la-sync-alt"></i> Update Progress
-                            </button>
-                            <button class="btn btn-outline-success" onclick="changeTailor()">
-                                <i class="las la-user-plus"></i> Change Tailor
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Payments Tab -->
-                    <div class="tab-pane fade" id="payments" role="tabpanel">
-                        <div class="row mb-4">
-                            <div class="col-md-8">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h6 class="mb-0">Payment History</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Date</th>
-                                                        <th>Receipt #</th>
-                                                        <th>Payment Method</th>
-                                                        <th>Amount</th>
-                                                        <th>Received By</th>
-                                                        <th>Status</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @for($i = 1; $i <= 2; $i++)
-                                                        <tr>
-                                                        <td>{{ now()->subDays($i)->format('d M, Y') }}</td>
-                                                        <td>REC-{{ str_pad($id * 10 + $i, 4, '0', STR_PAD_LEFT) }}</td>
-                                                        <td>{{ $i == 1 ? 'Cash' : 'Bank Transfer' }}</td>
-                                                        <td class="font-weight-bold text-success">Rs {{ number_format(1500 + ($i * 500)) }}</td>
-                                                        <td>Staff {{ $i }}</td>
-                                                        <td><span class="badge badge-success">Verified</span></td>
-                                                        </tr>
-                                                        @endfor
-                                                </tbody>
-                                            </table>
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Total Amount</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            Rs {{ number_format($order->final_amount) }}
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h6 class="mb-0">Payment Summary</h6>
-                                    </div>
+                                <div class="card border-left-success">
                                     <div class="card-body">
-                                        <div class="mb-3">
-                                            <label class="text-muted">Total Order Amount</label>
-                                            <div class="font-weight-bold">Rs {{ number_format(8500 + ($id * 1500)) }}</div>
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Total Paid</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            Rs {{ number_format($order->payments->sum('amount')) }}
                                         </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Total Paid</label>
-                                            <div class="font-weight-bold text-success">Rs {{ number_format(2500) }}</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Balance Due</label>
-                                            <div class="font-weight-bold text-danger">Rs {{ number_format(6000 + ($id * 1500)) }}</div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="text-muted">Next Payment Due</label>
-                                            <div class="font-weight-bold">{{ now()->addDays(2)->format('d M, Y') }}</div>
-                                        </div>
-                                        <hr>
-                                        <button class="btn btn-primary btn-block" onclick="recordPayment()">
-                                            <i class="las la-plus-circle"></i> Record New Payment
-                                        </button>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Order History Tab -->
-                    <div class="tab-pane fade" id="history" role="tabpanel">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="timeline">
-                                    <div class="timeline-item">
-                                        <div class="timeline-marker bg-success"></div>
-                                        <div class="timeline-content">
-                                            <div class="d-flex justify-content-between">
-                                                <h6>Order Completed</h6>
-                                                <small class="text-muted">Today, 10:30 AM</small>
-                                            </div>
-                                            <p>Order marked as delivered to customer</p>
-                                            <small class="text-muted">By: Admin User</small>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-item">
-                                        <div class="timeline-marker bg-info"></div>
-                                        <div class="timeline-content">
-                                            <div class="d-flex justify-content-between">
-                                                <h6>Progress Updated</h6>
-                                                <small class="text-muted">Yesterday, 4:15 PM</small>
-                                            </div>
-                                            <p>Progress updated to 95% - Finishing stage</p>
-                                            <small class="text-muted">By: Tailor Manager</small>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-item">
-                                        <div class="timeline-marker bg-primary"></div>
-                                        <div class="timeline-content">
-                                            <div class="d-flex justify-content-between">
-                                                <h6>Tailor Assigned</h6>
-                                                <small class="text-muted">3 days ago, 11:00 AM</small>
-                                            </div>
-                                            <p>Assigned to Tailor Ali for stitching</p>
-                                            <small class="text-muted">By: Branch Manager</small>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-item">
-                                        <div class="timeline-marker bg-warning"></div>
-                                        <div class="timeline-content">
-                                            <div class="d-flex justify-content-between">
-                                                <h6>Order Created</h6>
-                                                <small class="text-muted">5 days ago, 2:30 PM</small>
-                                            </div>
-                                            <p>Order created with 2 items</p>
-                                            <small class="text-muted">By: Sales Staff</small>
+                            <div class="col-md-4">
+                                <div class="card border-left-{{ $order->remaining_amount > 0 ? 'danger' : 'secondary' }}">
+                                    <div class="card-body">
+                                        <div class="text-xs font-weight-bold text-{{ $order->remaining_amount > 0 ? 'danger' : 'secondary' }} text-uppercase mb-1">
+                                            Balance Due</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                            Rs {{ number_format($order->remaining_amount) }}
                                         </div>
                                     </div>
                                 </div>
@@ -540,113 +376,230 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Action Buttons -->
-        <div class="card shadow mt-4">
-            <div class="card-body text-center">
-                <button class="btn btn-outline-primary mr-2" onclick="printOrder()">
-                    <i class="las la-print"></i> Print Order
-                </button>
-                <button class="btn btn-outline-success mr-2" onclick="updateStatus()">
-                    <i class="las la-sync-alt"></i> Update Status
-                </button>
-                <button class="btn btn-outline-info mr-2" onclick="sendNotification()">
-                    <i class="las la-bell"></i> Notify Customer
-                </button>
-                <button class="btn btn-outline-danger" onclick="cancelOrder()">
-                    <i class="las la-times-circle"></i> Cancel Order
-                </button>
+            <!-- Right Sidebar -->
+            <div class="col-lg-4">
+                <!-- Status Timeline -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Status Timeline</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            @foreach($order->statusLogs->sortBy('changed_at') as $log)
+                            <div class="timeline-item mb-3">
+                                <div class="timeline-marker" style="background-color: {{ $log->newStatus->color?? "green" }};"></div>
+                                <div class="timeline-content">
+                                    <div class="font-weight-bold">{{ $log->newStatus->name ?? "" }}</div>
+                                    <small class="text-muted">
+                                        {{ $log->changed_at->format('d M, Y h:i A') }}
+                                    </small>
+                                    @if($log->notes)
+                                    <div class="mt-1 small">{{ $log->notes ??"" }}</div>
+                                    @endif
+                                    <div class="text-muted small">
+                                        By {{ $log->changedBy->name ?? 'System' }}
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Quick Actions</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group list-group-flush">
+                            <button class="list-group-item list-group-item-action" onclick="updateStatus()">
+                                <i class="las la-sync mr-2 text-primary"></i>
+                                Update Status
+                            </button>
+                            <button class="list-group-item list-group-item-action" onclick="addPayment()">
+                                <i class="las la-money-bill-wave mr-2 text-success"></i>
+                                Add Payment
+                            </button>
+                            <button class="list-group-item list-group-item-action" onclick="assignTailor()">
+                                <i class="las la-user-tie mr-2 text-info"></i>
+                                Assign Tailor
+                            </button>
+                            <button class="list-group-item list-group-item-action" onclick="addMeasurement()">
+                                <i class="las la-ruler mr-2 text-warning"></i>
+                                Add Measurement
+                            </button>
+                            <a href="{{ route('orders.edit', $order) }}" class="list-group-item list-group-item-action">
+                                <i class="las la-edit mr-2 text-secondary"></i>
+                                Edit Order
+                            </a>
+                            <button class="list-group-item list-group-item-action text-danger" onclick="deleteOrder()">
+                                <i class="las la-trash mr-2"></i>
+                                Delete Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Notes -->
+                <div class="card shadow">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Notes</h6>
+                    </div>
+                    <div class="card-body">
+                        @if($order->notes)
+                        <h6 class="font-weight-bold">Customer Notes</h6>
+                        <p class="mb-3">{{ $order->notes }}</p>
+                        @endif
+                        
+                        @if($order->internal_notes)
+                        <h6 class="font-weight-bold">Internal Notes</h6>
+                        <p class="mb-3">{{ $order->internal_notes }}</p>
+                        @endif
+                        
+                        <textarea class="form-control" rows="3" placeholder="Add new note..."></textarea>
+                        <button class="btn btn-sm btn-primary mt-2">
+                            <i class="las la-save"></i> Save Note
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
     @push('js')
+        <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
 
-    <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
+        <!-- Table Treeview JavaScript -->
+        <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
 
-    <!-- Table Treeview JavaScript -->
-    <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
+        <!-- Chart Custom JavaScript -->
+        <script src="{{ asset('backend/assets/js/customizer.js') }}"></script>
 
-    <!-- Chart Custom JavaScript -->
-    <script src="{{ asset('backend/assets/js/customizer.js') }}"></script>
-
-    <!-- Chart Custom JavaScript -->
-    <script async src="{{ asset('backend/assets/js/chart-custom.js') }}"></script>
+        <!-- Chart Custom JavaScript -->
+        <script async src="{{ asset('backend/assets/js/chart-custom.js') }}"></script>
 
     <!-- app JavaScript -->
-    <script src="{{ asset('backend/assets/js/app.js') }}"></script>
-    <script>
-        function viewItemDetails(itemId) {
-            alert('Viewing details for item #' + itemId);
-            // In real app: Open item details modal
-        }
-
-        function updateMeasurements() {
-            alert('Opening measurements update form');
-            // In real app: window.location.href = `/orders/{{ $id }}/measurements/edit`;
-        }
-
-        function updateProgress() {
-            alert('Opening progress update form');
-            // In real app: Open progress update modal
-        }
-
-        function changeTailor() {
-            alert('Opening tailor assignment form');
-            // In real app: Open tailor assignment modal
-        }
-
-        function recordPayment() {
-            alert('Opening payment recording form');
-            // In real app: Open payment modal
-        }
-
-        function printOrder() {
-            window.open('/orders/{{ $id }}/print', '_blank');
-        }
-
-        function updateStatus() {
-            alert('Opening status update form');
-            // In real app: Open status update modal
-        }
-
-        function sendNotification() {
-            alert('Sending notification to customer');
-            // In real app: AJAX call to send notification
-        }
-
-        function cancelOrder() {
-            if (confirm('Are you sure you want to cancel this order?')) {
-                alert('Order cancellation initiated');
-                // In real app: AJAX call to cancel order
+        <script src="{{ asset('backend/assets/js/app.js') }}"></script>
+        <script>
+            function printOrder() {
+                window.open('{{ route("orders.show", $order->id) }}?print=true', '_blank');
             }
-        }
-    </script>
-
+            
+            function updateStatus() {
+                alert('Update status for order {{ $order->order_number }}');
+                // Implement status update modal
+            }
+            
+            function addPayment() {
+                alert('Add payment for order {{ $order->order_number }}');
+                // Implement payment modal
+            }
+            
+            function assignTailor() {
+                alert('Assign tailor for order {{ $order->order_number }}');
+                // Implement tailor assignment modal
+            }
+            
+            function addMeasurement() {
+                alert('Add measurement for order {{ $order->order_number }}');
+                // Implement measurement modal
+            }
+            
+            function addItem() {
+                alert('Add item to order {{ $order->order_number }}');
+                // Implement add item modal
+            }
+            
+            function deleteOrder() {
+                if (confirm('Are you sure you want to delete order {{ $order->order_number }}?')) {
+                    window.location.href = '{{ route("orders.destroy", $order->id) }}';
+                }
+            }
+        </script>
+    @endpush
     <style>
         .timeline {
             position: relative;
-            padding-left: 2rem;
+            padding-left: 30px;
         }
-
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #e9ecef;
+        }
+        
         .timeline-item {
             position: relative;
-            padding-bottom: 1.5rem;
+            margin-bottom: 20px;
         }
-
+        
         .timeline-marker {
             position: absolute;
-            left: -1.2rem;
-            top: 0;
-            width: 1rem;
-            height: 1rem;
+            left: -30px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
+            background-color: #3B82F6;
+            border: 2px solid white;
+            box-shadow: 0 0 0 3px #e9ecef;
         }
-
+        
         .timeline-content {
-            padding-left: 1rem;
+            padding-left: 10px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .avatar-sm {
+            width: 30px;
+            height: 30px;
+            font-size: 12px;
+        }
+        
+        .avatar-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            font-weight: bold;
+        }
+        
+        .card {
+            border-radius: 0.5rem;
+        }
+        
+        .badge {
+            font-size: 0.75em;
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+        }
+        
+        .progress {
+            background-color: #e9ecef;
+            border-radius: 2px;
+        }
+        
+        .list-group-item {
+            border: none;
+            padding: 0.75rem 0;
+        }
+        
+        .list-group-item:hover {
+            background-color: #f8f9fa;
         }
     </style>
-    @endpush
 </x-app-layout>

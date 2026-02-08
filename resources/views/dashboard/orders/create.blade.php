@@ -24,11 +24,12 @@
         </div>
 
         <!-- Order Form -->
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card shadow">
-                    <div class="card-body">
-                        <form id="orderForm">
+        <form action="{{ route('orders.store') }}" method="POST" id="orderForm">
+            @csrf
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card shadow">
+                        <div class="card-body">
                             <!-- Customer & Basic Info -->
                             <div class="card mb-4">
                                 <div class="card-header bg-light">
@@ -38,47 +39,94 @@
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Customer *</label>
-                                            <select class="form-control select2" id="customerSelect" required>
+                                            <select class="form-control select2" id="customer_id" name="customer_id" required>
                                                 <option value="">Select Customer</option>
-                                                <option value="1">Mohammed Ali (0300-1234567)</option>
-                                                <option value="2">Fatima Khan (0300-7654321)</option>
-                                                <option value="3">Ahmed Raza (0312-9876543)</option>
-                                                <option value="4">Sara Ahmed (0333-4567890)</option>
+                                                @foreach($customers as $customer)
+                                                <option value="{{ $customer->id }}" 
+                                                    data-phone="{{ $customer->phone }}"
+                                                    data-address="{{ $customer->address }}"
+                                                    data-type="{{ $customer->customer_type }}"
+                                                    data-discount="{{ $customer->discount_rate }}">
+                                                    {{ $customer->name }} ({{ $customer->phone }})
+                                                </option>
+                                                @endforeach
                                             </select>
-                                            <small class="text-muted">Or <a href="{{ route('customers.create') }}">add new customer</a></small>
+                                            <small class="text-muted">Or <a href="{{ route('customers.create') }}" target="_blank">add new customer</a></small>
+                                            @error('customer_id')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
                                         </div>
 
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Order Date *</label>
-                                            <input type="date" class="form-control" value="{{ date('Y-m-d') }}" required>
+                                            <input type="date" class="form-control" name="order_date" 
+                                                   value="{{ old('order_date', date('Y-m-d')) }}" required>
+                                            @error('order_date')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
 
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Dress Type *</label>
-                                            <select class="form-control select2" id="dressType" required>
-                                                <option value="">Select Dress Type</option>
-                                                <option value="sherwani" data-price="12000">Sherwani</option>
-                                                <option value="suit" data-price="8000">Suit</option>
-                                                <option value="kurta" data-price="3500">Kurta</option>
-                                                <option value="shalwar_kameez" data-price="4500">Shalwar Kameez</option>
-                                                <option value="gown" data-price="15000">Gown</option>
-                                                <option value="lehenga" data-price="18000">Lehenga</option>
-                                                <option value="blouse" data-price="2500">Blouse</option>
-                                                <option value="abaya" data-price="5500">Abaya</option>
+                                            <label class="form-label">Branch *</label>
+                                            <select class="form-control select2" name="branch_id" required>
+                                                <option value="">Select Branch</option>
+                                                @foreach($branches as $branch)
+                                                <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
+                                                    {{ $branch->name }}
+                                                </option>
+                                                @endforeach
                                             </select>
+                                            @error('branch_id')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
                                         </div>
 
                                         <div class="col-md-6 mb-3">
+                                            <label class="form-label">Dress Type *</label>
+                                            <select class="form-control select2" id="dress_type_id" name="dress_type_id" required>
+                                                <option value="">Select Dress Type</option>
+                                                @foreach($dressTypes as $dressType)
+                                                <option value="{{ $dressType->id }}" 
+                                                        data-price="{{ $dressType->base_price }}"
+                                                        data-days="{{ $dressType->estimated_days }}">
+                                                    {{ $dressType->name }} - Rs {{ number_format($dressType->base_price) }}
+                                                </option>
+                                                @endforeach
+                                            </select>
+                                            @error('dress_type_id')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
                                             <label class="form-label">Delivery Date *</label>
-                                            <input type="date" class="form-control" id="deliveryDate" value="{{ date('Y-m-d', strtotime('+7 days')) }}" required>
+                                            <input type="date" class="form-control" id="delivery_date" name="delivery_date" 
+                                                   value="{{ old('delivery_date', date('Y-m-d', strtotime('+7 days'))) }}" required>
+                                            @error('delivery_date')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Base Price (Rs) *</label>
+                                            <input type="number" step="0.01" class="form-control" id="base_price" 
+                                                   name="base_price" value="{{ old('base_price', 0) }}" required readonly>
+                                            @error('base_price')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
 
                                     <div class="mb-3">
                                         <label class="form-label">Order Description</label>
-                                        <textarea class="form-control" rows="2" placeholder="Brief description of the order..."></textarea>
+                                        <textarea class="form-control" name="notes" rows="2" 
+                                                  placeholder="Brief description of the order...">{{ old('notes') }}</textarea>
+                                        @error('notes')
+                                        <div class="text-danger small">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>
@@ -87,7 +135,7 @@
                             <div class="card mb-4">
                                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                     <h6 class="mb-0">Measurements (in cm)</h6>
-                                    <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#measurementModal">
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="loadTemplatesBtn">
                                         <i class="las la-ruler mr-1"></i> Use Template
                                     </button>
                                 </div>
@@ -95,42 +143,58 @@
                                     <div class="row">
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Height</label>
-                                            <input type="number" step="0.1" class="form-control" placeholder="170">
+                                            <input type="number" step="0.1" class="form-control" name="measurements[height]" 
+                                                   placeholder="170" value="{{ old('measurements.height') }}">
                                         </div>
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Chest</label>
-                                            <input type="number" step="0.1" class="form-control" placeholder="42">
+                                            <input type="number" step="0.1" class="form-control" name="measurements[chest]" 
+                                                   placeholder="42" value="{{ old('measurements.chest') }}">
                                         </div>
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Waist</label>
-                                            <input type="number" step="0.1" class="form-control" placeholder="38">
+                                            <input type="number" step="0.1" class="form-control" name="measurements[waist]" 
+                                                   placeholder="38" value="{{ old('measurements.waist') }}">
                                         </div>
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Hips</label>
-                                            <input type="number" step="0.1" class="form-control" placeholder="44">
+                                            <input type="number" step="0.1" class="form-control" name="measurements[hips]" 
+                                                   placeholder="44" value="{{ old('measurements.hips') }}">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Shoulder</label>
-                                            <input type="number" step="0.1" class="form-control" placeholder="18">
+                                            <input type="number" step="0.1" class="form-control" name="measurements[shoulder]" 
+                                                   placeholder="18" value="{{ old('measurements.shoulder') }}">
                                         </div>
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Sleeve Length</label>
-                                            <input type="number" step="0.1" class="form-control" placeholder="60">
+                                            <input type="number" step="0.1" class="form-control" name="measurements[sleeve_length]" 
+                                                   placeholder="60" value="{{ old('measurements.sleeve_length') }}">
                                         </div>
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Pant Length</label>
-                                            <input type="number" step="0.1" class="form-control" placeholder="100">
+                                            <input type="number" step="0.1" class="form-control" name="measurements[pant_length]" 
+                                                   placeholder="100" value="{{ old('measurements.pant_length') }}">
                                         </div>
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Inseam</label>
-                                            <input type="number" step="0.1" class="form-control" placeholder="80">
+                                            <input type="number" step="0.1" class="form-control" name="measurements[inseam]" 
+                                                   placeholder="80" value="{{ old('measurements.inseam') }}">
                                         </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Additional Notes</label>
-                                        <textarea class="form-control" rows="2" placeholder="Any special instructions or preferences..."></textarea>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Fitting Preferences</label>
+                                            <textarea class="form-control" name="measurements[fitting_preferences]" rows="2" 
+                                                      placeholder="Loose, tight, or any specific preferences...">{{ old('measurements.fitting_preferences') }}</textarea>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Measurement Notes</label>
+                                            <textarea class="form-control" name="measurements[notes]" rows="2" 
+                                                      placeholder="Additional notes about measurements...">{{ old('measurements.notes') }}</textarea>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -139,7 +203,7 @@
                             <div class="card mb-4">
                                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                     <h6 class="mb-0">Fabric Details</h6>
-                                    <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal" data-target="#fabricModal">
+                                    <button type="button" class="btn btn-sm btn-outline-info" id="selectFabricBtn">
                                         <i class="las la-layer-group mr-1"></i> Select from Inventory
                                     </button>
                                 </div>
@@ -147,34 +211,30 @@
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Fabric Type</label>
-                                            <select class="form-control select2" id="fabricSelect">
-                                                <option value="">Select Fabric</option>
-                                                <option value="silk">Silk</option>
-                                                <option value="cotton">Cotton</option>
-                                                <option value="linen">Linen</option>
-                                                <option value="wool">Wool</option>
-                                                <option value="polyester">Polyester</option>
-                                                <option value="georgette">Georgette</option>
-                                                <option value="chiffon">Chiffon</option>
-                                            </select>
+                                            <input type="text" class="form-control" id="fabric_type" 
+                                                   placeholder="e.g., Silk, Cotton" value="{{ old('fabric_type') }}">
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Color</label>
-                                            <input type="text" class="form-control" id="fabricColor" placeholder="e.g., Navy Blue">
+                                            <input type="text" class="form-control" id="fabric_color" 
+                                                   placeholder="e.g., Navy Blue" value="{{ old('fabric_color') }}">
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Meter Required</label>
-                                            <input type="number" step="0.01" class="form-control" id="meterRequired" placeholder="3.5" value="0">
+                                            <input type="number" step="0.01" class="form-control" id="meter_required" 
+                                                   placeholder="3.5" value="{{ old('meter_required', 0) }}">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Fabric Rate/m (Rs)</label>
-                                            <input type="number" class="form-control" id="fabricRate" value="0">
+                                            <input type="number" step="0.01" class="form-control" id="fabric_rate" 
+                                                   value="{{ old('fabric_rate', 0) }}">
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Fabric Cost (Rs)</label>
-                                            <input type="number" class="form-control" id="fabricCost" value="0" readonly>
+                                            <input type="number" step="0.01" class="form-control" id="fabric_cost" 
+                                                   name="fabric_cost" value="{{ old('fabric_cost', 0) }}" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -188,45 +248,68 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-3 mb-3">
-                                            <label class="form-label">Base Price (Rs)</label>
-                                            <input type="number" class="form-control" id="basePrice" value="0" readonly>
-                                        </div>
-                                        <div class="col-md-3 mb-3">
                                             <label class="form-label">Stitching Charges (Rs)</label>
-                                            <input type="number" class="form-control" id="stitchingCharges" value="1000">
+                                            <input type="number" step="0.01" class="form-control" id="stitching_charges" 
+                                                   name="stitching_charges" value="{{ old('stitching_charges', 0) }}">
+                                            @error('stitching_charges')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Additional Charges (Rs)</label>
-                                            <input type="number" class="form-control" id="additionalCharges" value="0">
+                                            <input type="number" step="0.01" class="form-control" id="additional_charges" 
+                                                   name="additional_charges" value="{{ old('additional_charges', 0) }}">
+                                            @error('additional_charges')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Discount (Rs)</label>
-                                            <input type="number" class="form-control" id="discount" value="0">
+                                            <input type="number" step="0.01" class="form-control" id="discount_amount" 
+                                                   name="discount_amount" value="{{ old('discount_amount', 0) }}">
+                                            @error('discount_amount')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
                                         </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
+                                        <div class="col-md-3 mb-3">
                                             <label class="form-label">Total Amount (Rs)</label>
-                                            <input type="number" class="form-control font-weight-bold" id="totalAmount" value="0" readonly style="font-size: 1.2rem;">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">Advance Paid (Rs)</label>
-                                            <input type="number" class="form-control" id="advancePaid" value="0">
+                                            <input type="number" step="0.01" class="form-control font-weight-bold" 
+                                                   id="total_amount" value="0" readonly style="font-size: 1.2rem;">
                                         </div>
                                     </div>
                                     <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Advance Paid (Rs) *</label>
+                                            <input type="number" step="0.01" class="form-control" id="advance_amount" 
+                                                   name="advance_amount" value="{{ old('advance_amount', 0) }}" required>
+                                            @error('advance_amount')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Payment Method</label>
-                                            <select class="form-control" id="paymentMethod">
-                                                <option value="cash">Cash</option>
-                                                <option value="card">Credit Card</option>
-                                                <option value="bank">Bank Transfer</option>
-                                                <option value="mobile">Mobile Payment</option>
+                                            <select class="form-control" name="payment_method_id">
+                                                @foreach($paymentMethods as $method)
+                                                <option value="{{ $method->id }}" {{ old('payment_method_id', 1) == $method->id ? 'selected' : '' }}>
+                                                    {{ $method->name }}
+                                                </option>
+                                                @endforeach
                                             </select>
                                         </div>
+                                    </div>
+                                    <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Balance Due (Rs)</label>
-                                            <input type="number" class="form-control font-weight-bold text-danger" id="balanceDue" value="0" readonly>
+                                            <input type="number" step="0.01" class="form-control font-weight-bold text-danger" 
+                                                   id="balance_due" value="0" readonly>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Remaining Amount</label>
+                                            <input type="number" step="0.01" class="form-control" id="remaining_amount" 
+                                                   name="remaining_amount" value="{{ old('remaining_amount', 0) }}" readonly>
+                                            @error('remaining_amount')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
                                         </div>
                                     </div>
                                 </div>
@@ -241,21 +324,26 @@
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Assign to Tailor</label>
-                                            <select class="form-control select2" id="tailorSelect">
+                                            <select class="form-control select2" id="tailor_id" name="tailor_id">
                                                 <option value="">Select Tailor</option>
-                                                <option value="1">Tailor Ali (Sherwani Specialist)</option>
-                                                <option value="2">Tailor Ahmed (Suit Expert)</option>
-                                                <option value="3">Tailor Fatima (Ladies Wear)</option>
-                                                <option value="4">Tailor Raza (Traditional Wear)</option>
+                                                @foreach($tailors as $tailor)
+                                                <option value="{{ $tailor->id }}" {{ old('tailor_id') == $tailor->id ? 'selected' : '' }}>
+                                                    {{ $tailor->name }} - {{ ucfirst($tailor->employment_type) }}
+                                                    @if($tailor->specializations)
+                                                    ({{ json_decode($tailor->specializations)[0] ?? 'General' }})
+                                                    @endif
+                                                </option>
+                                                @endforeach
                                             </select>
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Expected Completion</label>
-                                            <input type="date" class="form-control" id="expectedCompletion" value="{{ date('Y-m-d', strtotime('+5 days')) }}">
+                                            <input type="date" class="form-control" id="expected_completion" 
+                                                   value="{{ date('Y-m-d', strtotime('+5 days')) }}">
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Special Instructions</label>
+                                        <label class="form-label">Special Instructions for Tailor</label>
                                         <textarea class="form-control" rows="2" placeholder="Any special instructions for tailor..."></textarea>
                                     </div>
                                 </div>
@@ -268,11 +356,15 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="mb-3">
-                                        <label class="form-label">Order Notes (Internal)</label>
-                                        <textarea class="form-control" rows="3" placeholder="Internal notes about this order..."></textarea>
+                                        <label class="form-label">Internal Notes</label>
+                                        <textarea class="form-control" name="internal_notes" rows="3" 
+                                                  placeholder="Internal notes about this order...">{{ old('internal_notes') }}</textarea>
+                                        @error('internal_notes')
+                                        <div class="text-danger small">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                     <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="urgentOrder">
+                                        <input type="checkbox" class="form-check-input" id="urgentOrder" name="urgent_order">
                                         <label class="form-check-label text-warning" for="urgentOrder">
                                             <i class="las la-exclamation-circle"></i> Mark as Urgent Order
                                         </label>
@@ -294,11 +386,11 @@
                                     </button>
                                 </div>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 
     <!-- Measurement Template Modal -->
@@ -310,45 +402,35 @@
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>Template Name</th>
-                                    <th>Height</th>
-                                    <th>Chest</th>
-                                    <th>Waist</th>
-                                    <th>Hips</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Mohammed Ali - Sherwani</td>
-                                    <td>170 cm</td>
-                                    <td>42 cm</td>
-                                    <td>38 cm</td>
-                                    <td>44 cm</td>
-                                    <td><button class="btn btn-sm btn-outline-primary" onclick="applyTemplate(170, 42, 38, 44, 18, 60, 100, 80)">Apply</button></td>
-                                </tr>
-                                <tr>
-                                    <td>Ahmed Raza - Suit</td>
-                                    <td>175 cm</td>
-                                    <td>44 cm</td>
-                                    <td>40 cm</td>
-                                    <td>46 cm</td>
-                                    <td><button class="btn btn-sm btn-outline-primary" onclick="applyTemplate(175, 44, 40, 46, 19, 62, 102, 82)">Apply</button></td>
-                                </tr>
-                                <tr>
-                                    <td>Fatima Khan - Gown</td>
-                                    <td>165 cm</td>
-                                    <td>38 cm</td>
-                                    <td>34 cm</td>
-                                    <td>42 cm</td>
-                                    <td><button class="btn btn-sm btn-outline-primary" onclick="applyTemplate(165, 38, 34, 42, 16, 58, 95, 75)">Apply</button></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div id="templateLoading" class="text-center p-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading templates...</p>
+                    </div>
+                    <div id="templateContent" style="display: none;">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover" id="templatesTable">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Template Name</th>
+                                        <th>Dress Type</th>
+                                        <th>Height</th>
+                                        <th>Chest</th>
+                                        <th>Waist</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Templates will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="noTemplates" class="text-center p-4" style="display: none;">
+                        <i class="las la-ruler-combined fa-3x text-muted mb-3"></i>
+                        <p>No measurement templates found for this customer.</p>
+                        <p class="text-muted small">Please add measurements manually.</p>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -371,7 +453,8 @@
                         <table class="table table-sm table-hover">
                             <thead class="thead-light">
                                 <tr>
-                                    <th>Fabric Type</th>
+                                    <th>Fabric Code</th>
+                                    <th>Type</th>
                                     <th>Color</th>
                                     <th>Available (m)</th>
                                     <th>Rate/m (Rs)</th>
@@ -379,34 +462,25 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @foreach($fabrics as $fabric)
                                 <tr>
-                                    <td>Silk</td>
-                                    <td><span class="badge" style="background-color: #1D4ED8; color: white;">Navy Blue</span></td>
-                                    <td>25.5</td>
-                                    <td>800</td>
-                                    <td><button class="btn btn-sm btn-outline-primary" onclick="selectFabric('Silk', 'Navy Blue', 800)">Select</button></td>
+                                    <td>{{ $fabric->fabric_code }}</td>
+                                    <td>{{ $fabric->type }}</td>
+                                    <td>
+                                        <span class="badge" style="background-color: {{ $this->getColorCode($fabric->color) }}; color: white;">
+                                            {{ $fabric->color }}
+                                        </span>
+                                    </td>
+                                    <td>{{ number_format($fabric->stock_meter, 2) }}</td>
+                                    <td>{{ number_format($fabric->selling_rate) }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary" 
+                                                onclick="selectFabric('{{ $fabric->type }}', '{{ $fabric->color }}', {{ $fabric->selling_rate }})">
+                                            Select
+                                        </button>
+                                    </td>
                                 </tr>
-                                <tr>
-                                    <td>Cotton</td>
-                                    <td><span class="badge" style="background-color: #ffffff; color: #000; border: 1px solid #ddd;">White</span></td>
-                                    <td>45.0</td>
-                                    <td>300</td>
-                                    <td><button class="btn btn-sm btn-outline-primary" onclick="selectFabric('Cotton', 'White', 300)">Select</button></td>
-                                </tr>
-                                <tr>
-                                    <td>Linen</td>
-                                    <td><span class="badge" style="background-color: #FDE68A; color: #000;">Beige</span></td>
-                                    <td>18.5</td>
-                                    <td>600</td>
-                                    <td><button class="btn btn-sm btn-outline-primary" onclick="selectFabric('Linen', 'Beige', 600)">Select</button></td>
-                                </tr>
-                                <tr>
-                                    <td>Georgette</td>
-                                    <td><span class="badge" style="background-color: #EC4899; color: white;">Pink</span></td>
-                                    <td>15.2</td>
-                                    <td>550</td>
-                                    <td><button class="btn btn-sm btn-outline-primary" onclick="selectFabric('Georgette', 'Pink', 550)">Select</button></td>
-                                </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -442,31 +516,69 @@
             });
 
             // Update base price when dress type changes
-            $('#dressType').change(function() {
+            $('#dress_type_id').change(function() {
                 const selectedOption = $(this).find('option:selected');
                 const basePrice = selectedOption.data('price') || 0;
-                $('#basePrice').val(basePrice);
+                const estimatedDays = selectedOption.data('days') || 7;
+                
+                $('#base_price').val(basePrice);
+                
+                // Update delivery date based on estimated days
+                const orderDate = $('input[name="order_date"]').val();
+                if (orderDate) {
+                    const deliveryDate = new Date(orderDate);
+                    deliveryDate.setDate(deliveryDate.getDate() + parseInt(estimatedDays));
+                    const formattedDate = deliveryDate.toISOString().split('T')[0];
+                    $('#delivery_date').val(formattedDate);
+                }
+                
                 calculateTotal();
             });
 
             // Calculate fabric cost
-            $('#meterRequired, #fabricRate').on('input', function() {
-                const meter = parseFloat($('#meterRequired').val()) || 0;
-                const rate = parseFloat($('#fabricRate').val()) || 0;
+            $('#meter_required, #fabric_rate').on('input', function() {
+                const meter = parseFloat($('#meter_required').val()) || 0;
+                const rate = parseFloat($('#fabric_rate').val()) || 0;
                 const fabricCost = meter * rate;
-                $('#fabricCost').val(fabricCost.toFixed(2));
+                $('#fabric_cost').val(fabricCost.toFixed(2));
                 calculateTotal();
             });
 
             // Calculate total amount
-            $('#stitchingCharges, #additionalCharges, #discount').on('input', calculateTotal);
-            $('#advancePaid').on('input', calculateBalance);
+            $('#stitching_charges, #additional_charges, #discount_amount, #advance_amount').on('input', calculateTotal);
+
+            // Load measurement templates when customer changes
+            $('#customer_id').change(function() {
+                const customerId = $(this).val();
+                if (customerId) {
+                    $('#loadTemplatesBtn').prop('disabled', false);
+                } else {
+                    $('#loadTemplatesBtn').prop('disabled', true);
+                }
+            });
+
+            // Load templates button click
+            $('#loadTemplatesBtn').click(function() {
+                const customerId = $('#customer_id').val();
+                const dressTypeId = $('#dress_type_id').val();
+                
+                if (!customerId) {
+                    alert('Please select a customer first.');
+                    return;
+                }
+                
+                $('#measurementModal').modal('show');
+                loadMeasurementTemplates(customerId, dressTypeId);
+            });
+
+            // Select fabric button click
+            $('#selectFabricBtn').click(function() {
+                $('#fabricModal').modal('show');
+            });
 
             // Form submission
             $('#orderForm').submit(function(e) {
-                e.preventDefault();
-
-                // Form validation
+                // Validate form
                 const requiredFields = $(this).find('[required]');
                 let valid = true;
 
@@ -480,107 +592,189 @@
                 });
 
                 if (!valid) {
+                    e.preventDefault();
                     alert('Please fill in all required fields.');
                     return;
                 }
 
                 // Check if total amount is valid
-                const totalAmount = parseFloat($('#totalAmount').val()) || 0;
+                const totalAmount = parseFloat($('#total_amount').val()) || 0;
                 if (totalAmount <= 0) {
+                    e.preventDefault();
                     alert('Please check pricing. Total amount should be greater than 0.');
                     return;
                 }
 
-                // Simulate form submission
-                alert('Order created successfully! Order #: TS-' + Math.floor(1000 + Math.random() * 9000));
-                window.location.href = "{{ route('orders.index') }}";
+                // Auto-calculate remaining amount before submission
+                calculateTotal();
             });
 
             // Initialize calculations
             calculateTotal();
-            calculateBalance();
         });
 
-        function calculateTotal() {
-            const basePrice = parseFloat($('#basePrice').val()) || 0;
-            const fabricCost = parseFloat($('#fabricCost').val()) || 0;
-            const stitching = parseFloat($('#stitchingCharges').val()) || 0;
-            const additional = parseFloat($('#additionalCharges').val()) || 0;
-            const discount = parseFloat($('#discount').val()) || 0;
-
-            const total = basePrice + fabricCost + stitching + additional - discount;
-            $('#totalAmount').val(total.toFixed(2));
-            calculateBalance();
+        function loadMeasurementTemplates(customerId, dressTypeId) {
+            $('#templateLoading').show();
+            $('#templateContent').hide();
+            $('#noTemplates').hide();
+            
+            $.ajax({
+                url: `/orders/customer/${customerId}/details`,
+                type: 'GET',
+                success: function(response) {
+                    $('#templateLoading').hide();
+                    
+                    const templates = response.customer.measurement_templates || [];
+                    const tableBody = $('#templatesTable tbody');
+                    tableBody.empty();
+                    
+                    if (templates.length > 0) {
+                        // Filter by dress type if selected
+                        let filteredTemplates = templates;
+                        if (dressTypeId) {
+                            filteredTemplates = templates.filter(template => 
+                                template.dress_type.toLowerCase().includes($('#dress_type_id option:selected').text().toLowerCase())
+                            );
+                        }
+                        
+                        if (filteredTemplates.length > 0) {
+                            filteredTemplates.forEach(template => {
+                                const measurements = template.measurements;
+                                const row = `
+                                    <tr>
+                                        <td>${template.template_name}</td>
+                                        <td>${template.dress_type}</td>
+                                        <td>${measurements.height || 'N/A'}</td>
+                                        <td>${measurements.chest || 'N/A'}</td>
+                                        <td>${measurements.waist || 'N/A'}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" 
+                                                    onclick="applyTemplate(${JSON.stringify(measurements).replace(/"/g, '&quot;')})">
+                                                Apply
+                                            </button>
+                                        </td>
+                                    </tr>
+                                `;
+                                tableBody.append(row);
+                            });
+                            $('#templateContent').show();
+                        } else {
+                            $('#noTemplates').show();
+                        }
+                    } else {
+                        $('#noTemplates').show();
+                    }
+                },
+                error: function() {
+                    $('#templateLoading').hide();
+                    $('#noTemplates').show();
+                }
+            });
         }
 
-        function calculateBalance() {
-            const totalAmount = parseFloat($('#totalAmount').val()) || 0;
-            const advancePaid = parseFloat($('#advancePaid').val()) || 0;
-            const balance = totalAmount - advancePaid;
-            $('#balanceDue').val(balance.toFixed(2));
-        }
-
-        function applyTemplate(height, chest, waist, hips, shoulder, sleeve, pant, inseam) {
-            $('input[placeholder="170"]').val(height);
-            $('input[placeholder="42"]').val(chest);
-            $('input[placeholder="38"]').val(waist);
-            $('input[placeholder="44"]').val(hips);
-            $('input[placeholder="18"]').val(shoulder);
-            $('input[placeholder="60"]').val(sleeve);
-            $('input[placeholder="100"]').val(pant);
-            $('input[placeholder="80"]').val(inseam);
-
+        function applyTemplate(measurements) {
+            // Apply measurements to form fields
+            Object.keys(measurements).forEach(key => {
+                const input = $(`input[name="measurements[${key}]"], textarea[name="measurements[${key}]"]`);
+                if (input.length) {
+                    input.val(measurements[key]);
+                }
+            });
+            
             $('#measurementModal').modal('hide');
             alert('Measurement template applied successfully!');
         }
 
         function selectFabric(type, color, rate) {
-            $('#fabricSelect').val(type.toLowerCase()).trigger('change');
-            $('#fabricColor').val(color);
-            $('#fabricRate').val(rate);
+            $('#fabric_type').val(type);
+            $('#fabric_color').val(color);
+            $('#fabric_rate').val(rate);
             $('#fabricModal').modal('hide');
 
             // Suggest meter requirement based on dress type
-            const dressType = $('#dressType').val();
+            const dressTypeName = $('#dress_type_id option:selected').text().toLowerCase();
             let suggestedMeters = 0;
 
-            if (dressType === 'sherwani' || dressType === 'gown') {
+            if (dressTypeName.includes('sherwani') || dressTypeName.includes('gown')) {
                 suggestedMeters = 5.5;
-            } else if (dressType === 'suit') {
+            } else if (dressTypeName.includes('suit')) {
                 suggestedMeters = 4.0;
-            } else if (dressType === 'kurta' || dressType === 'shalwar_kameez') {
+            } else if (dressTypeName.includes('kurta') || dressTypeName.includes('shalwar')) {
                 suggestedMeters = 3.5;
-            } else if (dressType === 'lehenga') {
+            } else if (dressTypeName.includes('lehenga')) {
                 suggestedMeters = 6.0;
             } else {
                 suggestedMeters = 2.5;
             }
 
-            $('#meterRequired').val(suggestedMeters);
+            $('#meter_required').val(suggestedMeters);
 
             // Calculate fabric cost
             const fabricCost = suggestedMeters * rate;
-            $('#fabricCost').val(fabricCost.toFixed(2));
+            $('#fabric_cost').val(fabricCost.toFixed(2));
             calculateTotal();
 
             alert('Fabric selected: ' + type + ' (' + color + ')');
+        }
+
+        function calculateTotal() {
+            const basePrice = parseFloat($('#base_price').val()) || 0;
+            const fabricCost = parseFloat($('#fabric_cost').val()) || 0;
+            const stitching = parseFloat($('#stitching_charges').val()) || 0;
+            const additional = parseFloat($('#additional_charges').val()) || 0;
+            const discount = parseFloat($('#discount_amount').val()) || 0;
+
+            const total = basePrice + fabricCost + stitching + additional - discount;
+            $('#total_amount').val(total.toFixed(2));
+            
+            // Calculate balance
+            const advancePaid = parseFloat($('#advance_amount').val()) || 0;
+            const balance = total - advancePaid;
+            $('#balance_due').val(balance.toFixed(2));
+            $('#remaining_amount').val(balance.toFixed(2));
         }
 
         function resetForm() {
             if (confirm('Are you sure you want to reset the form? All data will be lost.')) {
                 document.getElementById('orderForm').reset();
                 $('.select2').val(null).trigger('change');
-                $('#basePrice').val(0);
-                $('#fabricCost').val(0);
-                $('#totalAmount').val(0);
-                $('#balanceDue').val(0);
+                $('#base_price').val(0);
+                $('#fabric_cost').val(0);
+                $('#total_amount').val(0);
+                $('#balance_due').val(0);
+                $('#remaining_amount').val(0);
                 alert('Form reset successfully!');
             }
         }
 
         function saveAsDraft() {
-            alert('Order saved as draft!');
             // In real app: AJAX call to save as draft
+            // For now, just submit the form
+            $('#orderForm').append('<input type="hidden" name="save_as_draft" value="1">');
+            $('#orderForm').submit();
+        }
+
+        // Helper function to get color code
+        function getColorCode(colorName) {
+            const colors = {
+                'navy blue': '#1D4ED8',
+                'white': '#FFFFFF',
+                'black': '#000000',
+                'red': '#EF4444',
+                'blue': '#3B82F6',
+                'green': '#10B981',
+                'yellow': '#F59E0B',
+                'pink': '#EC4899',
+                'purple': '#8B5CF6',
+                'gray': '#6B7280',
+                'brown': '#92400E',
+                'beige': '#FDE68A',
+                'maroon': '#991B1B',
+                'orange': '#F97316',
+                'gold': '#FBBF24',
+                'silver': '#D1D5DB',
+            };
+            return colors[colorName.toLowerCase()] || '#6B7280';
         }
     </script>
 
@@ -624,13 +818,13 @@
             padding: 0.35em 0.65em;
         }
 
-        #totalAmount {
+        #total_amount {
             background-color: #f8f9fa;
             font-weight: bold;
             color: #28a745;
         }
 
-        #balanceDue {
+        #balance_due {
             background-color: #f8f9fa;
             font-weight: bold;
             color: #dc3545;
@@ -643,6 +837,11 @@
 
         .select2-container--bootstrap .select2-selection {
             border-radius: 0.375rem;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
         }
     </style>
     @endpush

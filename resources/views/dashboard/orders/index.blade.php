@@ -20,20 +20,45 @@
                         <i class="las la-plus-circle mr-1"></i> New Order
                     </a>
                 </div>
-                <div>
+                <div class="dropdown">
                     <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                        <i class="las la-filter"></i> Filter
+                        <i class="las la-filter"></i> Filter by Status
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">
-                        <a class="dropdown-item" href="{{ route('orders.pending') }}">Pending</a>
-                        <a class="dropdown-item" href="{{ route('orders.in-progress') }}">In Progress</a>
-                        <a class="dropdown-item" href="{{ route('orders.completed') }}">Completed</a>
+                        <a class="dropdown-item" href="{{ route('orders.pending') }}">
+                            <span class="badge badge-warning mr-2">●</span> Pending
+                        </a>
+                        <a class="dropdown-item" href="{{ route('orders.in-progress') }}">
+                            <span class="badge badge-info mr-2">●</span> In Progress
+                        </a>
+                        <a class="dropdown-item" href="{{ route('orders.completed') }}">
+                            <span class="badge badge-success mr-2">●</span> Completed
+                        </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{{ route('orders.index') }}">All Orders</a>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Flash Messages -->
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="las la-check-circle mr-2"></i> {{ session('success') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="las la-exclamation-circle mr-2"></i> {{ session('error') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
 
         <!-- Stats Cards -->
         <div class="row mb-4">
@@ -44,7 +69,11 @@
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Total Orders</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">245</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['total'] }}</div>
+                                <div class="mt-2 mb-0 text-muted text-xs">
+                                    <span class="text-success mr-2">{{ $stats['pending'] }} Pending</span>
+                                    <span>{{ $stats['in_progress'] }} In Progress</span>
+                                </div>
                             </div>
                             <div class="col-auto">
                                 <i class="las la-shopping-cart fa-2x text-primary"></i>
@@ -61,7 +90,10 @@
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                     Pending</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">24</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['pending'] }}</div>
+                                <div class="mt-2 mb-0 text-muted text-xs">
+                                    <span>Awaiting processing</span>
+                                </div>
                             </div>
                             <div class="col-auto">
                                 <i class="las la-clock fa-2x text-warning"></i>
@@ -78,7 +110,10 @@
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                     In Progress</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['in_progress'] }}</div>
+                                <div class="mt-2 mb-0 text-muted text-xs">
+                                    <span>Being tailored</span>
+                                </div>
                             </div>
                             <div class="col-auto">
                                 <i class="las la-tasks fa-2x text-info"></i>
@@ -95,7 +130,10 @@
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                     Completed</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">203</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['completed'] }}</div>
+                                <div class="mt-2 mb-0 text-muted text-xs">
+                                    <span>Delivered to customers</span>
+                                </div>
                             </div>
                             <div class="col-auto">
                                 <i class="las la-check-circle fa-2x text-success"></i>
@@ -106,15 +144,60 @@
             </div>
         </div>
 
+        <!-- Filter and Search -->
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <form method="GET" action="{{ route('orders.index') }}" id="filterForm">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label>Search</label>
+                            <input type="text" class="form-control" name="search" 
+                                   value="{{ request('search') }}" 
+                                   placeholder="Search by order #, customer name or phone...">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label>Status</label>
+                            <select class="form-control" name="status_id">
+                                <option value="all" {{ request('status_id') == 'all' ? 'selected' : '' }}>All Status</option>
+                                @foreach($orderStatuses as $status)
+                                <option value="{{ $status->id }}" {{ request('status_id') == $status->id ? 'selected' : '' }}>
+                                    {{ $status->name }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label>Date Range</label>
+                            <input type="text" class="form-control" name="date_range" id="dateRangePicker" 
+                                   value="{{ request('date_range') }}" placeholder="Select date range">
+                        </div>
+                        <div class="col-md-2 mb-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="las la-filter mr-1"></i> Filter
+                            </button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <a href="{{ route('orders.index') }}" class="btn btn-secondary">
+                                <i class="las la-sync mr-1"></i> Reset
+                            </a>
+                            <a href="{{ route('orders.export') }}?{{ http_build_query(request()->query()) }}" 
+                               class="btn btn-outline-success">
+                                <i class="las la-download mr-1"></i> Export
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Orders Table -->
         <div class="card shadow">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
                 <h6 class="m-0 font-weight-bold text-primary">Orders List</h6>
                 <div>
-                    <button class="btn btn-sm btn-outline-secondary mr-2" onclick="exportOrders()">
-                        <i class="las la-download"></i> Export
-                    </button>
-                    <button class="btn btn-sm btn-outline-info" onclick="printOrders()">
+                    <button class="btn btn-sm btn-outline-secondary mr-2" onclick="printOrders()">
                         <i class="las la-print"></i> Print
                     </button>
                 </div>
@@ -131,81 +214,115 @@
                                 <th>Delivery Date</th>
                                 <th>Amount</th>
                                 <th>Status</th>
-                                <th>Tailor</th>
+                                <th>Payment</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @for($i = 1; $i <= 10; $i++)
-                                <tr>
-                                <td>TS-00{{ 125 + $i }}</td>
+                            @foreach($orders as $order)
+                            @php
+                                $orderItem = $order->items->first();
+                                $daysRemaining = \Carbon\Carbon::parse($order->delivery_date)->diffInDays(now());
+                                $isUrgent = $daysRemaining <= 2 && $order->status_id != 6 && $order->status_id != 5;
+                            @endphp
+                            <tr class="{{ $isUrgent ? 'table-warning' : '' }}">
+                                <td>
+                                    <div class="font-weight-bold">{{ $order->order_number }}</div>
+                                    <small class="text-muted">#{{ $order->id }}</small>
+                                </td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="avatar avatar-sm mr-2">
                                             <span class="avatar-title rounded-circle bg-primary text-white">
-                                                {{ substr('Customer ' . $i, 0, 1) }}
+                                                {{ substr($order->customer->name, 0, 1) }}
                                             </span>
                                         </div>
                                         <div>
-                                            <div class="font-weight-bold">Customer {{ $i }}</div>
-                                            <small class="text-muted">+92 300 123456{{ $i }}</small>
+                                            <div class="font-weight-bold">{{ $order->customer->name }}</div>
+                                            <small class="text-muted">{{ $order->customer->phone }}</small>
                                         </div>
                                     </div>
                                 </td>
                                 <td>
-                                    @php $types = ['Sherwani', 'Suit', 'Kurta', 'Shalwar Kameez', 'Gown', 'Lehenga']; @endphp
-                                    {{ $types[$i % 6] }}
+                                    {{ $orderItem?->dressType?->name ?? 'N/A' }}
                                 </td>
-                                <td>{{ now()->subDays($i)->format('d M, Y') }}</td>
                                 <td>
-                                    @if($i % 3 == 0)
-                                    <span class="badge badge-danger">{{ now()->addDays(1)->format('d M') }}</span>
+                                    {{ $order->order_date->format('d M, Y') }}
+                                    <div class="text-muted small">{{ $order->order_date->diffForHumans() }}</div>
+                                </td>
+                                <td>
+                                    @if($isUrgent)
+                                    <span class="badge badge-danger">
+                                        {{ $order->delivery_date->format('d M') }}
+                                        <i class="las la-exclamation ml-1"></i>
+                                    </span>
                                     @else
-                                    {{ now()->addDays($i + 3)->format('d M, Y') }}
+                                    <span class="badge badge-{{ $order->delivery_date->isPast() ? 'secondary' : 'light' }}">
+                                        {{ $order->delivery_date->format('d M, Y') }}
+                                    </span>
+                                    @endif
+                                    @if($order->delivery_date->isFuture())
+                                    <div class="text-muted small">{{ $daysRemaining }} days left</div>
                                     @endif
                                 </td>
                                 <td class="font-weight-bold">
-                                    Rs{{ number_format(5000 + ($i * 1500)) }}
+                                    <div class="text-success">Rs {{ number_format($order->final_amount) }}</div>
+                                    <div class="text-muted small">
+                                        Adv: Rs {{ number_format($order->advance_amount) }}
+                                    </div>
                                 </td>
                                 <td>
-                                    @php
-                                    $statuses = [
-                                    ['badge' => 'warning', 'text' => 'Pending'],
-                                    ['badge' => 'info', 'text' => 'Measurements'],
-                                    ['badge' => 'primary', 'text' => 'Cutting'],
-                                    ['badge' => 'secondary', 'text' => 'Stitching'],
-                                    ['badge' => 'success', 'text' => 'Ready'],
-                                    ['badge' => 'dark', 'text' => 'Delivered']
-                                    ];
-                                    $status = $statuses[$i % 6];
-                                    @endphp
-                                    <span class="badge badge-{{ $status['badge'] }}">{{ $status['text'] }}</span>
+                                    <span class="badge badge-pill" style="background-color: {{ $order->status->color }}; color: white;">
+                                        {{ $order->status->name }}
+                                    </span>
                                 </td>
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-xs mr-2">
-                                            <span class="avatar-title rounded-circle bg-info text-white">
-                                                T{{ $i }}
-                                            </span>
+                                    <span class="badge badge-pill" style="background-color: {{ $order->paymentStatus->color }}; color: white;">
+                                        {{ $order->paymentStatus->name }}
+                                    </span>
+                                    <div class="progress mt-1" style="height: 4px;">
+                                        @php
+                                            $paymentPercentage = $order->final_amount > 0 ? ($order->advance_amount / $order->final_amount) * 100 : 0;
+                                        @endphp
+                                        <div class="progress-bar" role="progressbar" 
+                                             style="width: {{ $paymentPercentage }}%; background-color: {{ $order->paymentStatus->color }};">
                                         </div>
-                                        <span>Tailor {{ $i }}</span>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="btn-group" role="group">
-                                        <a href="{{ route('orders.show', ['id' => $i]) }}" class="btn btn-sm btn-outline-primary" title="View">
+                                        <a href="{{ route('orders.show', $order) }}" class="btn btn-sm btn-outline-primary" title="View">
                                             <i class="las la-eye"></i>
                                         </a>
-                                        <a href="{{ route('orders.edit', ['id' => $i]) }}" class="btn btn-sm btn-outline-info" title="Edit">
+                                        <a href="{{ route('orders.edit', $order) }}" class="btn btn-sm btn-outline-info" title="Edit">
                                             <i class="las la-edit"></i>
                                         </a>
-                                        <button class="btn btn-sm btn-outline-danger" title="Delete" onclick="deleteOrder({{ $i }})">
-                                            <i class="las la-trash"></i>
-                                        </button>
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                                                    data-toggle="dropdown" aria-expanded="false">
+                                                <i class="las la-cog"></i>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-right">
+                                                <a class="dropdown-item" href="#" onclick="updateStatus({{ $order->id }})">
+                                                    <i class="las la-sync mr-2"></i> Update Status
+                                                </a>
+                                                <a class="dropdown-item" href="#" onclick="addPayment({{ $order->id }})">
+                                                    <i class="las la-money-bill-wave mr-2"></i> Add Payment
+                                                </a>
+                                                <a class="dropdown-item" href="#" onclick="assignTailor({{ $order->id }})">
+                                                    <i class="las la-user-tie mr-2"></i> Assign Tailor
+                                                </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item text-danger" href="#" 
+                                                   onclick="deleteOrder({{ $order->id }}, '{{ $order->order_number }}')">
+                                                    <i class="las la-trash mr-2"></i> Delete
+                                                </a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
-                                </tr>
-                                @endfor
+                            </tr>
+                            @endforeach
                         </tbody>
                     </table>
                 </div>
@@ -216,8 +333,13 @@
         <div class="row mt-4">
             <div class="col-lg-6">
                 <div class="card shadow">
-                    <div class="card-header py-3">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">Orders by Status</h6>
+                        <select class="form-control form-control-sm w-auto" id="chartPeriod">
+                            <option value="month">This Month</option>
+                            <option value="week">This Week</option>
+                            <option value="year">This Year</option>
+                        </select>
                     </div>
                     <div class="card-body">
                         <canvas id="ordersChart" height="150"></canvas>
@@ -226,32 +348,56 @@
             </div>
             <div class="col-lg-6">
                 <div class="card shadow">
-                    <div class="card-header py-3">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">Recent Activities</h6>
+                        <small><a href="#">View All</a></small>
                     </div>
                     <div class="card-body">
-                        <div class="list-group list-group-flush">
-                            @for($i = 1; $i <= 5; $i++)
-                                <div class="list-group-item list-group-item-action border-0 px-0 py-2">
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar avatar-sm mr-3">
-                                        <span class="avatar-title rounded-circle bg-info text-white">
-                                            {{ substr('Customer ' . $i, 0, 1) }}
-                                        </span>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="font-weight-bold">Order TS-00{{ 130 + $i }} updated</div>
-                                        <small class="text-muted">{{ now()->subHours($i)->diffForHumans() }}</small>
-                                    </div>
-                                    <span class="badge badge-{{ $i % 2 == 0 ? 'success' : 'warning' }}">{{ $i % 2 == 0 ? 'Completed' : 'In Progress' }}</span>
-                                </div>
+                        <div class="list-group list-group-flush" id="recentActivities">
+                            <!-- Recent activities will be loaded via AJAX -->
                         </div>
-                        @endfor
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Update Status Modal -->
+    <div class="modal fade" id="statusModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="statusForm">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title">Update Order Status</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="order_id" id="order_id">
+                        <div class="form-group">
+                            <label>New Status</label>
+                            <select class="form-control" name="status_id" required>
+                                <option value="">Select Status</option>
+                                @foreach($orderStatuses as $status)
+                                <option value="{{ $status->id }}" data-color="{{ $status->color }}">
+                                    {{ $status->name }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Notes</label>
+                            <textarea class="form-control" name="notes" rows="3" 
+                                      placeholder="Add notes about status change..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Status</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     @push('js')
@@ -273,31 +419,105 @@
     <script src="{{ asset('backend/assets/js/app.js') }}"></script>
 
     <script>
+        let ordersChart;
+        
         $(document).ready(function() {
             // Initialize DataTable
             $('#ordersTable').DataTable({
                 pageLength: 10,
-                order: [
-                    [3, 'desc']
-                ],
+                responsive: true,
+                ordering: false,
                 language: {
                     search: "_INPUT_",
                     searchPlaceholder: "Search orders..."
                 }
             });
 
-            // Initialize orders chart
-            initOrdersChart();
+            // Initialize date range picker
+            $('#dateRangePicker').daterangepicker({
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                },
+                startDate: moment().subtract(30, 'days'),
+                endDate: moment()
+            });
+
+            // Load statistics
+            loadStatistics();
+            loadRecentActivities();
+            
+            // Auto-hide alerts
+            setTimeout(() => {
+                $('.alert').alert('close');
+            }, 5000);
         });
 
-        function initOrdersChart() {
+        function loadStatistics() {
+            fetch('{{ route("orders.statistics") }}')
+                .then(response => response.json())
+                .then(data => {
+                    initOrdersChart(data);
+                })
+                .catch(error => console.error('Error loading statistics:', error));
+        }
+
+        function loadRecentActivities() {
+            fetch('{{ route("orders.statistics") }}')
+                .then(response => response.json())
+                .then(data => {
+                    const activities = document.getElementById('recentActivities');
+                    activities.innerHTML = '';
+                    
+                    data.recent_orders.forEach(order => {
+                        const activity = `
+                            <div class="list-group-item list-group-item-action border-0 px-0 py-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-sm mr-3">
+                                        <span class="avatar-title rounded-circle" style="background-color: ${order.color}; color: white;">
+                                            ${order.customer_name.charAt(0)}
+                                        </span>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="font-weight-bold">Order ${order.order_number}</div>
+                                        <small class="text-muted">${order.customer_name} • ${order.time}</small>
+                                    </div>
+                                    <div>
+                                        <span class="badge" style="background-color: ${order.color}; color: white;">
+                                            ${order.status}
+                                        </span>
+                                        <div class="text-success small mt-1">Rs ${order.amount.toLocaleString()}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        activities.innerHTML += activity;
+                    });
+                });
+        }
+
+        function initOrdersChart(data) {
             const ctx = document.getElementById('ordersChart').getContext('2d');
-            new Chart(ctx, {
+            
+            if (ordersChart) {
+                ordersChart.destroy();
+            }
+            
+            ordersChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Pending', 'In Progress', 'Completed', 'Delivered'],
+                    labels: ['Pending', 'In Progress', 'Completed', 'Others'],
                     datasets: [{
-                        data: [24, 18, 203, 156],
+                        data: [
+                            data.pending,
+                            data.in_progress,
+                            data.completed,
+                            data.total - (data.pending + data.in_progress + data.completed)
+                        ],
                         backgroundColor: ['#F59E0B', '#3B82F6', '#10B981', '#6B7280'],
                         borderWidth: 1
                     }]
@@ -308,27 +528,91 @@
                     plugins: {
                         legend: {
                             position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.raw + ' orders';
+                                    return label;
+                                }
+                            }
                         }
                     }
                 }
             });
         }
 
-        function deleteOrder(orderId) {
-            if (confirm('Are you sure you want to delete this order?')) {
-                alert('Order deleted successfully!');
-                // In real app: AJAX call to delete order
+        function updateStatus(orderId) {
+            $('#order_id').val(orderId);
+            $('#statusModal').modal('show');
+        }
+
+        $('#statusForm').submit(function(e) {
+            e.preventDefault();
+            
+            const formData = $(this).serialize();
+            const orderId = $('#order_id').val();
+            
+            $.ajax({
+                url: `/orders/${orderId}/status`,
+                type: 'PATCH',
+                data: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        alert('Status updated successfully!');
+                        $('#statusModal').modal('hide');
+                        location.reload();
+                    }
+                },
+                error: function(xhr) {
+                    alert('Error updating status: ' + xhr.responseJSON?.message || 'Unknown error');
+                }
+            });
+        });
+
+        function deleteOrder(orderId, orderNumber) {
+            if (confirm(`Are you sure you want to delete order ${orderNumber}? This action cannot be undone.`)) {
+                $.ajax({
+                    url: `/orders/${orderId}`,
+                    type: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        alert('Order deleted successfully!');
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        alert('Error deleting order: ' + xhr.responseJSON?.message || 'Unknown error');
+                    }
+                });
             }
         }
 
-        function exportOrders() {
-            alert('Exporting orders data...');
-            // In real app: Generate and download export
+        function addPayment(orderId) {
+            alert('Opening payment form for order #' + orderId);
+            // Implement payment form modal
+        }
+
+        function assignTailor(orderId) {
+            alert('Opening tailor assignment for order #' + orderId);
+            // Implement tailor assignment modal
         }
 
         function printOrders() {
             window.print();
         }
+
+        $('#chartPeriod').change(function() {
+            loadStatistics();
+        });
     </script>
 
     <style>
@@ -381,11 +665,18 @@
             padding: 0.25rem 0.5rem;
         }
 
-        @media print {
+        .progress {
+            background-color: #e9ecef;
+            border-radius: 2px;
+        }
 
-            .btn,
-            .d-flex.align-items-center.justify-content-between,
-            .row.mb-4 {
+        .progress-bar {
+            border-radius: 2px;
+        }
+
+        @media print {
+            .btn, .d-flex.align-items-center.justify-content-between,
+            .row.mb-4, .card.shadow.mb-4, .row.mt-4 {
                 display: none !important;
             }
         }

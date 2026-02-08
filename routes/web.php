@@ -5,6 +5,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\DressTypeController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -22,30 +23,31 @@ Route::middleware('auth')->group(function () {
 });
 
 // Orders
-Route::prefix('dashboard/orders')->name('orders.')->group(function () {
-    Route::get('/', function () {
-        return view('dashboard.orders.index');
-    })->name('index');
-    Route::get('/create', function () {
-        return view('dashboard.orders.create');
-    })->name('create');
-    Route::get('/pending', function () {
-        return view('dashboard.orders.pending');
-    })->name('pending');
-    Route::get('/in-progress', function () {
-        return view('dashboard.orders.in-progress');
-    })->name('in-progress');
-    Route::get('/completed', function () {
-        return view('dashboard.orders.completed');
-    })->name('completed');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::prefix('dashboard/orders')->name('orders.')->group(function () {
 
-    Route::get('/{id}/edit', function ($id) {
-        return view('dashboard.orders.edit', ['id' => $id]);
-    })->name('edit');
 
-    Route::get('/{id}', function ($id) {
-        return view('dashboard.orders.show', ['id' => $id]);
-    })->name('show');
+        // Status-based routes (these should be before the show route)
+        Route::get('/pending', [OrderController::class, 'pending'])->name('pending');
+        Route::get('/in-progress', [OrderController::class, 'inProgress'])->name('in-progress');
+        Route::get('/completed', [OrderController::class, 'completed'])->name('completed');
+
+        Route::get('/', [OrderController::class, 'index'])->name('index');
+        Route::get('/create', [OrderController::class, 'create'])->name('create');
+        Route::post('/', [OrderController::class, 'store'])->name('store');
+        Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+        Route::get('/{order}/edit', [OrderController::class, 'edit'])->name('edit');
+        Route::put('/{order}', [OrderController::class, 'update'])->name('update');
+        Route::delete('/{order}', [OrderController::class, 'destroy'])->name('destroy');
+        Route::patch('/{order}/status', [OrderController::class, 'updateStatus'])->name('update-status');
+        Route::get('/export', [OrderController::class, 'export'])->name('export');
+        Route::get('/statistics', [OrderController::class, 'statistics'])->name('statistics');
+
+
+        // AJAX routes
+        Route::get('/customer/{id}/details', [OrderController::class, 'getCustomerDetails'])->name('customer.details');
+        Route::get('/dress-type/{id}/details', [OrderController::class, 'getDressTypeDetails'])->name('dress-type.details');
+    });
 });
 
 // Customers
