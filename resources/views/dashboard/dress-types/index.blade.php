@@ -16,11 +16,30 @@
                 <p class="mb-0">Manage dress types, pricing, and configurations</p>
             </div>
             <div>
-                <button class="btn btn-primary" onclick="addDressType()">
+                <a href="{{ route('dress-types.create') }}" class="btn btn-primary">
                     <i class="las la-plus-circle mr-1"></i> Add Dress Type
-                </button>
+                </a>
             </div>
         </div>
+
+        <!-- Flash Messages -->
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="las la-check-circle mr-2"></i> {{ session('success') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="las la-exclamation-circle mr-2"></i> {{ session('error') }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        @endif
 
         <!-- Dress Type Stats -->
         <div class="row mb-4">
@@ -31,10 +50,10 @@
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                     Total Dress Types</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">24</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['total'] }}</div>
                                 <div class="mt-2 mb-0 text-muted text-xs">
-                                    <span class="text-success mr-2">20 Active</span>
-                                    <span class="text-muted">4 Inactive</span>
+                                    <span class="text-success mr-2">{{ $stats['active'] }} Active</span>
+                                    <span class="text-muted">{{ $stats['inactive'] }} Inactive</span>
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -52,10 +71,10 @@
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                     Avg. Base Price</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">Rs 4,850</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">Rs {{ number_format($stats['avg_price']) }}</div>
                                 <div class="mt-2 mb-0 text-muted text-xs">
-                                    <span class="text-success mr-2">Highest: Rs 12,000</span>
-                                    <span class="text-muted">Lowest: Rs 1,500</span>
+                                    <span class="text-success mr-2">Highest: Rs {{ number_format($stats['max_price']) }}</span>
+                                    <span class="text-muted">Lowest: Rs {{ number_format($stats['min_price']) }}</span>
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -73,10 +92,9 @@
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                                     Avg. Completion Time</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">4.5 days</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ number_format($stats['avg_days'], 1) }} days</div>
                                 <div class="mt-2 mb-0 text-muted text-xs">
-                                    <span class="text-info mr-2">Fastest: 2 days</span>
-                                    <span class="text-muted">Longest: 10 days</span>
+                                    <span class="text-info mr-2">Range: 1-365 days</span>
                                 </div>
                             </div>
                             <div class="col-auto">
@@ -94,9 +112,9 @@
                             <div class="col mr-2">
                                 <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                     Most Popular</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">Sherwani</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['most_popular']['name'] }}</div>
                                 <div class="mt-2 mb-0 text-muted text-xs">
-                                    <span class="text-success mr-2">45 orders</span>
+                                    <span class="text-success mr-2">{{ $stats['most_popular']['orders'] }} orders</span>
                                     <span>this month</span>
                                 </div>
                             </div>
@@ -109,14 +127,64 @@
             </div>
         </div>
 
+        <!-- Filter and Search -->
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <form method="GET" action="{{ route('dress-types.index') }}">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label>Search</label>
+                            <input type="text" class="form-control" name="search" 
+                                   value="{{ request('search') }}" 
+                                   placeholder="Search by name, slug or description...">
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label>Status</label>
+                            <select class="form-control" name="status">
+                                <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Status</option>
+                                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label>Sort By</label>
+                            <select class="form-control" name="sort_by">
+                                <option value="name" {{ request('sort_by') == 'name' ? 'selected' : '' }}>Name</option>
+                                <option value="base_price" {{ request('sort_by') == 'base_price' ? 'selected' : '' }}>Price</option>
+                                <option value="estimated_days" {{ request('sort_by') == 'estimated_days' ? 'selected' : '' }}>Days</option>
+                                <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Created Date</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label>Sort Order</label>
+                            <select class="form-control" name="sort_order">
+                                <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Ascending</option>
+                                <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Descending</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="las la-filter mr-1"></i> Filter
+                            </button>
+                            <a href="{{ route('dress-types.index') }}" class="btn btn-secondary">
+                                <i class="las la-sync mr-1"></i> Reset
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- Dress Types Table -->
         <div class="card shadow">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
                 <h6 class="m-0 font-weight-bold text-primary">Dress Types List</h6>
                 <div>
-                    <button class="btn btn-sm btn-outline-secondary mr-2" onclick="exportDressTypes()">
+                    <a href="{{ route('dress-types.export') }}" class="btn btn-sm btn-outline-secondary mr-2">
                         <i class="las la-download"></i> Export
-                    </button>
+                    </a>
                     <button class="btn btn-sm btn-outline-info" onclick="importDressTypes()">
                         <i class="las la-upload"></i> Import
                     </button>
@@ -131,95 +199,103 @@
                                 <th>Dress Type</th>
                                 <th>Base Price</th>
                                 <th>Estimated Days</th>
-                                <th>Measurements</th>
-                                <th>Orders This Month</th>
+                                <th>Total Orders</th>
+                                <th>Monthly Orders</th>
                                 <th>Status</th>
+                                <th>Created By</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @php
-                                $dressTypes = [
-                                    ['name' => 'Sherwani', 'price' => 12000, 'days' => 7, 'measurements' => 12, 'orders' => 45],
-                                    ['name' => 'Suit', 'price' => 8000, 'days' => 5, 'measurements' => 10, 'orders' => 38],
-                                    ['name' => 'Kurta', 'price' => 3500, 'days' => 3, 'measurements' => 8, 'orders' => 42],
-                                    ['name' => 'Shalwar Kameez', 'price' => 4500, 'days' => 4, 'measurements' => 9, 'orders' => 28],
-                                    ['name' => 'Gown', 'price' => 15000, 'days' => 10, 'measurements' => 15, 'orders' => 18],
-                                    ['name' => 'Lehenga', 'price' => 18000, 'days' => 12, 'measurements' => 18, 'orders' => 15],
-                                    ['name' => 'Blouse', 'price' => 2500, 'days' => 2, 'measurements' => 6, 'orders' => 32],
-                                    ['name' => 'Abaya', 'price' => 5500, 'days' => 4, 'measurements' => 8, 'orders' => 22],
-                                    ['name' => 'Kids Wear', 'price' => 3000, 'days' => 3, 'measurements' => 7, 'orders' => 25],
-                                    ['name' => 'Formal Shirt', 'price' => 2000, 'days' => 2, 'measurements' => 6, 'orders' => 40],
-                                    ['name' => 'Casual Shirt', 'price' => 1500, 'days' => 2, 'measurements' => 5, 'orders' => 35],
-                                    ['name' => 'Traditional Jacket', 'price' => 6000, 'days' => 5, 'measurements' => 9, 'orders' => 12],
-                                ];
-                            @endphp
                             @foreach($dressTypes as $index => $type)
                             @php
-                                $isActive = $index < 8;
-                                $popularity = $type['orders'] > 30 ? 'high' : ($type['orders'] > 20 ? 'medium' : 'low');
+                                $popularity = $type->monthly_orders > 30 ? 'high' : ($type->monthly_orders > 10 ? 'medium' : 'low');
+                                $popularityColor = $popularity == 'high' ? 'success' : ($popularity == 'medium' ? 'warning' : 'secondary');
                             @endphp
                             <tr>
-                                <td>{{ $index + 1 }}</td>
+                                <td>{{ $dressTypes->firstItem() + $index }}</td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="avatar mr-3">
                                             <span class="avatar-title rounded-circle bg-primary text-white">
-                                                {{ substr($type['name'], 0, 1) }}
+                                                {{ substr($type->name, 0, 1) }}
                                             </span>
                                         </div>
                                         <div>
-                                            <div class="font-weight-bold">{{ $type['name'] }}</div>
-                                            <small class="text-muted">ID: DT-{{ str_pad($index + 1, 3, '0', STR_PAD_LEFT) }}</small>
+                                            <div class="font-weight-bold">{{ $type->name }}</div>
+                                            <small class="text-muted">{{ $type->slug }}</small>
+                                            @if($type->description)
+                                            <div class="text-muted small mt-1">{{ Str::limit($type->description, 50) }}</div>
+                                            @endif
                                         </div>
                                     </div>
                                 </td>
                                 <td class="font-weight-bold text-success">
-                                    Rs {{ number_format($type['price']) }}
+                                    Rs {{ number_format($type->base_price, 2) }}
                                 </td>
                                 <td>
-                                    <span class="badge badge-info">{{ $type['days'] }} days</span>
+                                    <span class="badge badge-info">{{ $type->estimated_days }} days</span>
                                 </td>
                                 <td>
-                                    <span class="badge badge-secondary">{{ $type['measurements'] }} fields</span>
+                                    <span class="badge badge-secondary">{{ $type->total_orders }} orders</span>
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="progress flex-grow-1" style="height: 8px;">
-                                            <div class="progress-bar bg-{{ $popularity == 'high' ? 'success' : ($popularity == 'medium' ? 'warning' : 'secondary') }}" 
-                                                 style="width: {{ ($type['orders'] / 50) * 100 }}%">
+                                            <div class="progress-bar bg-{{ $popularityColor }}" 
+                                                 style="width: {{ min(($type->monthly_orders / 50) * 100, 100) }}%">
                                             </div>
                                         </div>
-                                        <div class="ml-2 font-weight-bold">{{ $type['orders'] }}</div>
+                                        <div class="ml-2 font-weight-bold">{{ $type->monthly_orders }}</div>
                                     </div>
                                 </td>
                                 <td>
-                                    @if($isActive)
+                                    @if($type->is_active)
                                     <span class="badge badge-success">Active</span>
                                     @else
                                     <span class="badge badge-secondary">Inactive</span>
                                     @endif
                                 </td>
                                 <td>
+                                    <small>{{ $type->createdBy->name ?? 'N/A' }}</small>
+                                    <div class="text-muted small">{{ $type->created_at->format('M d, Y') }}</div>
+                                </td>
+                                <td>
                                     <div class="btn-group" role="group">
-                                        <button class="btn btn-sm btn-outline-info" onclick="editDressType({{ $index + 1 }})">
+                                        <a href="{{ route('dress-types.edit', $type) }}" class="btn btn-sm btn-outline-info">
                                             <i class="las la-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetails({{ $index + 1 }})">
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-primary" onclick="viewDetails({{ $type->id }})">
                                             <i class="las la-eye"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-{{ $isActive ? 'warning' : 'success' }}" onclick="toggleStatus({{ $index + 1 }})">
-                                            <i class="las la-{{ $isActive ? 'ban' : 'check' }}"></i>
+                                        <button class="btn btn-sm btn-outline-{{ $type->is_active ? 'warning' : 'success' }}" 
+                                                onclick="toggleStatus({{ $type->id }})">
+                                            <i class="las la-{{ $type->is_active ? 'ban' : 'check' }}"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteDressType({{ $index + 1 }})">
-                                            <i class="las la-trash"></i>
-                                        </button>
+                                        <form action="{{ route('dress-types.destroy', $type) }}" method="POST" class="d-inline" 
+                                              onsubmit="return confirmDelete()">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="las la-trash"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
                             @endforeach
                         </tbody>
                     </table>
+                    
+                    <!-- Pagination -->
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div class="text-muted">
+                            Showing {{ $dressTypes->firstItem() }} to {{ $dressTypes->lastItem() }} of {{ $dressTypes->total() }} entries
+                        </div>
+                        <div>
+                            {{ $dressTypes->links() }}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -228,8 +304,19 @@
         <div class="row mt-4">
             <div class="col-lg-8">
                 <div class="card shadow">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Popular Dress Types</h6>
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                        <h6 class="m-0 font-weight-bold text-primary">Popular Dress Types (This Month)</h6>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" 
+                                    data-toggle="dropdown" aria-expanded="false">
+                                <i class="las la-calendar"></i> This Month
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" href="#" onclick="changeChartPeriod('week')">This Week</a>
+                                <a class="dropdown-item" href="#" onclick="changeChartPeriod('month')">This Month</a>
+                                <a class="dropdown-item" href="#" onclick="changeChartPeriod('year')">This Year</a>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body">
                         <canvas id="popularityChart" height="200"></canvas>
@@ -243,7 +330,7 @@
                     </div>
                     <div class="card-body">
                         <div class="list-group list-group-flush">
-                            <a href="#" class="list-group-item list-group-item-action" onclick="addDressType()">
+                            <a href="{{ route('dress-types.create') }}" class="list-group-item list-group-item-action">
                                 <i class="las la-plus-circle mr-2 text-primary"></i>
                                 Add New Dress Type
                             </a>
@@ -260,92 +347,69 @@
                                 Generate Report
                             </a>
                         </div>
+                        
+                        <!-- Active Dress Types -->
+                        <div class="mt-4">
+                            <h6 class="font-weight-bold mb-3">Active Dress Types</h6>
+                            @foreach($dressTypes->where('is_active', true)->take(5) as $activeType)
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="avatar-title bg-light-primary text-primary rounded-circle mr-2" 
+                                      style="width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px;">
+                                    {{ substr($activeType->name, 0, 1) }}
+                                </span>
+                                <div class="flex-grow-1">
+                                    <div class="font-weight-bold">{{ $activeType->name }}</div>
+                                    <small class="text-muted">Rs {{ number_format($activeType->base_price) }}</small>
+                                </div>
+                                <span class="badge badge-light">{{ $activeType->monthly_orders }}</span>
+                            </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Add/Edit Dress Type Modal -->
-    <div class="modal fade" id="dressTypeModal" tabindex="-1">
+    <!-- Import Modal -->
+    <div class="modal fade" id="importModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="{{ route('dress-types.import') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title">Import Dress Types</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label>CSV File</label>
+                            <input type="file" class="form-control" name="file" accept=".csv,.txt" required>
+                            <small class="text-muted">Download <a href="{{ asset('templates/dress_types_template.csv') }}">template</a> for reference</small>
+                        </div>
+                        <div class="alert alert-info">
+                            <i class="las la-info-circle"></i> File should contain columns: name, description, base_price, estimated_days, is_active
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Import</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Modal -->
+    <div class="modal fade" id="detailsModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add New Dress Type</h5>
+                    <h5 class="modal-title">Dress Type Details</h5>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
-                <div class="modal-body">
-                    <form id="dressTypeForm">
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Dress Type Name *</label>
-                                <input type="text" class="form-control" placeholder="e.g., Sherwani" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Slug (URL)</label>
-                                <input type="text" class="form-control" placeholder="sherwani" readonly>
-                                <small class="text-muted">Auto-generated from name</small>
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Base Price (Rs) *</label>
-                                <input type="number" class="form-control" placeholder="12000" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Estimated Days *</label>
-                                <input type="number" class="form-control" min="1" max="30" value="7" required>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Description</label>
-                            <textarea class="form-control" rows="3" placeholder="Description of this dress type..."></textarea>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label class="form-label">Required Measurements</label>
-                            <div class="row">
-                                @php $measurements = ['Height', 'Chest', 'Waist', 'Hips', 'Shoulder', 'Sleeve Length', 'Pant Length', 'Inseam']; @endphp
-                                @foreach($measurements as $measurement)
-                                <div class="col-md-3 mb-2">
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="measure_{{ $loop->index }}" checked>
-                                        <label class="form-check-label" for="measure_{{ $loop->index }}">{{ $measurement }}</label>
-                                    </div>
-                                </div>
-                                @endforeach
-                            </div>
-                        </div>
-                        
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Category</label>
-                                <select class="form-control">
-                                    <option value="mens">Mens Wear</option>
-                                    <option value="womens">Womens Wear</option>
-                                    <option value="kids">Kids Wear</option>
-                                    <option value="traditional">Traditional</option>
-                                    <option value="formal">Formal</option>
-                                    <option value="casual">Casual</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Status</label>
-                                <select class="form-control">
-                                    <option value="active" selected>Active</option>
-                                    <option value="inactive">Inactive</option>
-                                </select>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary" onclick="saveDressType()">
-                        <i class="las la-save mr-1"></i> Save Dress Type
-                    </button>
+                <div class="modal-body" id="dressTypeDetails">
+                    <!-- Details will be loaded via AJAX -->
                 </div>
             </div>
         </div>
@@ -370,103 +434,214 @@
     <script src="{{ asset('backend/assets/js/app.js') }}"></script>
     
     <script>
+        let popularityChart;
+        
         $(document).ready(function() {
             // Initialize DataTable
             $('#dressTypesTable').DataTable({
                 pageLength: 10,
                 responsive: true,
+                ordering: false, // Disable DataTable sorting as we have pagination
                 language: {
                     search: "_INPUT_",
                     searchPlaceholder: "Search dress types..."
                 }
             });
             
-            // Initialize popularity chart
-            initPopularityChart();
+            // Initialize chart
+            initPopularityChart('month');
+            
+            // Auto-hide alerts after 5 seconds
+            setTimeout(() => {
+                $('.alert').alert('close');
+            }, 5000);
         });
         
-        function initPopularityChart() {
+        function initPopularityChart(period = 'month') {
             const ctx = document.getElementById('popularityChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Sherwani', 'Suit', 'Kurta', 'Gown', 'Lehenga', 'Blouse'],
-                    datasets: [{
-                        label: 'Orders This Month',
-                        data: [45, 38, 42, 18, 15, 32],
-                        backgroundColor: [
-                            '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#EF4444', '#6B7280'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 10
+            
+            // Destroy existing chart if it exists
+            if (popularityChart) {
+                popularityChart.destroy();
+            }
+            
+            // Fetch data from API
+            fetch(`/api/dress-types/popularity?period=${period}`)
+                .then(response => response.json())
+                .then(data => {
+                    const labels = data.map(item => item.name);
+                    const orders = data.map(item => item.orders);
+                    
+                    popularityChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Orders',
+                                data: orders,
+                                backgroundColor: [
+                                    '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', 
+                                    '#EF4444', '#6B7280', '#EC4899', '#14B8A6',
+                                    '#F97316', '#8B5CF6'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: Math.max(1, Math.round(Math.max(...orders) / 10))
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
                             }
                         }
-                    }
-                }
-            });
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching chart data:', error);
+                });
         }
         
-        function addDressType() {
-            $('#dressTypeModal').modal('show');
-        }
-        
-        function editDressType(id) {
-            $('#dressTypeModal .modal-title').text('Edit Dress Type');
-            $('#dressTypeModal').modal('show');
-            // In real app: Load dress type data
-        }
-        
-        function saveDressType() {
-            alert('Dress type saved successfully!');
-            $('#dressTypeModal').modal('hide');
-        }
-        
-        function viewDetails(id) {
-            alert('Viewing dress type details for ID: ' + id);
-            // In real app: Open details modal
+        function changeChartPeriod(period) {
+            initPopularityChart(period);
         }
         
         function toggleStatus(id) {
             if (confirm('Toggle dress type status?')) {
-                alert('Dress type status updated!');
-                // In real app: AJAX call to toggle status
+                $.ajax({
+                    url: `/dress-types/${id}/toggle-status`,
+                    type: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            location.reload();
+                        }
+                    },
+                    error: function(xhr) {
+                        alert('Error updating status');
+                    }
+                });
             }
         }
         
-        function deleteDressType(id) {
-            if (confirm('Are you sure you want to delete this dress type?')) {
-                alert('Dress type deleted!');
-                // In real app: AJAX call to delete
-            }
-        }
-        
-        function exportDressTypes() {
-            alert('Exporting dress types data...');
+        function viewDetails(id) {
+            $.ajax({
+                url: `/api/dress-types/${id}`,
+                type: 'GET',
+                success: function(response) {
+                    const details = `
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Basic Information</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th>Name:</th>
+                                        <td>${response.name}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Slug:</th>
+                                        <td>${response.slug}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Base Price:</th>
+                                        <td>Rs ${parseFloat(response.base_price).toLocaleString()}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Estimated Days:</th>
+                                        <td>${response.estimated_days} days</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Status:</th>
+                                        <td>
+                                            ${response.is_active 
+                                                ? '<span class="badge badge-success">Active</span>' 
+                                                : '<span class="badge badge-secondary">Inactive</span>'}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Order Statistics</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th>Total Orders:</th>
+                                        <td>${response.total_orders || 0}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>This Month:</th>
+                                        <td>${response.monthly_orders || 0}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        ${response.description ? `
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h6>Description</h6>
+                                <p>${response.description}</p>
+                            </div>
+                        </div>
+                        ` : ''}
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h6>Audit Information</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th>Created By:</th>
+                                        <td>${response.created_by_name || 'N/A'}</td>
+                                        <th>Created At:</th>
+                                        <td>${new Date(response.created_at).toLocaleString()}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Updated By:</th>
+                                        <td>${response.updated_by_name || 'N/A'}</td>
+                                        <th>Updated At:</th>
+                                        <td>${new Date(response.updated_at).toLocaleString()}</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                    $('#dressTypeDetails').html(details);
+                    $('#detailsModal').modal('show');
+                },
+                error: function(xhr) {
+                    alert('Error loading dress type details');
+                }
+            });
         }
         
         function importDressTypes() {
-            alert('Opening import dialog...');
+            $('#importModal').modal('show');
+        }
+        
+        function confirmDelete() {
+            return confirm('Are you sure you want to delete this dress type? This action cannot be undone.');
         }
         
         function updatePrices() {
             alert('Opening price update tool...');
+            // Implement bulk price update
         }
         
         function manageTemplates() {
             alert('Opening measurement templates manager...');
+            // Redirect to measurement templates
         }
         
         function generateReport() {
-            alert('Generating dress types report...');
+            window.open('/reports/dress-types?format=pdf', '_blank');
         }
     </script>
     
@@ -508,6 +683,9 @@
         }
         .list-group-item:hover {
             background-color: #f8f9fa;
+        }
+        .progress {
+            background-color: #e9ecef;
         }
     </style>
     @endpush

@@ -211,7 +211,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('phone', 20)->nullable();
             $table->string('password');
-            $table->enum('role', ['admin', 'manager', 'staff', 'tailor'])->default('staff');
+            $table->enum('role', ['admin', 'manager', 'staff', 'tailor', 'customer'])->default('staff');
             $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
             $table->foreignId('branch_id')->nullable()->constrained('branches')->onDelete('set null');
             $table->rememberToken();
@@ -255,15 +255,28 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('phone', 20)->index();
-            $table->foreignId('user_id')->nullable()->unique()->constrained('users')->onDelete('set null');
             $table->text('address')->nullable();
+            $table->foreignId('user_id')->nullable()->unique()->constrained('users')->onDelete('set null');
             $table->string('reference')->nullable();
+
+            $table->string('customer_type')->default('regular');
+            $table->decimal('discount_rate', 5, 2)->default(0);
+            $table->string('occupation')->nullable();
+            $table->date('anniversary_date')->nullable();
+            $table->string('profile_photo')->nullable();
+            $table->json('preferred_communication')->nullable();
+            $table->boolean('send_welcome_message')->default(false);
+
             $table->text('notes')->nullable();
             $table->foreignId('branch_id')->nullable()->constrained('branches')->onDelete('set null');
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
             $table->softDeletes();
+
+            // Add indexes
+            $table->index('customer_type');
+            $table->index('discount_rate');
         });
 
         Schema::table('customers', function (Blueprint $table) {
@@ -426,7 +439,6 @@ return new class extends Migration
     {
         Schema::create('fabrics', function (Blueprint $table) {
             $table->id();
-
             // Basic Info
             $table->string('name');
             $table->string('fabric_code')->unique();

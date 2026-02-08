@@ -4,6 +4,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\DressTypeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -83,9 +84,20 @@ Route::get('tailor-assignments', function () {
 })->name('tailor-assignments.index');
 
 // Dress Types
-Route::get('dress-types', function () {
-    return view('dashboard.dress-types.index');
-})->name('dress-types.index');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::prefix('dress-types')->name('dress-types.')->group(function () {
+        Route::get('/', [DressTypeController::class, 'index'])->name('index');
+        Route::get('/create', [DressTypeController::class, 'create'])->name('create');
+        Route::post('/', [DressTypeController::class, 'store'])->name('store');
+        Route::get('/{dressType}/edit', [DressTypeController::class, 'edit'])->name('edit');
+        Route::put('/{dressType}', [DressTypeController::class, 'update'])->name('update');
+        Route::delete('/{dressType}', [DressTypeController::class, 'destroy'])->name('destroy');
+        Route::patch('/{dressType}/toggle-status', [DressTypeController::class, 'toggleStatus'])->name('toggle-status');
+        Route::post('/import', [DressTypeController::class, 'import'])->name('import');
+        Route::get('/export', [DressTypeController::class, 'export'])->name('export');
+        Route::get('/stats', [DressTypeController::class, 'stats'])->name('stats');
+    });
+});
 
 // Fabrics
 Route::prefix('fabrics')->name('fabrics.')->group(function () {
