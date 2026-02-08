@@ -15,6 +15,7 @@ return new class extends Migration
             $table->text('address')->nullable();
             $table->foreignId('user_id')->nullable()->unique()->constrained('users')->onDelete('set null');
             $table->string('reference')->nullable();
+            $table->enum('status', ['active', 'inactive'])->default('active');
 
             $table->string('customer_type')->default('regular');
             $table->decimal('discount_rate', 5, 2)->default(0);
