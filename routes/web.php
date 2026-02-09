@@ -31,6 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/pending', [OrderController::class, 'pending'])->name('pending');
         Route::get('/in-progress', [OrderController::class, 'inProgress'])->name('in-progress');
         Route::get('/completed', [OrderController::class, 'completed'])->name('completed');
+        Route::post('/customer/store', [OrderController::class, 'customerStore'])->name('customer.store');
 
         Route::get('/', [OrderController::class, 'index'])->name('index');
         Route::get('/create', [OrderController::class, 'create'])->name('create');

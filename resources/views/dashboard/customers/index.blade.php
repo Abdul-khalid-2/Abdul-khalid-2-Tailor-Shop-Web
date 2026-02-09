@@ -285,7 +285,7 @@
                                     <span class="badge badge-{{ $statusColor }}">{{ $statusText }}</span>
                                 </td>
                                 <td>
-                                    <div class="dropdown table-dropdown">
+                                    <div class="table-dropdown">
                                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown">
                                             <i class="las la-ellipsis-h"></i>
                                         </button>
@@ -631,28 +631,7 @@
             // In real app: Generate and download export file
         }
     </script>
-    <script>
-        $(document).on('shown.bs.dropdown', '.table-dropdown', function () {
-            let $dropdown = $(this).find('.dropdown-menu');
-            $('body').append($dropdown.detach());
-
-            let offset = $(this).offset();
-            let height = $(this).outerHeight();
-
-            $dropdown.css({
-                position: 'absolute',
-                top: offset.top + height,
-                left: offset.left,
-                display: 'block'
-            });
-        });
-
-        $(document).on('hidden.bs.dropdown', '.table-dropdown', function () {
-            let $dropdown = $('body').find('.dropdown-menu');
-            $(this).append($dropdown.detach());
-            $dropdown.removeAttr('style');
-        });
-    </script>
+    
 
 
     <style>

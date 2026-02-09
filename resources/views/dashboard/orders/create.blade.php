@@ -6,6 +6,11 @@
     <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- Simple Color Picker CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css"/>
+    <!-- Select2 CSS -->
     <link rel="stylesheet" href="{{ asset('backend/assets/vendor/select2/css/select2.min.css') }}">
     @endpush
 
@@ -39,19 +44,25 @@
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Customer *</label>
-                                            <select class="form-control select2" id="customer_id" name="customer_id" required>
-                                                <option value="">Select Customer</option>
-                                                @foreach($customers as $customer)
-                                                <option value="{{ $customer->id }}" 
-                                                    data-phone="{{ $customer->phone }}"
-                                                    data-address="{{ $customer->address }}"
-                                                    data-type="{{ $customer->customer_type }}"
-                                                    data-discount="{{ $customer->discount_rate }}">
-                                                    {{ $customer->name }} ({{ $customer->phone }})
-                                                </option>
-                                                @endforeach
-                                            </select>
-                                            <small class="text-muted">Or <a href="{{ route('customers.create') }}" target="_blank">add new customer</a></small>
+                                            <div class="input-group">
+                                                <select class="form-control select2" id="customer_id" name="customer_id" required>
+                                                    <option value="">Select Customer</option>
+                                                    @foreach($customers as $customer)
+                                                    <option value="{{ $customer->id }}"
+                                                        data-phone="{{ $customer->phone }}"
+                                                        data-address="{{ $customer->address }}"
+                                                        data-type="{{ $customer->customer_type }}"
+                                                        data-discount="{{ $customer->discount_rate }}">
+                                                        {{ $customer->name }} ({{ $customer->phone }})
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                                <div class="input-group-append">
+                                                    <button type="button" class="btn btn-outline-primary" id="addCustomerBtn">
+                                                        <i class="las la-plus"></i> Add New
+                                                    </button>
+                                                </div>
+                                            </div>
                                             @error('customer_id')
                                             <div class="text-danger small">{{ $message }}</div>
                                             @enderror
@@ -216,8 +227,16 @@
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Color</label>
-                                            <input type="text" class="form-control" id="fabric_color" 
-                                                   placeholder="e.g., Navy Blue" value="{{ old('fabric_color') }}">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="fabric_color"
+                                                    placeholder="e.g., Navy Blue" value="{{ old('fabric_color') }}">
+                                                <div class="input-group-append">
+                                                    <button type="button" class="btn btn-outline-secondary" id="colorPickerBtn">
+                                                        <i class="las la-eye-dropper"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div id="colorPickerContainer" class="mt-2"></div>
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Meter Required</label>
@@ -393,6 +412,67 @@
         </form>
     </div>
 
+    <!-- Add Customer Modal -->
+    <div class="modal fade" id="addCustomerModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Customer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="newCustomerForm">
+                    @csrf
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Name *</label>
+                                <input type="text" class="form-control" id="new_customer_name" name="name" required>
+                                <div class="invalid-feedback">Please enter customer name.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Phone *</label>
+                                <input type="text" class="form-control" id="new_customer_phone" name="phone" required>
+                                <div class="invalid-feedback">Please enter phone number.</div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control" id="new_customer_email" name="email">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Address</label>
+                                <textarea class="form-control" id="new_customer_address" name="address" rows="2"></textarea>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Branch *</label>
+                                <select class="form-control" id="new_customer_branch" name="branch_id" required>
+                                    <option value="">Select Branch</option>
+                                    @foreach($branches as $branch)
+                                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="invalid-feedback">Please select a branch.</div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="customer_type" value="walk_in">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="saveCustomerBtn">
+                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                            Save Customer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Measurement Template Modal -->
     <div class="modal fade" id="measurementModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -494,7 +574,12 @@
 
     @push('js')
     <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
+    <!-- Select2 JS -->
     <script src="{{ asset('backend/assets/vendor/select2/js/select2.min.js') }}"></script>
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- Simple Color Picker JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
 
     <!-- Table Treeview JavaScript -->
     <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
@@ -513,6 +598,150 @@
             // Initialize Select2
             $('.select2').select2({
                 theme: 'bootstrap'
+            });
+
+            // Initialize Color Picker
+            let pickr = null;
+            
+            // Create color picker when button is clicked
+            $('#colorPickerBtn').click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // If pickr already exists, show it
+                if (pickr) {
+                    pickr.show();
+                    return;
+                }
+                
+                // Create new pickr instance
+                pickr = Pickr.create({
+                    el: '#colorPickerContainer',
+                    theme: 'nano',
+                    default: '#1D4ED8',
+                    swatches: [
+                        '#000000', '#FFFFFF', '#1D4ED8', '#EF4444', '#10B981',
+                        '#F59E0B', '#8B5CF6', '#EC4899', '#6B7280', '#92400E'
+                    ],
+                    components: {
+                        preview: true,
+                        opacity: true,
+                        hue: true,
+                        interaction: {
+                            hex: true,
+                            rgba: true,
+                            hsla: true,
+                            hsva: true,
+                            cmyk: true,
+                            input: true,
+                            clear: true,
+                            save: true
+                        }
+                    }
+                });
+
+                // Show picker
+                $('#colorPickerContainer').show();
+                pickr.show();
+
+                // When color is selected
+                pickr.on('save', (color, instance) => {
+                    const hexColor = color.toHEXA().toString();
+                    $('#fabric_color').val(hexColor);
+                    $('#colorPickerContainer').hide();
+                    pickr.hide();
+                });
+
+                // When clear button is clicked
+                pickr.on('clear', (instance) => {
+                    $('#fabric_color').val('');
+                    $('#colorPickerContainer').hide();
+                    pickr.hide();
+                });
+            });
+
+            // Close color picker when clicking outside
+            $(document).click(function(e) {
+                if (!$(e.target).closest('#colorPickerContainer, #colorPickerBtn, .pcr-button').length) {
+                    if (pickr) {
+                        $('#colorPickerContainer').hide();
+                        pickr.hide();
+                    }
+                }
+            });
+
+            // Add Customer Modal
+            $('#addCustomerBtn').click(function() {
+                $('#addCustomerModal').modal('show');
+            });
+
+            // Save new customer via AJAX - Fixed URL
+            $('#newCustomerForm').submit(function(e) {
+                e.preventDefault();
+
+                const saveBtn = $('#saveCustomerBtn');
+                const spinner = saveBtn.find('.spinner-border');
+
+                // Validate form
+                if (!this.checkValidity()) {
+                    e.stopPropagation();
+                    $(this).addClass('was-validated');
+                    return;
+                }
+
+                // Show loading
+                saveBtn.prop('disabled', true);
+                spinner.removeClass('d-none');
+
+                $.ajax({
+                    url: '{{ route("orders.customer.store") }}', // Use the new route
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            // Add new customer to select2 dropdown
+                            const newOption = new Option(
+                                response.customer.name + ' (' + response.customer.phone + ')',
+                                response.customer.id,
+                                false,
+                                true
+                            );
+
+                            $('#customer_id').append(newOption).trigger('change');
+
+                            // Close modal and reset form
+                            $('#addCustomerModal').modal('hide');
+                            $('#newCustomerForm')[0].reset();
+                            $('#newCustomerForm').removeClass('was-validated');
+
+                            toastr.success(response.message || 'Customer added successfully!');
+                        } else {
+                            toastr.error(response.message || 'Failed to add customer.');
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'An error occurred. Please try again.';
+
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = xhr.responseJSON.errors;
+                            errorMessage = Object.values(errors).flat().join('<br>');
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+
+                        toastr.error(errorMessage);
+                    },
+                    complete: function() {
+                        saveBtn.prop('disabled', false);
+                        spinner.addClass('d-none');
+                    }
+                });
+            });
+
+            // Reset modal when closed
+            $('#addCustomerModal').on('hidden.bs.modal', function() {
+                $('#newCustomerForm')[0].reset();
+                $('#newCustomerForm').removeClass('was-validated');
             });
 
             // Update base price when dress type changes
@@ -842,6 +1071,37 @@
         .spinner-border {
             width: 3rem;
             height: 3rem;
+        }
+
+        /* Color Picker Styles */
+        #colorPickerContainer {
+            display: none;
+            position: absolute;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 350px;
+        }
+
+        .pickr {
+            width: 100% !important;
+        }
+
+        .pcr-button {
+            width: 100% !important;
+            height: 40px !important;
+            border-radius: 4px;
+        }
+
+        /* Toastr customization */
+        .toast-success {
+            background-color: #28a745 !important;
+        }
+
+        .toast-error {
+            background-color: #dc3545 !important;
         }
     </style>
     @endpush
