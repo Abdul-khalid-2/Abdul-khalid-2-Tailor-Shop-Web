@@ -38,13 +38,7 @@
                         <li class="{{ request()->routeIs('orders.index') ? 'active' : '' }}">
                             <a href="{{ route('orders.index') }}">
                                 <i class="las la-shopping-cart"></i>
-                                <span>All Orders</span>
-                            </a>
-                        </li>
-                        <li class="{{ request()->routeIs('orders.create') ? 'active' : '' }}">
-                            <a href="{{ route('orders.create') }}">
-                                <i class="las la-plus-circle"></i>
-                                <span>New Order</span>
+                                <span>Orders</span>
                             </a>
                         </li>
                         <li class="{{ request()->routeIs('orders.pending') ? 'active' : '' }}">
@@ -75,7 +69,7 @@
                             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                             <circle cx="12" cy="7" r="4"></circle>
                         </svg>
-                        <span class="ml-4">Customers</span>
+                        <span class="ml-4">People</span>
                         <svg class="svg-icon iq-arrow-right arrow-active" width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="10 15 15 20 20 15"></polyline>
                             <path d="M4 4h7a4 4 0 0 1 4 4v12"></path>
@@ -85,44 +79,13 @@
                         <li class="{{ request()->routeIs('customers.index') ? 'active' : '' }}">
                             <a href="{{ route('customers.index') }}">
                                 <i class="las la-users"></i>
-                                <span>All Customers</span>
+                                <span>Customers</span>
                             </a>
                         </li>
-                        <li class="{{ request()->routeIs('customers.create') ? 'active' : '' }}">
-                            <a href="{{ route('customers.create') }}">
-                                <i class="las la-user-plus"></i>
-                                <span>Add Customer</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
-                <!-- Tailors -->
-                <li class="{{ request()->is('tailors*') ? 'active' : '' }}">
-                    <a href="#tailors" class="collapsed" data-toggle="collapse" aria-expanded="false">
-                        <svg class="svg-icon" width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        </svg>
-                        <span class="ml-4">Tailors</span>
-                        <svg class="svg-icon iq-arrow-right arrow-active" width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="10 15 15 20 20 15"></polyline>
-                            <path d="M4 4h7a4 4 0 0 1 4 4v12"></path>
-                        </svg>
-                    </a>
-                    <ul id="tailors" class="iq-submenu collapse" data-parent="#iq-sidebar-toggle">
                         <li class="{{ request()->routeIs('tailors.index') ? 'active' : '' }}">
                             <a href="{{ route('tailors.index') }}">
                                 <i class="las la-layer-group"></i>
-                                <span>All Tailors</span>
-                            </a>
-                        </li>
-                        <li class="{{ request()->routeIs('tailors.create') ? 'active' : '' }}">
-                            <a href="{{ route('tailors.create') }}">
-                                <i class="las la-user-plus"></i>
-                                <span>Add Tailor</span>
+                                <span>Tailors</span>
                             </a>
                         </li>
                         <li class="{{ request()->routeIs('tailor-assignments.index') ? 'active' : '' }}">
@@ -131,6 +94,13 @@
                                 <span>Assignments</span>
                             </a>
                         </li>
+                        <li class="{{ request()->routeIs('users.index') ? 'active' : '' }}">
+                            <a href="{{ route('users.index') }}">
+                                <i class="las la-user-cog"></i>
+                                <span>Users</span>
+                            </a>
+                        </li>
+
                     </ul>
                 </li>
 
@@ -286,12 +256,6 @@
                             <a href="{{ route('branches.index') }}">
                                 <i class="las la-store"></i>
                                 <span>Branches</span>
-                            </a>
-                        </li>
-                        <li class="{{ request()->routeIs('users.index') ? 'active' : '' }}">
-                            <a href="{{ route('users.index') }}">
-                                <i class="las la-user-cog"></i>
-                                <span>Users</span>
                             </a>
                         </li>
                         <li class="{{ request()->routeIs('discounts.index') ? 'active' : '' }}">

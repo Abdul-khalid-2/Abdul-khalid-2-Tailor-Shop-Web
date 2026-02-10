@@ -13,6 +13,7 @@ use App\Models\OrderStatus;
 use App\Models\PaymentStatus;
 use App\Models\Branch;
 use App\Models\PaymentMethod;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -368,8 +369,8 @@ class OrderController extends Controller
         $measurementTemplates = DB::table('measurement_templates')
             ->where('customer_id', $order->customer_id)
             ->get();
-
-        return view('dashboard.orders.show', compact('order', 'measurementTemplates'));
+        $paymentMethods = PaymentMethod::where('status', 'active')->get();
+        return view('dashboard.orders.show', compact('order', 'measurementTemplates', 'paymentMethods'));
     }
 
     /**
@@ -809,5 +810,79 @@ class OrderController extends Controller
         ];
 
         return view('dashboard.orders.status', compact('orders', 'status', 'stats'));
+    }
+
+    public function customerStore(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20|unique:customers,phone',
+            'email' => 'nullable|email|unique:users,email',
+            'address' => 'nullable|string',
+            'branch_id' => 'required|exists:branches,id',
+            'customer_type' => 'required|in:regular,vip,corporate,walk_in',
+        ]);
+
+        try {
+            // Define customer variable outside the closure
+            $customer = null;
+
+            DB::transaction(function () use ($validated, $request, &$customer) {
+                // Create user if email provided
+                $user = null;
+                if (!empty($validated['email'])) {
+                    $password = Str::random(8);
+                    $user = User::create([
+                        'name' => $validated['name'],
+                        'email' => $validated['email'],
+                        'phone' => $validated['phone'],
+                        'password' => bcrypt($password),
+                        'role' => 'customer',
+                        'branch_id' => $validated['branch_id'],
+                        'status' => 'active',
+                    ]);
+                }
+
+                // Create customer with only required/important fields
+                $customer = Customer::create([
+                    'user_id' => $user ? $user->id : null,
+                    'name' => $validated['name'],
+                    'phone' => $validated['phone'],
+                    'address' => $validated['address'] ?? null,
+                    'customer_type' => $validated['customer_type'],
+                    'discount_rate' => 0, // Default discount rate
+                    'branch_id' => $validated['branch_id'],
+                    'created_by' => auth()->id(),
+                    'preferred_communication' => [],
+                    'send_welcome_message' => false,
+                ]);
+            });
+
+            // Check if customer was created
+            if (!$customer) {
+                throw new \Exception('Customer creation failed.');
+            }
+
+            // Return JSON response for AJAX request
+            return response()->json([
+                'success' => true,
+                'message' => 'Customer created successfully.',
+                'customer' => [
+                    'id' => $customer->id,
+                    'name' => $customer->name,
+                    'phone' => $customer->phone,
+                    'address' => $customer->address,
+                    'customer_type' => $customer->customer_type,
+                    'discount_rate' => $customer->discount_rate,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            // Handle AJAX error response
+            return response()->json([
+                'success' => false,
+                'message' => 'Error creating customer: ' . $e->getMessage(),
+                'errors' => ['general' => $e->getMessage()]
+            ], 500);
+        }
     }
 }

@@ -119,7 +119,7 @@
                         <tbody>
                             @foreach($orders as $order)
                             @php
-                                $orderItem = $order->orderItems->first();
+                                $orderItem = $order->items->first();
                             @endphp
                             <tr>
                                 <td>

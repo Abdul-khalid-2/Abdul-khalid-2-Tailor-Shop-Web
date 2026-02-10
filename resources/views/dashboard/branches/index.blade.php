@@ -138,10 +138,10 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <div class="row text-center">
-                                            <div class="font-weight-bold text-primary">{{ $branch->users_count }} / <small class="text-muted">Users</small></div>
-                                            <div class="font-weight-bold text-success">{{ $branch->customers_count }} / <small class="text-muted">Customers</small></div>
-                                            <div class="font-weight-bold text-info">{{ $branch->orders_count }} / <small class="text-muted">Orders</small></div>
+                                    <div class=" text-center">
+                                            <div class="font-weight-bold text-primary">{{ $branch->users_count }} : <small class="text-muted">Users</small></div>
+                                            <div class="font-weight-bold text-success">{{ $branch->customers_count }} : <small class="text-muted">Customers</small></div>
+                                            <div class="font-weight-bold text-info">{{ $branch->orders_count }} : <small class="text-muted">Orders</small></div>
                                     </div>
                                 </td>
                                 <td>

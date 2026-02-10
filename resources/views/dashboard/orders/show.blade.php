@@ -45,7 +45,7 @@
                                         </div>
                                         <div class="mt-2 mb-0 text-muted text-xs">
                                             @if($order->delivery_date->isFuture())
-                                                {{ $order->delivery_date->diffInDays(now()) }} days remaining
+                                                {{ round($order->delivery_date->diffInDays(now())) }} days remaining
                                             @else
                                                 {{ $order->delivery_date->diffForHumans() }}
                                             @endif
@@ -82,7 +82,8 @@
                                         </div>
                                     </div>
                                     <div class="col-auto">
-                                        <i class="las la-rupee-sign fa-2x text-success"></i>
+                                        {{-- <p class="fa-2x text-success">Rs</p> --}}
+                                        {{-- <i class="las la-rupee-sign "></i> --}}
                                     </div>
                                 </div>
                             </div>
