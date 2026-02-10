@@ -24,7 +24,7 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ml-auto navbar-list align-items-center">
-                        {{-- <li class="nav-item nav-icon dropdown">
+                        <li class="nav-item nav-icon dropdown">
                             @php
                             $languages = config('languages');
                             @endphp
@@ -48,7 +48,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </li> --}}
+                        </li> 
                         <li>
                             <a href="#" class="btn border add-btn shadow-none mx-2">
                                 <i class="las la-list-alt mr-2 d-none d-md-inline"></i>
@@ -220,11 +220,11 @@
                                             {{-- <h5 class="mb-1">JoanDuo@property.com</h5>
                                             <p class="mb-0">{{ __('messages.since_date', ['date' => '10 March, 2020']) }}</p> --}}
                                             <div class="d-flex align-items-center justify-content-center mt-3">
-                                                <a href="#" class="btn border mr-2">{{ __('Profile') }}</a>
+                                                <a href="#" class="btn border mr-2">{{ __('messages.profile') }}</a>
 
                                                 <form method="POST" action="{{ route('logout') }}">
                                                     @csrf
-                                                    <button type="submit" class="btn border">{{ __('Sign Out') }}</button>
+                                                    <button type="submit" class="btn border">{{ __('messages.sign_out') }}</button>
                                                 </form>
                                             </div>
                                         </div>
