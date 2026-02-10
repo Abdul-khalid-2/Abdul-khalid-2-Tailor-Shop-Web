@@ -13,6 +13,7 @@ use App\Models\OrderStatus;
 use App\Models\PaymentStatus;
 use App\Models\Payment;
 use App\Models\Branch;
+use App\Models\FabricTransaction;
 use App\Models\PaymentMethod;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -430,8 +431,42 @@ class OrderController extends Controller
         
         // Corrected: Use 'is_active' column instead of 'status'
         $paymentMethods = PaymentMethod::where('is_active', true)->get();
-        
-        return view('dashboard.orders.show', compact('order', 'measurementTemplates', 'paymentMethods'));
+
+        // Get enabled measurement fields from settings
+        $settings = \App\Models\Setting::first();
+        $enabledFields = $settings && !empty($settings->measurement_fields)
+            ? $settings->measurement_fields
+            : [];
+
+        // If $enabledFields is null or empty, use default fields
+        if (empty($enabledFields)) {
+            $enabledFields = [
+                'height',
+                'weight',
+                'chest',
+                'waist',
+                'hips',
+                'shoulder',
+                'sleeve_length',
+                'sleeve_width',
+                'collar',
+                'bicep',
+                'wrist',
+                'pant_length',
+                'inseam',
+                'thigh',
+                'knee',
+                'bottom',
+                'ankle'
+            ];
+        }
+
+        return view('dashboard.orders.show', compact(
+            'order',
+            'measurementTemplates',
+            'paymentMethods',
+            'enabledFields'
+        ));
     }
 
     /**
@@ -458,6 +493,35 @@ class OrderController extends Controller
         $paymentStatuses = PaymentStatus::where('is_active', true)->get();
         $paymentMethods = PaymentMethod::where('is_active', true)->get();
 
+        // Get enabled measurement fields from settings
+        $settings = \App\Models\Setting::first();
+        $enabledFields = $settings && !empty($settings->measurement_fields)
+            ? $settings->measurement_fields
+            : [];
+
+        // If $enabledFields is null or empty, use default fields
+        if (empty($enabledFields)) {
+            $enabledFields = [
+                'height',
+                'weight',
+                'chest',
+                'waist',
+                'hips',
+                'shoulder',
+                'sleeve_length',
+                'sleeve_width',
+                'collar',
+                'bicep',
+                'wrist',
+                'pant_length',
+                'inseam',
+                'thigh',
+                'knee',
+                'bottom',
+                'ankle'
+            ];
+        }
+
         return view('dashboard.orders.edit', compact(
             'order',
             'customers',
@@ -467,7 +531,8 @@ class OrderController extends Controller
             'branches',
             'orderStatuses',
             'paymentStatuses',
-            'paymentMethods'
+            'paymentMethods',
+            'enabledFields'
         ));
     }
 

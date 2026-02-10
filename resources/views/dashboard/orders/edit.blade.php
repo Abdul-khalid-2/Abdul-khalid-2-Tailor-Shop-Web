@@ -201,59 +201,323 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
+                                            @if(in_array('height', $enabledFields))
                                             <div class="col-md-3 mb-3">
                                                 <label class="form-label">Height</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[height]" 
-                                                       placeholder="170" value="{{ old('measurements.height', $measurement->height) }}">
+                                                    placeholder="-- 170 --" value="{{ old('measurements.height', $measurement->height) }}">
                                             </div>
+                                            @endif
+                                            
+                                            @if(in_array('weight', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Weight</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[weight]" 
+                                                    placeholder="-- 70 --" value="{{ old('measurements.weight', $measurement->weight) }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('chest', $enabledFields))
                                             <div class="col-md-3 mb-3">
                                                 <label class="form-label">Chest</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[chest]" 
-                                                       placeholder="42" value="{{ old('measurements.chest', $measurement->chest) }}">
+                                                    placeholder="-- 42 --" value="{{ old('measurements.chest', $measurement->chest) }}">
                                             </div>
+                                            @endif
+                                            
+                                            @if(in_array('waist', $enabledFields))
                                             <div class="col-md-3 mb-3">
                                                 <label class="form-label">Waist</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[waist]" 
-                                                       placeholder="38" value="{{ old('measurements.waist', $measurement->waist) }}">
+                                                    placeholder="-- 38 --" value="{{ old('measurements.waist', $measurement->waist) }}">
                                             </div>
+                                            @endif
+                                            
+                                            @if(in_array('hips', $enabledFields))
                                             <div class="col-md-3 mb-3">
                                                 <label class="form-label">Hips</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[hips]" 
-                                                       placeholder="44" value="{{ old('measurements.hips', $measurement->hips) }}">
+                                                    placeholder="-- 44 --" value="{{ old('measurements.hips', $measurement->hips) }}">
                                             </div>
-                                        </div>
-                                        <div class="row">
+                                            @endif
+                                            
+                                            @if(in_array('shoulder', $enabledFields))
                                             <div class="col-md-3 mb-3">
                                                 <label class="form-label">Shoulder</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[shoulder]" 
-                                                       placeholder="18" value="{{ old('measurements.shoulder', $measurement->shoulder) }}">
+                                                    placeholder="-- 18 --" value="{{ old('measurements.shoulder', $measurement->shoulder) }}">
                                             </div>
+                                            @endif
+                                            
+                                            @if(in_array('sleeve_length', $enabledFields))
                                             <div class="col-md-3 mb-3">
                                                 <label class="form-label">Sleeve Length</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[sleeve_length]" 
-                                                       placeholder="60" value="{{ old('measurements.sleeve_length', $measurement->sleeve_length) }}">
+                                                    placeholder="-- 60 --" value="{{ old('measurements.sleeve_length', $measurement->sleeve_length) }}">
                                             </div>
+                                            @endif
+                                            
+                                            @if(in_array('sleeve_width', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Sleeve Width</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[sleeve_width]" 
+                                                    placeholder="-- 18 --" value="{{ old('measurements.sleeve_width', $measurement->sleeve_width) }}">
+                                            </div>
+                                            @endif
+                                        </div>
+                                        
+                                        <div class="row">
+                                            @if(in_array('collar', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Collar</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[collar]" 
+                                                    placeholder="-- 16 --" value="{{ old('measurements.collar', $measurement->collar) }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('bicep', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Bicep</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[bicep]" 
+                                                    placeholder="-- 12 --" value="{{ old('measurements.bicep', $measurement->bicep) }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('wrist', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Wrist</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[wrist]" 
+                                                    placeholder="-- 8 --"  value="{{ old('measurements.wrist', $measurement->wrist) }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('pant_length', $enabledFields))
                                             <div class="col-md-3 mb-3">
                                                 <label class="form-label">Pant Length</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[pant_length]" 
-                                                       placeholder="100" value="{{ old('measurements.pant_length', $measurement->pant_length) }}">
+                                                    placeholder="-- 100 --" value="{{ old('measurements.pant_length', $measurement->pant_length) }}">
                                             </div>
+                                            @endif
+                                            
+                                            @if(in_array('inseam', $enabledFields))
                                             <div class="col-md-3 mb-3">
                                                 <label class="form-label">Inseam</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[inseam]" 
-                                                       placeholder="80" value="{{ old('measurements.inseam', $measurement->inseam) }}">
+                                                    placeholder="-- 80 --" value="{{ old('measurements.inseam', $measurement->inseam) }}">
                                             </div>
+                                            @endif
+                                            
+                                            @if(in_array('thigh', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Thigh</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[thigh]" 
+                                                    placeholder="-- 24 --" value="{{ old('measurements.thigh', $measurement->thigh) }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('knee', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Knee</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[knee]" 
+                                                    placeholder="-- 18 --" value="{{ old('measurements.knee', $measurement->knee) }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('bottom', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Bottom</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[bottom]" 
+                                                    placeholder="-- 22 --" value="{{ old('measurements.bottom', $measurement->bottom) }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('ankle', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Ankle</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[ankle]" 
+                                                    placeholder="-- 10 --" value="{{ old('measurements.ankle', $measurement->ankle) }}">
+                                            </div>
+                                            @endif
                                         </div>
+                                        
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">Fitting Preferences</label>
                                                 <textarea class="form-control" name="measurements[fitting_preferences]" rows="2" 
-                                                          placeholder="Loose, tight, or any specific preferences...">{{ old('measurements.fitting_preferences', $measurement->fitting_preferences) }}</textarea>
+                                                        placeholder="-- Loose, tight, or any specific preferences...">{{ old('measurements.fitting_preferences', $measurement->fitting_preferences) }}</textarea>
                                             </div>
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label">Measurement Notes</label>
                                                 <textarea class="form-control" name="measurements[notes]" rows="2" 
-                                                          placeholder="Additional notes about measurements...">{{ old('measurements.notes', $measurement->notes) }}</textarea>
+                                                        placeholder="-- Additional notes about measurements...">{{ old('measurements.notes', $measurement->notes) }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <!-- Show empty measurement form if no measurements exist -->
+                                <div class="card mb-4">
+                                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">Measurements (in cm)</h6>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" id="loadTemplatesBtn">
+                                            <i class="las la-ruler mr-1"></i> Use Template
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="alert alert-info">
+                                            <i class="las la-info-circle"></i> No measurements recorded yet. You can add them below.
+                                        </div>
+                                        
+                                        <div class="row">
+                                            @if(in_array('height', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Height</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[height]" 
+                                                    placeholder="-- 170 --" value="{{ old('measurements.height') }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('weight', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Weight</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[weight]" 
+                                                    placeholder="-- 70 --" value="{{ old('measurements.weight') }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('chest', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Chest</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[chest]" 
+                                                    placeholder="-- 42 --" value="{{ old('measurements.chest') }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('waist', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Waist</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[waist]" 
+                                                    placeholder="-- 38 --" value="{{ old('measurements.waist') }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('hips', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Hips</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[hips]" 
+                                                    placeholder="-- 44 --" value="{{ old('measurements.hips') }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('shoulder', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Shoulder</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[shoulder]" 
+                                                    placeholder="-- 18 --" value="{{ old('measurements.shoulder') }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('sleeve_length', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Sleeve Length</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[sleeve_length]" 
+                                                    placeholder="-- 60 --" value="{{ old('measurements.sleeve_length') }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('sleeve_width', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Sleeve Width</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[sleeve_width]" 
+                                                    placeholder="-- 18 --" value="{{ old('measurements.sleeve_width') }}">
+                                            </div>
+                                            @endif
+                                        </div>
+                                        
+                                        <div class="row">
+                                            @if(in_array('collar', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Collar</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[collar]" 
+                                                    placeholder="-- 16 --" value="{{ old('measurements.collar') }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('bicep', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Bicep</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[bicep]" 
+                                                    placeholder="-- 12 --" value="{{ old('measurements.bicep') }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('wrist', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Wrist</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[wrist]" 
+                                                    placeholder="-- 8 --" value="{{ old('measurements.wrist') }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('pant_length', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Pant Length</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[pant_length]" 
+                                                    placeholder="-- 100 --" value="{{ old('measurements.pant_length') }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('inseam', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Inseam</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[inseam]" 
+                                                    placeholder="-- 80 --" value="{{ old('measurements.inseam') }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('thigh', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Thigh</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[thigh]" 
+                                                    placeholder="-- 24 --" value="{{ old('measurements.thigh') }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('knee', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Knee</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[knee]" 
+                                                    placeholder="-- 18 --" value="{{ old('measurements.knee') }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('bottom', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Bottom</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[bottom]" 
+                                                    placeholder="-- 22 --" value="{{ old('measurements.bottom') }}">
+                                            </div>
+                                            @endif
+                                            
+                                            @if(in_array('ankle', $enabledFields))
+                                            <div class="col-md-3 mb-3">
+                                                <label class="form-label">Ankle</label>
+                                                <input type="number" step="0.1" class="form-control" name="measurements[ankle]" 
+                                                    placeholder="-- 10 --" value="{{ old('measurements.ankle') }}">
+                                            </div>
+                                            @endif
+                                        </div>
+                                        
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Fitting Preferences</label>
+                                                <textarea class="form-control" name="measurements[fitting_preferences]" rows="2" 
+                                                        placeholder="Loose, tight, or any specific preferences...">{{ old('measurements.fitting_preferences') }}</textarea>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Measurement Notes</label>
+                                                <textarea class="form-control" name="measurements[notes]" rows="2" 
+                                                        placeholder="Additional notes about measurements...">{{ old('measurements.notes') }}</textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -261,10 +525,17 @@
                             @endif
 
                             <!-- Fabric Details -->
+                            @php
+                                $item = $order->items->first();
+                            @endphp
+
                             <div class="card mb-4">
                                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                     <h6 class="mb-0">Fabric Details</h6>
-                                    <button type="button" class="btn btn-sm btn-outline-info" id="selectFabricBtn">
+
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-info"
+                                            id="selectFabricBtn">
                                         <i class="las la-layer-group mr-1"></i> Select from Inventory
                                     </button>
                                 </div>
@@ -272,32 +543,65 @@
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Fabric Type</label>
-                                            <input type="text" class="form-control" id="fabric_type" 
-                                                   placeholder="e.g., Silk, Cotton" value="{{ old('fabric_type') }}">
+                                            <input type="text"
+                                                class="form-control"
+                                                name="fabric_type"
+                                                id="fabric_type"
+                                                placeholder="e.g., Silk, Cotton"
+                                                value="{{ old('fabric_type', $item->fabric_type) }}">
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Color</label>
-                                            <input type="text" class="form-control" id="fabric_color" 
-                                                   placeholder="e.g., Navy Blue" value="{{ old('fabric_color') }}">
+                                            <input type="text"
+                                                class="form-control"
+                                                name="fabric_color"
+                                                id="fabric_color"
+                                                placeholder="e.g., Navy Blue"
+                                                value="{{ old('fabric_color', $item->fabric_color) }}">
                                         </div>
+
+                                        {{-- Meter --}}
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Meter Required</label>
-                                            <input type="number" step="0.01" class="form-control" id="meter_required" 
-                                                   placeholder="3.5" value="{{ old('meter_required', 0) }}">
+                                            <input type="number"
+                                                step="0.01"
+                                                class="form-control"
+                                                name="fabric_meters"
+                                                id="meter_required"
+                                                placeholder="3.5"
+                                                value="{{ old('fabric_meters', $item->fabric_meters) }}">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Fabric Rate/m (Rs)</label>
-                                            <input type="number" step="0.01" class="form-control" id="fabric_rate" 
-                                                   value="{{ old('fabric_rate', 0) }}">
+                                            <label class="form-label">Fabric Rate / m (Rs)</label>
+                                            <input type="number"
+                                                step="0.01"
+                                                class="form-control"
+                                                name="fabric_rate"
+                                                id="fabric_rate"
+                                                value="{{ old('fabric_rate', $item->fabric_rate) }}">
                                         </div>
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Fabric Cost (Rs)</label>
-                                            <input type="number" step="0.01" class="form-control" id="fabric_cost" 
-                                                   name="fabric_cost" value="{{ old('fabric_cost', 0) }}" readonly>
+                                            <input type="number"
+                                                step="0.01"
+                                                class="form-control"
+                                                name="fabric_cost"
+                                                id="fabric_cost"
+                                                value="{{ old('fabric_cost', $item->fabric_cost) }}"
+                                                readonly>
                                         </div>
                                     </div>
+
+                                    {{-- Inventory fabric hidden fields (future use) --}}
+                                    <input type="hidden"
+                                        name="fabric_product_id"
+                                        value="{{ old('fabric_product_id', $item->fabric_product_id) }}">
+
+                                    <input type="hidden"
+                                        name="is_inventory_fabric"
+                                        value="{{ old('is_inventory_fabric', $item->is_inventory_fabric) }}">
                                 </div>
                             </div>
 
@@ -406,7 +710,7 @@
                                                     <option value="{{ $tailor->id }}" {{ old('tailor_id', $assignment->tailor_id ?? '') == $tailor->id ? 'selected' : '' }}>
                                                         {{ $tailor->name }} - {{ ucfirst($tailor->employment_type) }}
                                                         @if($tailor->specializations)
-                                                        ({{ json_decode($tailor->specializations)[0] ?? 'General' }})
+                                                        ({{ $tailor->specializations[0] ?? 'General' }})
                                                         @endif
                                                     </option>
                                                     @endforeach
@@ -545,7 +849,7 @@
                                     <td>{{ $fabric->fabric_code }}</td>
                                     <td>{{ $fabric->type }}</td>
                                     <td>
-                                        <span class="badge" style="background-color: {{ $this->getColorCode($fabric->color) }}; color: white;">
+                                        <span class="badge" style="background-color: {{ $fabric->color }}; color: white;">
                                             {{ $fabric->color }}
                                         </span>
                                     </td>

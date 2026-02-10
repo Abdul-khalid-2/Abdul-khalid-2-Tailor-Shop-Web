@@ -255,19 +255,30 @@
                                     <div class="row">
                                         @php
                                             $measurement = $item->measurements->first();
+                                            
+                                            // Define all possible measurement fields with their labels
                                             $measurementFields = [
                                                 'height' => 'Height',
+                                                'weight' => 'Weight',
+                                                'shoulder' => 'Shoulder',
                                                 'chest' => 'Chest',
                                                 'waist' => 'Waist',
                                                 'hips' => 'Hips',
-                                                'shoulder' => 'Shoulder',
                                                 'sleeve_length' => 'Sleeve Length',
+                                                'sleeve_width' => 'Sleeve Width',
+                                                'collar' => 'Collar',
+                                                'bicep' => 'Bicep',
+                                                'wrist' => 'Wrist',
                                                 'pant_length' => 'Pant Length',
                                                 'inseam' => 'Inseam',
+                                                'thigh' => 'Thigh',
+                                                'knee' => 'Knee',
+                                                'bottom' => 'Bottom',
+                                                'ankle' => 'Ankle',
                                             ];
                                         @endphp
                                         @foreach($measurementFields as $field => $label)
-                                            @if($measurement->$field)
+                                            @if(in_array($field, $enabledFields) && $measurement->$field !== null)
                                             <div class="col-md-3 mb-2">
                                                 <div class="bg-light p-2 rounded">
                                                     <small class="text-muted">{{ $label }}</small>
@@ -276,6 +287,40 @@
                                             </div>
                                             @endif
                                         @endforeach
+                                        
+                                        <!-- Handle additional_measurements JSON field -->
+                                        @if($measurement->additional_measurements && is_array($measurement->additional_measurements))
+                                            @foreach($measurement->additional_measurements as $field => $value)
+                                                @if($value !== null && $value !== '')
+                                                <div class="col-md-3 mb-2">
+                                                    <div class="bg-light p-2 rounded">
+                                                        <small class="text-muted">{{ ucwords(str_replace('_', ' ', $field)) }}</small>
+                                                        <div class="font-weight-bold">{{ is_numeric($value) ? $value . ' cm' : $value }}</div>
+                                                    </div>
+                                                </div>
+                                                @endif
+                                            @endforeach
+                                        @endif
+                                        
+                                        <!-- Show fitting preferences if exists -->
+                                        @if($measurement->fitting_preferences)
+                                        <div class="col-md-12 mb-2">
+                                            <div class="bg-light p-2 rounded">
+                                                <small class="text-muted">Fitting Preferences</small>
+                                                <div class="font-weight-bold">{{ $measurement->fitting_preferences }}</div>
+                                            </div>
+                                        </div>
+                                        @endif
+                                        
+                                        <!-- Show notes if exists -->
+                                        @if($measurement->notes)
+                                        <div class="col-md-12 mb-2">
+                                            <div class="bg-light p-2 rounded">
+                                                <small class="text-muted">Measurement Notes</small>
+                                                <div class="font-weight-bold">{{ $measurement->notes }}</div>
+                                            </div>
+                                        </div>
+                                        @endif
                                     </div>
                                 </div>
                                 @endif

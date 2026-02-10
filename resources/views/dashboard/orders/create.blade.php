@@ -181,7 +181,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Height</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[height]" 
-                                                   placeholder="170" value="{{ old('measurements.height') }}">
+                                                   placeholder="-- 170 --" value="{{ old('measurements.height') }}">
                                         </div>
                                         @endif
                                         
@@ -189,7 +189,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Weight</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[weight]" 
-                                                placeholder="70" value="{{ old('measurements.weight') }}">
+                                                placeholder="-- 70 --" value="{{ old('measurements.weight') }}">
                                         </div>
                                         @endif
                                         
@@ -197,7 +197,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Chest</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[chest]" 
-                                                   placeholder="42" value="{{ old('measurements.chest') }}">
+                                                   placeholder="-- 42 --" value="{{ old('measurements.chest') }}">
                                         </div>
                                         @endif
                                         
@@ -205,7 +205,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Waist</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[waist]" 
-                                                   placeholder="38" value="{{ old('measurements.waist') }}">
+                                                   placeholder="-- 38 --" value="{{ old('measurements.waist') }}">
                                         </div>
                                         @endif
                                         
@@ -213,7 +213,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Hips</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[hips]" 
-                                                   placeholder="44" value="{{ old('measurements.hips') }}">
+                                                   placeholder="-- 44 --" value="{{ old('measurements.hips') }}">
                                         </div>
                                         @endif
                                         
@@ -221,7 +221,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Shoulder</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[shoulder]" 
-                                                   placeholder="18" value="{{ old('measurements.shoulder') }}">
+                                                   placeholder="-- 18 --" value="{{ old('measurements.shoulder') }}">
                                         </div>
                                         @endif
                                         
@@ -229,7 +229,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Sleeve Length</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[sleeve_length]" 
-                                                   placeholder="60" value="{{ old('measurements.sleeve_length') }}">
+                                                   placeholder="-- 60 --" value="{{ old('measurements.sleeve_length') }}">
                                         </div>
                                         @endif
                                         
@@ -237,7 +237,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Sleeve Width</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[sleeve_width]" 
-                                                placeholder="18" value="{{ old('measurements.sleeve_width') }}">
+                                                placeholder="-- 18 --" value="{{ old('measurements.sleeve_width') }}">
                                         </div>
                                         @endif
                                     </div>
@@ -247,7 +247,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Collar</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[collar]" 
-                                                placeholder="16" value="{{ old('measurements.collar') }}">
+                                                placeholder="-- 16 --" value="{{ old('measurements.collar') }}">
                                         </div>
                                         @endif
                                         
@@ -255,7 +255,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Bicep</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[bicep]" 
-                                                placeholder="12" value="{{ old('measurements.bicep') }}">
+                                                placeholder="-- 12 --" value="{{ old('measurements.bicep') }}">
                                         </div>
                                         @endif
                                         
@@ -263,7 +263,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Wrist</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[wrist]" 
-                                                placeholder="8" value="{{ old('measurements.wrist') }}">
+                                                placeholder="-- 8 --" value="{{ old('measurements.wrist') }}">
                                         </div>
                                         @endif
                                         
@@ -271,7 +271,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Pant Length</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[pant_length]" 
-                                                   placeholder="100" value="{{ old('measurements.pant_length') }}">
+                                                   placeholder="-- 100 --" value="{{ old('measurements.pant_length') }}">
                                         </div>
                                         @endif
                                         
@@ -279,7 +279,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Inseam</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[inseam]" 
-                                                   placeholder="80" value="{{ old('measurements.inseam') }}">
+                                                   placeholder="-- 80 --" value="{{ old('measurements.inseam') }}">
                                         </div>
                                         @endif
                                         
@@ -287,7 +287,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Thigh</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[thigh]" 
-                                                placeholder="24" value="{{ old('measurements.thigh') }}">
+                                                placeholder="-- 24 --" value="{{ old('measurements.thigh') }}">
                                         </div>
                                         @endif
                                         
@@ -295,7 +295,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Knee</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[knee]" 
-                                                placeholder="18" value="{{ old('measurements.knee') }}">
+                                                placeholder="-- 18 --" value="{{ old('measurements.knee') }}">
                                         </div>
                                         @endif
                                         
@@ -303,7 +303,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Bottom</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[bottom]" 
-                                                placeholder="22" value="{{ old('measurements.bottom') }}">
+                                                placeholder="-- 22 --" value="{{ old('measurements.bottom') }}">
                                         </div>
                                         @endif
                                         
@@ -311,7 +311,7 @@
                                         <div class="col-md-3 mb-3">
                                             <label class="form-label">Ankle</label>
                                             <input type="number" step="0.1" class="form-control" name="measurements[ankle]" 
-                                                placeholder="10" value="{{ old('measurements.ankle') }}">
+                                                placeholder="-- 10 --" value="{{ old('measurements.ankle') }}">
                                         </div>
                                         @endif
                                     </div>
