@@ -151,9 +151,41 @@ class OrderController extends Controller
         $orderStatuses = OrderStatus::where('is_active', true)->get();
         $paymentStatuses = PaymentStatus::where('is_active', true)->get();
 
-        // Generate next order number
-        $lastOrder = Order::orderBy('id', 'desc')->first();
-        $orderNumber = 'TS-' . str_pad(($lastOrder?->id ?? 0) + 1001, 4, '0', STR_PAD_LEFT);
+        // Get receipt prefix and next receipt number from settings
+        $settings = \App\Models\Setting::first();
+        $receiptPrefix = $settings ? $settings->receipt_prefix : 'TS';
+        $nextReceiptNumber = $settings ? $settings->next_receipt_number : 1000;
+
+        // Get measurement fields from settings - Laravel automatically casts JSON to array
+        $enabledFields = $settings && !empty($settings->measurement_fields)
+            ? $settings->measurement_fields
+            : [];
+
+        // If $enabledFields is null or empty, use default fields
+        if (empty($enabledFields)) {
+            $enabledFields = [
+                'height',
+                'weight',
+                'chest',
+                'waist',
+                'hips',
+                'shoulder',
+                'sleeve_length',
+                'sleeve_width',
+                'collar',
+                'bicep',
+                'wrist',
+                'pant_length',
+                'inseam',
+                'thigh',
+                'knee',
+                'bottom',
+                'ankle'
+            ];
+        }
+
+        // Generate order number using the next_receipt_number from settings
+        $orderNumber = $receiptPrefix . '-' . str_pad($nextReceiptNumber, 6, '0', STR_PAD_LEFT);
 
         // Payment methods
         $paymentMethods = PaymentMethod::where('is_active', true)->get();
@@ -167,7 +199,11 @@ class OrderController extends Controller
             'orderStatuses',
             'paymentStatuses',
             'paymentMethods',
-            'orderNumber'
+            'orderNumber',
+            'receiptPrefix',
+            'enabledFields',
+            'nextReceiptNumber',
+            'settings'
         ));
     }
 
@@ -195,119 +231,119 @@ class OrderController extends Controller
         // dd($request->all());
         DB::beginTransaction();
 
-        // try {
-        // Calculate total amount
-        $totalAmount = $validated['base_price']
-            + ($validated['fabric_cost'] ?? 0)
-            + ($validated['stitching_charges'] ?? 0)
-            + ($validated['additional_charges'] ?? 0)
-            - ($validated['discount_amount'] ?? 0);
+        try {
+            // Calculate total amount
+            $totalAmount = $validated['base_price']
+                + ($validated['fabric_cost'] ?? 0)
+                + ($validated['stitching_charges'] ?? 0)
+                + ($validated['additional_charges'] ?? 0)
+                - ($validated['discount_amount'] ?? 0);
 
-        $remainingAmount = $totalAmount - ($validated['advance_amount'] ?? 0);
+            $remainingAmount = $totalAmount - ($validated['advance_amount'] ?? 0);
 
-        // Generate order number
-        $lastOrder = Order::orderBy('id', 'desc')->first();
-        $orderNumber = 'TS-' . str_pad(($lastOrder?->id ?? 0) + 1001, 4, '0', STR_PAD_LEFT);
+            // Generate order number
+            $lastOrder = Order::orderBy('id', 'desc')->first();
+            $orderNumber = 'TS-' . str_pad(($lastOrder?->id ?? 0) + 1001, 4, '0', STR_PAD_LEFT);
 
-        // Create order
-        $order = Order::create([
-            'order_number' => $orderNumber,
-            'customer_id' => $validated['customer_id'],
-            'branch_id' => $validated['branch_id'],
-            'status_id' => 1, // Pending
-            'payment_status_id' => ($validated['advance_amount'] ?? 0) > 0 ? 2 : 1, // Partial or Pending
-            'order_date' => $validated['order_date'],
-            'delivery_date' => $validated['delivery_date'],
-            'total_amount' => $totalAmount,
-            'advance_amount' => $validated['advance_amount'] ?? 0,
-            'remaining_amount' => $remainingAmount,
-            'discount_amount' => $validated['discount_amount'] ?? 0,
-            'final_amount' => $totalAmount,
-            'notes' => $validated['notes'] ?? null,
-            'internal_notes' => $validated['internal_notes'] ?? null,
-            'order_type' => 'tailoring',
-            'created_by' => auth()->id(),
-            'updated_by' => auth()->id(),
-        ]);
-
-        // Create order item
-        $orderItem = OrderItem::create([
-            'order_id' => $order->id,
-            'dress_type_id' => $validated['dress_type_id'],
-            'item_name' => DressType::find($validated['dress_type_id'])->name,
-            'quantity' => 1,
-            'price' => $validated['base_price'],
-            'total' => $validated['base_price'],
-            'item_status' => 'pending',
-            'item_type' => 'tailoring',
-            'instructions' => $validated['notes'] ?? null,
-        ]);
-
-        // Add measurements if provided
-        if ($request->has('measurements')) {
-            $measurementData = $this->prepareMeasurementData($request->measurements, $orderItem->id);
-            if ($measurementData) {
-                Measurement::create($measurementData);
-            }
-        }
-
-        // Assign tailor if provided
-        if ($request->has('tailor_id') && $request->tailor_id != null) {
-            DB::table('tailor_assignments')->insert([
-                'order_item_id' => $orderItem->id,
-                'tailor_id' => $request->tailor_id,
-                'status_id' => 1, // Assigned
-                'assign_date' => now(),
-                'expected_date' => $validated['delivery_date'],
-                'stitching_charge' => $validated['stitching_charges'] ?? 0,
-                'advance_paid' => 0,
-                'remaining_payment' => $validated['stitching_charges'] ?? 0,
-                'assigned_by' => auth()->id(),
+            // Create order
+            $order = Order::create([
+                'order_number' => $orderNumber,
+                'customer_id' => $validated['customer_id'],
+                'branch_id' => $validated['branch_id'],
+                'status_id' => 1, // Pending
+                'payment_status_id' => ($validated['advance_amount'] ?? 0) > 0 ? 2 : 1, // Partial or Pending
+                'order_date' => $validated['order_date'],
+                'delivery_date' => $validated['delivery_date'],
+                'total_amount' => $totalAmount,
+                'advance_amount' => $validated['advance_amount'] ?? 0,
+                'remaining_amount' => $remainingAmount,
+                'discount_amount' => $validated['discount_amount'] ?? 0,
+                'final_amount' => $totalAmount,
+                'notes' => $validated['notes'] ?? null,
+                'internal_notes' => $validated['internal_notes'] ?? null,
+                'order_type' => 'tailoring',
                 'created_by' => auth()->id(),
                 'updated_by' => auth()->id(),
-                'created_at' => now(),
-                'updated_at' => now(),
             ]);
-        }
 
-        // Record payment if advance paid
-        if (($validated['advance_amount'] ?? 0) > 0) {
-            DB::table('payments')->insert([
+            // Create order item
+            $orderItem = OrderItem::create([
                 'order_id' => $order->id,
-                'payment_method_id' => $request->payment_method_id ?? 1, // Cash
-                'amount' => $validated['advance_amount'],
-                'previous_balance' => $totalAmount,
-                'new_balance' => $remainingAmount,
-                'payment_date' => now(),
-                'receipt_number' => 'RCPT-' . str_pad(DB::table('payments')->count() + 1001, 5, '0', STR_PAD_LEFT),
-                'received_by' => auth()->id(),
-                'created_by' => auth()->id(),
-                'updated_by' => auth()->id(),
+                'dress_type_id' => $validated['dress_type_id'],
+                'item_name' => DressType::find($validated['dress_type_id'])->name,
+                'quantity' => 1,
+                'price' => $validated['base_price'],
+                'total' => $validated['base_price'],
+                'item_status' => 'pending',
+                'item_type' => 'tailoring',
+                'instructions' => $validated['notes'] ?? null,
+            ]);
+
+            // Add measurements if provided
+            if ($request->has('measurements')) {
+                $measurementData = $this->prepareMeasurementData($request->measurements, $orderItem->id);
+                if ($measurementData) {
+                    Measurement::create($measurementData);
+                }
+            }
+
+            // Assign tailor if provided
+            if ($request->has('tailor_id') && $request->tailor_id != null) {
+                DB::table('tailor_assignments')->insert([
+                    'order_item_id' => $orderItem->id,
+                    'tailor_id' => $request->tailor_id,
+                    'status_id' => 1, // Assigned
+                    'assign_date' => now(),
+                    'expected_date' => $validated['delivery_date'],
+                    'stitching_charge' => $validated['stitching_charges'] ?? 0,
+                    'advance_paid' => 0,
+                    'remaining_payment' => $validated['stitching_charges'] ?? 0,
+                    'assigned_by' => auth()->id(),
+                    'created_by' => auth()->id(),
+                    'updated_by' => auth()->id(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            // Record payment if advance paid
+            if (($validated['advance_amount'] ?? 0) > 0) {
+                DB::table('payments')->insert([
+                    'order_id' => $order->id,
+                    'payment_method_id' => $request->payment_method_id ?? 1, // Cash
+                    'amount' => $validated['advance_amount'],
+                    'previous_balance' => $totalAmount,
+                    'new_balance' => $remainingAmount,
+                    'payment_date' => now(),
+                    'receipt_number' => 'RCPT-' . str_pad(DB::table('payments')->count() + 1001, 5, '0', STR_PAD_LEFT),
+                    'received_by' => auth()->id(),
+                    'created_by' => auth()->id(),
+                    'updated_by' => auth()->id(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            // Record order status change
+            DB::table('order_status_logs')->insert([
+                'order_id' => $order->id,
+                'new_status_id' => 1, // Pending
+                'changed_by' => auth()->id(),
+                'changed_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+
+            DB::commit();
+
+            return redirect()->route('orders.show', $order->id)
+                ->with('success', 'Order created successfully! Order #: ' . $order->order_number);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Error creating order: ' . $e->getMessage())
+                ->withInput();
         }
-
-        // Record order status change
-        DB::table('order_status_logs')->insert([
-            'order_id' => $order->id,
-            'new_status_id' => 1, // Pending
-            'changed_by' => auth()->id(),
-            'changed_at' => now(),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        DB::commit();
-
-        return redirect()->route('orders.show', $order->id)
-            ->with('success', 'Order created successfully! Order #: ' . $order->order_number);
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     return redirect()->back()
-        //         ->with('error', 'Error creating order: ' . $e->getMessage())
-        //         ->withInput();
-        // }
     }
 
     private function prepareMeasurementData($measurements, $orderItemId)
@@ -894,7 +930,7 @@ class OrderController extends Controller
 
     public function addPayment(Order $order, Request $request)
     {
-        
+
         $validated = $request->validate([
             'amount' => ['required', 'numeric', 'min:1', 'max:' . $order->remaining_amount],
             'payment_date' => ['required', 'date'],
