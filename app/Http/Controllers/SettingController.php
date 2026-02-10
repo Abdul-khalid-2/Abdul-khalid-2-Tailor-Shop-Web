@@ -22,12 +22,16 @@ class SettingController extends Controller
 
     public function general()
     {
-        $setting = Setting::whereNull('branch_id')->first();
 
-        // If no main settings exist, create default
-        if (!$setting) {
-            $setting = $this->createDefaultSettings();
+        if (auth()->user()->hasRole('admin')) {
+            $setting = Setting::whereNull('branch_id')->first();
+
+            // If no main settings exist, create default
+            if (!$setting) {
+                $setting = $this->createDefaultSettings();
+            }
         }
+
 
         return view('dashboard.settings.general', compact('setting'));
     }

@@ -6,10 +6,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\Permission\Traits\HasRoles; // Add this line
 
 class User extends Authenticatable
 {
-    use SoftDeletes, HasFactory, Notifiable;
+    use SoftDeletes, HasFactory, Notifiable,  HasRoles;
 
     protected $fillable = [
         'name',
