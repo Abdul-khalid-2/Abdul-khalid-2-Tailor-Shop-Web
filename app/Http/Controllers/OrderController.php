@@ -228,7 +228,6 @@ class OrderController extends Controller
             'notes' => 'nullable|string',
             'internal_notes' => 'nullable|string',
         ]);
-        // dd($request->all());
         DB::beginTransaction();
 
         try {
@@ -276,6 +275,15 @@ class OrderController extends Controller
                 'total' => $validated['base_price'],
                 'item_status' => 'pending',
                 'item_type' => 'tailoring',
+
+                'is_inventory_fabric' => $request->filled('fabric_product_id'),
+                'fabric_product_id'   => $request->fabric_product_id,
+                'fabric_type'         => $request->fabric_type,
+                'fabric_color'        => $request->fabric_color,
+                'fabric_meters'       => $request->fabric_meters,
+                'fabric_rate'         => $request->fabric_rate,
+                'fabric_cost'         => $request->fabric_cost,
+
                 'instructions' => $validated['notes'] ?? null,
             ]);
 
@@ -285,6 +293,18 @@ class OrderController extends Controller
                 if ($measurementData) {
                     Measurement::create($measurementData);
                 }
+            }
+
+            if ($orderItem->is_inventory_fabric) {
+
+                FabricTransaction::create([
+                    'product_id' => $orderItem->fabric_product_id,
+                    'order_item_id' => $orderItem->id,
+                    'meters_used' => $orderItem->fabric_meters,
+                    'type' => 'cut',
+                    'created_by' => auth()->id(),
+                ]);
+
             }
 
             // Assign tailor if provided

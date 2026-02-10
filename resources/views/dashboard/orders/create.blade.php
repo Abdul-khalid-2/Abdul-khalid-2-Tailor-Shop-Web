@@ -343,13 +343,13 @@
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Fabric Type</label>
-                                            <input type="text" class="form-control" id="fabric_type" 
+                                            <input type="text" class="form-control" name="fabric_type" id="fabric_type" 
                                                    placeholder="e.g., Silk, Cotton" value="{{ old('fabric_type') }}">
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Color</label>
                                             <div class="input-group">
-                                                <input type="text" class="form-control" id="fabric_color"
+                                                <input type="text" class="form-control" name="fabric_color" id="fabric_color"
                                                     placeholder="e.g., Navy Blue" value="{{ old('fabric_color') }}">
                                                 <div class="input-group-append">
                                                     <button type="button" class="btn btn-outline-secondary" id="colorPickerBtn">
@@ -361,14 +361,14 @@
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Meter Required</label>
-                                            <input type="number" step="0.01" class="form-control" id="meter_required" 
-                                                   placeholder="3.5" value="{{ old('meter_required', 0) }}">
+                                            <input type="number" step="0.01" class="form-control" name="fabric_meters" id="fabric_meters" 
+                                                   placeholder="3.5" value="{{ old('fabric_meters', 0) }}">
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">Fabric Rate/m (Rs)</label>
-                                            <input type="number" step="0.01" class="form-control" id="fabric_rate" 
+                                            <input type="number" step="0.01" class="form-control" name="fabric_rate" id="fabric_rate" 
                                                    value="{{ old('fabric_rate', 0) }}">
                                         </div>
                                         <div class="col-md-6 mb-3">
@@ -470,7 +470,7 @@
                                                 <option value="{{ $tailor->id }}" {{ old('tailor_id') == $tailor->id ? 'selected' : '' }}>
                                                     {{ $tailor->name }} - {{ ucfirst($tailor->employment_type) }}
                                                     @if($tailor->specializations)
-                                                    ({{ json_decode($tailor->specializations)[0] ?? 'General' }})
+                                                    ({{ $tailor->specializations[0] ?? 'General' }})
                                                     @endif
                                                 </option>
                                                 @endforeach
@@ -668,7 +668,7 @@
                                     <td>{{ $fabric->fabric_code }}</td>
                                     <td>{{ $fabric->type }}</td>
                                     <td>
-                                        <span class="badge" style="background-color: {{ $this->getColorCode($fabric->color) }}; color: white;">
+                                        <span class="badge" style="background-color: {{ $fabric->color }}; color: white;">
                                             {{ $fabric->color }}
                                         </span>
                                     </td>
@@ -886,8 +886,8 @@
             });
 
             // Calculate fabric cost
-            $('#meter_required, #fabric_rate').on('input', function() {
-                const meter = parseFloat($('#meter_required').val()) || 0;
+            $('#fabric_meters, #fabric_rate').on('input', function() {
+                const meter = parseFloat($('#fabric_meters').val()) || 0;
                 const rate = parseFloat($('#fabric_rate').val()) || 0;
                 const fabricCost = meter * rate;
                 $('#fabric_cost').val(fabricCost.toFixed(2));
@@ -1057,7 +1057,7 @@
                 suggestedMeters = 2.5;
             }
 
-            $('#meter_required').val(suggestedMeters);
+            $('#fabric_meters').val(suggestedMeters);
 
             // Calculate fabric cost
             const fabricCost = suggestedMeters * rate;
