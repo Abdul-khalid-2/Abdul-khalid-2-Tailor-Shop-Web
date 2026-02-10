@@ -140,4 +140,17 @@ return [
     'customer_added_successfully' => 'گاہک کامیابی کے ساتھ شامل ہو گیا!',
     'failed_to_add_customer' => 'گاہک شامل کرنے میں ناکام۔',
     'an_error_occurred' => 'ایک خرابی پیش آئی۔ براہ کرم دوبارہ کوشش کریں۔',
+
+
+    'edit_order' => 'آرڈر میں ترمیم کریں: :order_number',
+    'update_order_for' => ':customer_name کے لیے آرڈر کی تفصیلات اپ ڈیٹ کریں',
+    'view_order' => 'آرڈر دیکھیں',
+    'order_status' => 'آرڈر کی حیثیت',
+    'payment_status' => 'ادائیگی کی حیثیت',
+    'final_amount' => 'حتمی رقم (روپے)',
+    'cancel' => 'منسوخ کریں',
+    'delete_order' => 'آرڈر حذف کریں',
+    'update_order' => 'آرڈر اپ ڈیٹ کریں',
+    'no_measurements_recorded' => 'ابھی تک کوئی پیمائشیں ریکارڈ نہیں کی گئی ہیں۔ آپ انہیں نیچے شامل کر سکتے ہیں۔',
+    'are_you_sure_delete' => 'کیا آپ واقعی یہ آرڈر حذف کرنا چاہتے ہیں؟ اس عمل کو واپس نہیں کیا جا سکتا۔',
 ];

@@ -11,15 +11,15 @@
         <!-- Page Header -->
         <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
             <div>
-                <h4 class="mb-3">Edit Order: {{ $order->order_number }}</h4>
-                <p class="mb-0">Update order details for {{ $order->customer->name }}</p>
+                <h4 class="mb-3">{{ __('messages.edit_order', ['order_number' => $order->order_number]) }}</h4>
+                <p class="mb-0">{{ __('messages.update_order_for', ['customer_name' => $order->customer->name]) }}</p>
             </div>
             <div>
                 <a href="{{ route('orders.show', $order) }}" class="btn btn-outline-secondary mr-2">
-                    <i class="las la-eye mr-1"></i> View Order
+                    <i class="las la-eye mr-1"></i> {{ __('messages.view_order') }}
                 </a>
                 <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary">
-                    <i class="las la-arrow-left mr-1"></i> Back to Orders
+                    <i class="las la-arrow-left mr-1"></i> {{ __('messages.back_to_orders') }}
                 </a>
             </div>
         </div>
@@ -54,14 +54,14 @@
                             <!-- Customer & Basic Info -->
                             <div class="card mb-4">
                                 <div class="card-header bg-light">
-                                    <h6 class="mb-0">Customer & Order Information</h6>
+                                    <h6 class="mb-0">{{ __('messages.customer_order_info') }}</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Customer *</label>
+                                            <label class="form-label">{{ __('messages.customer') }} *</label>
                                             <select class="form-control select2" id="customer_id" name="customer_id" required>
-                                                <option value="">Select Customer</option>
+                                                <option value="">{{ __('messages.select_customer') }}</option>
                                                 @foreach($customers as $customer)
                                                 <option value="{{ $customer->id }}" 
                                                     data-phone="{{ $customer->phone }}"
@@ -79,7 +79,7 @@
                                         </div>
 
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Order Date *</label>
+                                            <label class="form-label">{{ __('messages.order_date') }} *</label>
                                             <input type="date" class="form-control" name="order_date" 
                                                    value="{{ old('order_date', $order->order_date->format('Y-m-d')) }}" required>
                                             @error('order_date')
@@ -90,9 +90,9 @@
 
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Branch *</label>
+                                            <label class="form-label">{{ __('messages.branch') }} *</label>
                                             <select class="form-control select2" name="branch_id" required>
-                                                <option value="">Select Branch</option>
+                                                <option value="">{{ __('messages.select_branch') }}</option>
                                                 @foreach($branches as $branch)
                                                 <option value="{{ $branch->id }}" {{ old('branch_id', $order->branch_id) == $branch->id ? 'selected' : '' }}>
                                                     {{ $branch->name }}
@@ -105,7 +105,7 @@
                                         </div>
 
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Order Status *</label>
+                                            <label class="form-label">{{ __('messages.order_status') }} *</label>
                                             <select class="form-control select2" name="status_id" required>
                                                 @foreach($orderStatuses as $status)
                                                 <option value="{{ $status->id }}" 
@@ -123,9 +123,9 @@
 
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Dress Type *</label>
+                                            <label class="form-label">{{ __('messages.dress_type') }} *</label>
                                             <select class="form-control select2" id="dress_type_id" name="dress_type_id" required>
-                                                <option value="">Select Dress Type</option>
+                                                <option value="">{{ __('messages.select_dress_type') }}</option>
                                                 @foreach($dressTypes as $dressType)
                                                 <option value="{{ $dressType->id }}" 
                                                         data-price="{{ $dressType->base_price }}"
@@ -141,7 +141,7 @@
                                         </div>
 
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Delivery Date *</label>
+                                            <label class="form-label">{{ __('messages.delivery_date') }} *</label>
                                             <input type="date" class="form-control" id="delivery_date" name="delivery_date" 
                                                    value="{{ old('delivery_date', $order->delivery_date->format('Y-m-d')) }}" required>
                                             @error('delivery_date')
@@ -152,7 +152,7 @@
 
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Base Price (Rs) *</label>
+                                            <label class="form-label">{{ __('messages.base_price') }} *</label>
                                             <input type="number" step="0.01" class="form-control" id="base_price" 
                                                    name="base_price" value="{{ old('base_price', $order->items->first()->price ?? 0) }}" required readonly>
                                             @error('base_price')
@@ -160,7 +160,7 @@
                                             @enderror
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Payment Status *</label>
+                                            <label class="form-label">{{ __('messages.payment_status') }} *</label>
                                             <select class="form-control select2" name="payment_status_id" required>
                                                 @foreach($paymentStatuses as $status)
                                                 <option value="{{ $status->id }}" 
@@ -177,9 +177,9 @@
                                     </div>
 
                                     <div class="mb-3">
-                                        <label class="form-label">Order Description</label>
+                                        <label class="form-label">{{ __('messages.order_description') }}</label>
                                         <textarea class="form-control" name="notes" rows="2" 
-                                                  placeholder="Brief description of the order...">{{ old('notes', $order->notes) }}</textarea>
+                                                  placeholder="{{ __('Brief description of the order...') }}">{{ old('notes', $order->notes) }}</textarea>
                                         @error('notes')
                                         <div class="text-danger small">{{ $message }}</div>
                                         @enderror
@@ -194,16 +194,16 @@
                                 @endphp
                                 <div class="card mb-4">
                                     <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                        <h6 class="mb-0">Measurements (in cm)</h6>
+                                        <h6 class="mb-0">{{ __('messages.measurements_cm') }}</h6>
                                         <button type="button" class="btn btn-sm btn-outline-primary" id="loadTemplatesBtn">
-                                            <i class="las la-ruler mr-1"></i> Use Template
+                                            <i class="las la-ruler mr-1"></i> {{ __('messages.use_template') }}
                                         </button>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
                                             @if(in_array('height', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Height</label>
+                                                <label class="form-label">{{ __('messages.height') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[height]" 
                                                     placeholder="-- 170 --" value="{{ old('measurements.height', $measurement->height) }}">
                                             </div>
@@ -211,7 +211,7 @@
                                             
                                             @if(in_array('weight', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Weight</label>
+                                                <label class="form-label">{{ __('messages.weight') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[weight]" 
                                                     placeholder="-- 70 --" value="{{ old('measurements.weight', $measurement->weight) }}">
                                             </div>
@@ -219,7 +219,7 @@
                                             
                                             @if(in_array('chest', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Chest</label>
+                                                <label class="form-label">{{ __('messages.chest') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[chest]" 
                                                     placeholder="-- 42 --" value="{{ old('measurements.chest', $measurement->chest) }}">
                                             </div>
@@ -227,7 +227,7 @@
                                             
                                             @if(in_array('waist', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Waist</label>
+                                                <label class="form-label">{{ __('messages.waist') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[waist]" 
                                                     placeholder="-- 38 --" value="{{ old('measurements.waist', $measurement->waist) }}">
                                             </div>
@@ -235,7 +235,7 @@
                                             
                                             @if(in_array('hips', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Hips</label>
+                                                <label class="form-label">{{ __('messages.hips') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[hips]" 
                                                     placeholder="-- 44 --" value="{{ old('measurements.hips', $measurement->hips) }}">
                                             </div>
@@ -243,7 +243,7 @@
                                             
                                             @if(in_array('shoulder', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Shoulder</label>
+                                                <label class="form-label">{{ __('messages.shoulder') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[shoulder]" 
                                                     placeholder="-- 18 --" value="{{ old('measurements.shoulder', $measurement->shoulder) }}">
                                             </div>
@@ -251,7 +251,7 @@
                                             
                                             @if(in_array('sleeve_length', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Sleeve Length</label>
+                                                <label class="form-label">{{ __('messages.sleeve_length') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[sleeve_length]" 
                                                     placeholder="-- 60 --" value="{{ old('measurements.sleeve_length', $measurement->sleeve_length) }}">
                                             </div>
@@ -259,7 +259,7 @@
                                             
                                             @if(in_array('sleeve_width', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Sleeve Width</label>
+                                                <label class="form-label">{{ __('messages.sleeve_width') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[sleeve_width]" 
                                                     placeholder="-- 18 --" value="{{ old('measurements.sleeve_width', $measurement->sleeve_width) }}">
                                             </div>
@@ -269,7 +269,7 @@
                                         <div class="row">
                                             @if(in_array('collar', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Collar</label>
+                                                <label class="form-label">{{ __('messages.collar') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[collar]" 
                                                     placeholder="-- 16 --" value="{{ old('measurements.collar', $measurement->collar) }}">
                                             </div>
@@ -277,7 +277,7 @@
                                             
                                             @if(in_array('bicep', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Bicep</label>
+                                                <label class="form-label">{{ __('messages.bicep') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[bicep]" 
                                                     placeholder="-- 12 --" value="{{ old('measurements.bicep', $measurement->bicep) }}">
                                             </div>
@@ -285,7 +285,7 @@
                                             
                                             @if(in_array('wrist', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Wrist</label>
+                                                <label class="form-label">{{ __('messages.wrist') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[wrist]" 
                                                     placeholder="-- 8 --"  value="{{ old('measurements.wrist', $measurement->wrist) }}">
                                             </div>
@@ -293,7 +293,7 @@
                                             
                                             @if(in_array('pant_length', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Pant Length</label>
+                                                <label class="form-label">{{ __('messages.pant_length') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[pant_length]" 
                                                     placeholder="-- 100 --" value="{{ old('measurements.pant_length', $measurement->pant_length) }}">
                                             </div>
@@ -301,7 +301,7 @@
                                             
                                             @if(in_array('inseam', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Inseam</label>
+                                                <label class="form-label">{{ __('messages.inseam') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[inseam]" 
                                                     placeholder="-- 80 --" value="{{ old('measurements.inseam', $measurement->inseam) }}">
                                             </div>
@@ -309,7 +309,7 @@
                                             
                                             @if(in_array('thigh', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Thigh</label>
+                                                <label class="form-label">{{ __('messages.thigh') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[thigh]" 
                                                     placeholder="-- 24 --" value="{{ old('measurements.thigh', $measurement->thigh) }}">
                                             </div>
@@ -317,7 +317,7 @@
                                             
                                             @if(in_array('knee', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Knee</label>
+                                                <label class="form-label">{{ __('messages.knee') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[knee]" 
                                                     placeholder="-- 18 --" value="{{ old('measurements.knee', $measurement->knee) }}">
                                             </div>
@@ -325,7 +325,7 @@
                                             
                                             @if(in_array('bottom', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Bottom</label>
+                                                <label class="form-label">{{ __('messages.bottom') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[bottom]" 
                                                     placeholder="-- 22 --" value="{{ old('measurements.bottom', $measurement->bottom) }}">
                                             </div>
@@ -333,7 +333,7 @@
                                             
                                             @if(in_array('ankle', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Ankle</label>
+                                                <label class="form-label">{{ __('messages.ankle') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[ankle]" 
                                                     placeholder="-- 10 --" value="{{ old('measurements.ankle', $measurement->ankle) }}">
                                             </div>
@@ -342,14 +342,14 @@
                                         
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Fitting Preferences</label>
+                                                <label class="form-label">{{ __('messages.fitting_preferences') }}</label>
                                                 <textarea class="form-control" name="measurements[fitting_preferences]" rows="2" 
-                                                        placeholder="-- Loose, tight, or any specific preferences...">{{ old('measurements.fitting_preferences', $measurement->fitting_preferences) }}</textarea>
+                                                        placeholder="{{ __('Loose, tight, or any specific preferences...') }}">{{ old('measurements.fitting_preferences', $measurement->fitting_preferences) }}</textarea>
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Measurement Notes</label>
+                                                <label class="form-label">{{ __('messages.measurement_notes') }}</label>
                                                 <textarea class="form-control" name="measurements[notes]" rows="2" 
-                                                        placeholder="-- Additional notes about measurements...">{{ old('measurements.notes', $measurement->notes) }}</textarea>
+                                                        placeholder="{{ __('Additional notes about measurements...') }}">{{ old('measurements.notes', $measurement->notes) }}</textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -358,20 +358,20 @@
                                 <!-- Show empty measurement form if no measurements exist -->
                                 <div class="card mb-4">
                                     <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                        <h6 class="mb-0">Measurements (in cm)</h6>
+                                        <h6 class="mb-0">{{ __('messages.measurements_cm') }}</h6>
                                         <button type="button" class="btn btn-sm btn-outline-primary" id="loadTemplatesBtn">
-                                            <i class="las la-ruler mr-1"></i> Use Template
+                                            <i class="las la-ruler mr-1"></i> {{ __('messages.use_template') }}
                                         </button>
                                     </div>
                                     <div class="card-body">
                                         <div class="alert alert-info">
-                                            <i class="las la-info-circle"></i> No measurements recorded yet. You can add them below.
+                                            <i class="las la-info-circle"></i> {{ __('messages.no_measurements_recorded') }}
                                         </div>
                                         
                                         <div class="row">
                                             @if(in_array('height', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Height</label>
+                                                <label class="form-label">{{ __('messages.height') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[height]" 
                                                     placeholder="-- 170 --" value="{{ old('measurements.height') }}">
                                             </div>
@@ -379,7 +379,7 @@
                                             
                                             @if(in_array('weight', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Weight</label>
+                                                <label class="form-label">{{ __('messages.weight') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[weight]" 
                                                     placeholder="-- 70 --" value="{{ old('measurements.weight') }}">
                                             </div>
@@ -387,7 +387,7 @@
                                             
                                             @if(in_array('chest', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Chest</label>
+                                                <label class="form-label">{{ __('messages.chest') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[chest]" 
                                                     placeholder="-- 42 --" value="{{ old('measurements.chest') }}">
                                             </div>
@@ -395,7 +395,7 @@
                                             
                                             @if(in_array('waist', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Waist</label>
+                                                <label class="form-label">{{ __('messages.waist') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[waist]" 
                                                     placeholder="-- 38 --" value="{{ old('measurements.waist') }}">
                                             </div>
@@ -403,7 +403,7 @@
                                             
                                             @if(in_array('hips', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Hips</label>
+                                                <label class="form-label">{{ __('messages.hips') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[hips]" 
                                                     placeholder="-- 44 --" value="{{ old('measurements.hips') }}">
                                             </div>
@@ -411,7 +411,7 @@
                                             
                                             @if(in_array('shoulder', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Shoulder</label>
+                                                <label class="form-label">{{ __('messages.shoulder') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[shoulder]" 
                                                     placeholder="-- 18 --" value="{{ old('measurements.shoulder') }}">
                                             </div>
@@ -419,7 +419,7 @@
                                             
                                             @if(in_array('sleeve_length', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Sleeve Length</label>
+                                                <label class="form-label">{{ __('messages.sleeve_length') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[sleeve_length]" 
                                                     placeholder="-- 60 --" value="{{ old('measurements.sleeve_length') }}">
                                             </div>
@@ -427,7 +427,7 @@
                                             
                                             @if(in_array('sleeve_width', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Sleeve Width</label>
+                                                <label class="form-label">{{ __('messages.sleeve_width') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[sleeve_width]" 
                                                     placeholder="-- 18 --" value="{{ old('measurements.sleeve_width') }}">
                                             </div>
@@ -437,7 +437,7 @@
                                         <div class="row">
                                             @if(in_array('collar', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Collar</label>
+                                                <label class="form-label">{{ __('messages.collar') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[collar]" 
                                                     placeholder="-- 16 --" value="{{ old('measurements.collar') }}">
                                             </div>
@@ -445,7 +445,7 @@
                                             
                                             @if(in_array('bicep', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Bicep</label>
+                                                <label class="form-label">{{ __('messages.bicep') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[bicep]" 
                                                     placeholder="-- 12 --" value="{{ old('measurements.bicep') }}">
                                             </div>
@@ -453,7 +453,7 @@
                                             
                                             @if(in_array('wrist', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Wrist</label>
+                                                <label class="form-label">{{ __('messages.wrist') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[wrist]" 
                                                     placeholder="-- 8 --" value="{{ old('measurements.wrist') }}">
                                             </div>
@@ -461,7 +461,7 @@
                                             
                                             @if(in_array('pant_length', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Pant Length</label>
+                                                <label class="form-label">{{ __('messages.pant_length') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[pant_length]" 
                                                     placeholder="-- 100 --" value="{{ old('measurements.pant_length') }}">
                                             </div>
@@ -469,7 +469,7 @@
                                             
                                             @if(in_array('inseam', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Inseam</label>
+                                                <label class="form-label">{{ __('messages.inseam') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[inseam]" 
                                                     placeholder="-- 80 --" value="{{ old('measurements.inseam') }}">
                                             </div>
@@ -477,7 +477,7 @@
                                             
                                             @if(in_array('thigh', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Thigh</label>
+                                                <label class="form-label">{{ __('messages.thigh') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[thigh]" 
                                                     placeholder="-- 24 --" value="{{ old('measurements.thigh') }}">
                                             </div>
@@ -485,7 +485,7 @@
                                             
                                             @if(in_array('knee', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Knee</label>
+                                                <label class="form-label">{{ __('messages.knee') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[knee]" 
                                                     placeholder="-- 18 --" value="{{ old('measurements.knee') }}">
                                             </div>
@@ -493,7 +493,7 @@
                                             
                                             @if(in_array('bottom', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Bottom</label>
+                                                <label class="form-label">{{ __('messages.bottom') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[bottom]" 
                                                     placeholder="-- 22 --" value="{{ old('measurements.bottom') }}">
                                             </div>
@@ -501,7 +501,7 @@
                                             
                                             @if(in_array('ankle', $enabledFields))
                                             <div class="col-md-3 mb-3">
-                                                <label class="form-label">Ankle</label>
+                                                <label class="form-label">{{ __('messages.ankle') }}</label>
                                                 <input type="number" step="0.1" class="form-control" name="measurements[ankle]" 
                                                     placeholder="-- 10 --" value="{{ old('measurements.ankle') }}">
                                             </div>
@@ -510,14 +510,14 @@
                                         
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Fitting Preferences</label>
+                                                <label class="form-label">{{ __('messages.fitting_preferences') }}</label>
                                                 <textarea class="form-control" name="measurements[fitting_preferences]" rows="2" 
-                                                        placeholder="Loose, tight, or any specific preferences...">{{ old('measurements.fitting_preferences') }}</textarea>
+                                                        placeholder="{{ __('Loose, tight, or any specific preferences...') }}">{{ old('measurements.fitting_preferences') }}</textarea>
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Measurement Notes</label>
+                                                <label class="form-label">{{ __('messages.measurement_notes') }}</label>
                                                 <textarea class="form-control" name="measurements[notes]" rows="2" 
-                                                        placeholder="Additional notes about measurements...">{{ old('measurements.notes') }}</textarea>
+                                                        placeholder="{{ __('Additional notes about measurements...') }}">{{ old('measurements.notes') }}</textarea>
                                             </div>
                                         </div>
                                     </div>
@@ -531,38 +531,38 @@
 
                             <div class="card mb-4">
                                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0">Fabric Details</h6>
+                                    <h6 class="mb-0">{{ __('messages.fabric_details') }}</h6>
 
                                     <button type="button"
                                             class="btn btn-sm btn-outline-info"
                                             id="selectFabricBtn">
-                                        <i class="las la-layer-group mr-1"></i> Select from Inventory
+                                        <i class="las la-layer-group mr-1"></i> {{ __('messages.select_from_inventory') }}
                                     </button>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
-                                            <label class="form-label">Fabric Type</label>
+                                            <label class="form-label">{{ __('messages.fabric_type') }}</label>
                                             <input type="text"
                                                 class="form-control"
                                                 name="fabric_type"
                                                 id="fabric_type"
-                                                placeholder="e.g., Silk, Cotton"
+                                                placeholder="{{ __('e.g., Silk, Cotton') }}"
                                                 value="{{ old('fabric_type', $item->fabric_type) }}">
                                         </div>
                                         <div class="col-md-4 mb-3">
-                                            <label class="form-label">Color</label>
+                                            <label class="form-label">{{ __('messages.color') }}</label>
                                             <input type="text"
                                                 class="form-control"
                                                 name="fabric_color"
                                                 id="fabric_color"
-                                                placeholder="e.g., Navy Blue"
+                                                placeholder="{{ __('e.g., Navy Blue') }}"
                                                 value="{{ old('fabric_color', $item->fabric_color) }}">
                                         </div>
 
                                         {{-- Meter --}}
                                         <div class="col-md-4 mb-3">
-                                            <label class="form-label">Meter Required</label>
+                                            <label class="form-label">{{ __('messages.meter_required') }}</label>
                                             <input type="number"
                                                 step="0.01"
                                                 class="form-control"
@@ -574,7 +574,7 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Fabric Rate / m (Rs)</label>
+                                            <label class="form-label">{{ __('messages.fabric_rate_m') }}</label>
                                             <input type="number"
                                                 step="0.01"
                                                 class="form-control"
@@ -583,7 +583,7 @@
                                                 value="{{ old('fabric_rate', $item->fabric_rate) }}">
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Fabric Cost (Rs)</label>
+                                            <label class="form-label">{{ __('messages.fabric_cost') }}</label>
                                             <input type="number"
                                                 step="0.01"
                                                 class="form-control"
@@ -608,12 +608,12 @@
                             <!-- Pricing & Payment -->
                             <div class="card mb-4">
                                 <div class="card-header bg-light">
-                                    <h6 class="mb-0">Pricing & Payment</h6>
+                                    <h6 class="mb-0">{{ __('messages.pricing_payment') }}</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-3 mb-3">
-                                            <label class="form-label">Stitching Charges (Rs)</label>
+                                            <label class="form-label">{{ __('messages.stitching_charges') }}</label>
                                             <input type="number" step="0.01" class="form-control" id="stitching_charges" 
                                                    name="stitching_charges" value="{{ old('stitching_charges', 0) }}">
                                             @error('stitching_charges')
@@ -621,7 +621,7 @@
                                             @enderror
                                         </div>
                                         <div class="col-md-3 mb-3">
-                                            <label class="form-label">Additional Charges (Rs)</label>
+                                            <label class="form-label">{{ __('messages.additional_charges') }}</label>
                                             <input type="number" step="0.01" class="form-control" id="additional_charges" 
                                                    name="additional_charges" value="{{ old('additional_charges', 0) }}">
                                             @error('additional_charges')
@@ -629,7 +629,7 @@
                                             @enderror
                                         </div>
                                         <div class="col-md-3 mb-3">
-                                            <label class="form-label">Discount (Rs)</label>
+                                            <label class="form-label">{{ __('messages.discount') }}</label>
                                             <input type="number" step="0.01" class="form-control" id="discount_amount" 
                                                    name="discount_amount" value="{{ old('discount_amount', $order->discount_amount) }}" required>
                                             @error('discount_amount')
@@ -637,7 +637,7 @@
                                             @enderror
                                         </div>
                                         <div class="col-md-3 mb-3">
-                                            <label class="form-label">Total Amount (Rs) *</label>
+                                            <label class="form-label">{{ __('messages.total_amount') }} *</label>
                                             <input type="number" step="0.01" class="form-control font-weight-bold" 
                                                    id="total_amount" name="total_amount" value="{{ old('total_amount', $order->total_amount) }}" required readonly style="font-size: 1.2rem;">
                                             @error('total_amount')
@@ -647,7 +647,7 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-md-4 mb-3">
-                                            <label class="form-label">Advance Paid (Rs) *</label>
+                                            <label class="form-label">{{ __('messages.advance_paid') }} *</label>
                                             <input type="number" step="0.01" class="form-control" id="advance_amount" 
                                                    name="advance_amount" value="{{ old('advance_amount', $order->advance_amount) }}" required>
                                             @error('advance_amount')
@@ -655,7 +655,7 @@
                                             @enderror
                                         </div>
                                         <div class="col-md-4 mb-3">
-                                            <label class="form-label">Remaining Amount (Rs) *</label>
+                                            <label class="form-label">{{ __('messages.remaining_amount') }} *</label>
                                             <input type="number" step="0.01" class="form-control" id="remaining_amount" 
                                                    name="remaining_amount" value="{{ old('remaining_amount', $order->remaining_amount) }}" required readonly>
                                             @error('remaining_amount')
@@ -663,7 +663,7 @@
                                             @enderror
                                         </div>
                                         <div class="col-md-4 mb-3">
-                                            <label class="form-label">Final Amount (Rs) *</label>
+                                            <label class="form-label">{{ __('messages.final_amount') }} *</label>
                                             <input type="number" step="0.01" class="form-control" id="final_amount" 
                                                    name="final_amount" value="{{ old('final_amount', $order->final_amount) }}" required readonly>
                                             @error('final_amount')
@@ -673,7 +673,7 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Payment Method</label>
+                                            <label class="form-label">{{ __('messages.payment_method') }}</label>
                                             <select class="form-control" name="payment_method_id">
                                                 @foreach($paymentMethods as $method)
                                                 <option value="{{ $method->id }}" {{ old('payment_method_id', 1) == $method->id ? 'selected' : '' }}>
@@ -683,7 +683,7 @@
                                             </select>
                                         </div>
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">Balance Due (Rs)</label>
+                                            <label class="form-label">{{ __('messages.balance_due') }}</label>
                                             <input type="number" step="0.01" class="form-control font-weight-bold text-danger" 
                                                    id="balance_due" value="{{ $order->remaining_amount }}" readonly>
                                         </div>
@@ -698,14 +698,14 @@
                                 @endphp
                                 <div class="card mb-4">
                                     <div class="card-header bg-light">
-                                        <h6 class="mb-0">Tailor Assignment</h6>
+                                        <h6 class="mb-0">{{ __('messages.tailor_assignment') }}</h6>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Assign to Tailor</label>
+                                                <label class="form-label">{{ __('messages.assign_to_tailor') }}</label>
                                                 <select class="form-control select2" id="tailor_id" name="tailor_id">
-                                                    <option value="">Select Tailor</option>
+                                                    <option value="">{{ __('messages.select_tailor') }}</option>
                                                     @foreach($tailors as $tailor)
                                                     <option value="{{ $tailor->id }}" {{ old('tailor_id', $assignment->tailor_id ?? '') == $tailor->id ? 'selected' : '' }}>
                                                         {{ $tailor->name }} - {{ ucfirst($tailor->employment_type) }}
@@ -717,14 +717,14 @@
                                                 </select>
                                             </div>
                                             <div class="col-md-6 mb-3">
-                                                <label class="form-label">Expected Completion</label>
+                                                <label class="form-label">{{ __('messages.expected_completion') }}</label>
                                                 <input type="date" class="form-control" id="expected_completion" 
                                                        value="{{ old('expected_completion', $assignment->expected_date?->format('Y-m-d') ?? date('Y-m-d', strtotime('+5 days'))) }}">
                                             </div>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label">Special Instructions for Tailor</label>
-                                            <textarea class="form-control" rows="2" placeholder="Any special instructions for tailor...">{{ old('instructions', $assignment->instructions ?? '') }}</textarea>
+                                            <label class="form-label">{{ __('messages.special_instructions') }}</label>
+                                            <textarea class="form-control" rows="2" placeholder="{{ __('Any special instructions for tailor...') }}">{{ old('instructions', $assignment->instructions ?? '') }}</textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -733,22 +733,22 @@
                             <!-- Notes -->
                             <div class="card mb-4">
                                 <div class="card-header bg-light">
-                                    <h6 class="mb-0">Additional Notes</h6>
+                                    <h6 class="mb-0">{{ __('messages.additional_notes') }}</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="mb-3">
-                                        <label class="form-label">Internal Notes</label>
+                                        <label class="form-label">{{ __('messages.internal_notes') }}</label>
                                         <textarea class="form-control" name="internal_notes" rows="3" 
-                                                  placeholder="Internal notes about this order...">{{ old('internal_notes', $order->internal_notes) }}</textarea>
+                                                  placeholder="{{ __('Internal notes about this order...') }}">{{ old('internal_notes', $order->internal_notes) }}</textarea>
                                         @error('internal_notes')
-                                        <div class="text-danger small">{{ $message }}</div>
+                                            <div class="text-danger small">{{ $message }}</div>
                                         @enderror
                                     </div>
                                     <div class="form-check">
                                         <input type="checkbox" class="form-check-input" id="urgentOrder" name="urgent_order" 
                                                {{ old('urgent_order') ? 'checked' : '' }}>
                                         <label class="form-check-label text-warning" for="urgentOrder">
-                                            <i class="las la-exclamation-circle"></i> Mark as Urgent Order
+                                            <i class="las la-exclamation-circle"></i> {{ __('messages.mark_as_urgent') }}
                                         </label>
                                     </div>
                                 </div>
@@ -757,14 +757,14 @@
                             <!-- Form Actions -->
                             <div class="d-flex justify-content-between">
                                 <a href="{{ route('orders.show', $order) }}" class="btn btn-outline-secondary">
-                                    <i class="las la-times mr-1"></i> Cancel
+                                    <i class="las la-times mr-1"></i> {{ __('messages.cancel') }}
                                 </a>
                                 <div>
                                     <button type="button" class="btn btn-outline-danger mr-2" onclick="deleteOrder()">
-                                        <i class="las la-trash mr-1"></i> Delete Order
+                                        <i class="las la-trash mr-1"></i> {{ __('messages.delete_order') }}
                                     </button>
                                     <button type="submit" class="btn btn-primary">
-                                        <i class="las la-save mr-1"></i> Update Order
+                                        <i class="las la-save mr-1"></i> {{ __('messages.update_order') }}
                                     </button>
                                 </div>
                             </div>
@@ -780,27 +780,27 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Select Measurement Template</h5>
+                    <h5 class="modal-title">{{ __('messages.select_measurement_template') }}</h5>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
                     <div id="templateLoading" class="text-center p-4">
                         <div class="spinner-border text-primary" role="status">
-                            <span class="sr-only">Loading...</span>
+                            <span class="sr-only">{{ __('Loading...') }}</span>
                         </div>
-                        <p class="mt-2">Loading templates...</p>
+                        <p class="mt-2">{{ __('messages.loading_templates') }}</p>
                     </div>
                     <div id="templateContent" style="display: none;">
                         <div class="table-responsive">
                             <table class="table table-sm table-hover" id="templatesTable">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th>Template Name</th>
-                                        <th>Dress Type</th>
-                                        <th>Height</th>
-                                        <th>Chest</th>
-                                        <th>Waist</th>
-                                        <th>Action</th>
+                                        <th>{{ __('messages.template_name') }}</th>
+                                        <th>{{ __('messages.dress_type') }}</th>
+                                        <th>{{ __('messages.height') }}</th>
+                                        <th>{{ __('messages.chest') }}</th>
+                                        <th>{{ __('messages.waist') }}</th>
+                                        <th>{{ __('messages.action') }}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -811,12 +811,12 @@
                     </div>
                     <div id="noTemplates" class="text-center p-4" style="display: none;">
                         <i class="las la-ruler-combined fa-3x text-muted mb-3"></i>
-                        <p>No measurement templates found for this customer.</p>
-                        <p class="text-muted small">Please add measurements manually.</p>
+                        <p>{{ __('messages.no_templates_found') }}</p>
+                        <p class="text-muted small">{{ __('messages.add_measurements_manually') }}</p>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('messages.close') }}</button>
                 </div>
             </div>
         </div>
@@ -827,7 +827,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Select Fabric from Inventory</h5>
+                    <h5 class="modal-title">{{ __('messages.select_fabric') }}</h5>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
@@ -835,12 +835,12 @@
                         <table class="table table-sm table-hover">
                             <thead class="thead-light">
                                 <tr>
-                                    <th>Fabric Code</th>
-                                    <th>Type</th>
-                                    <th>Color</th>
-                                    <th>Available (m)</th>
-                                    <th>Rate/m (Rs)</th>
-                                    <th>Action</th>
+                                    <th>{{ __('messages.fabric_code') }}</th>
+                                    <th>{{ __('messages.type') }}</th>
+                                    <th>{{ __('messages.color') }}</th>
+                                    <th>{{ __('messages.available_m') }}</th>
+                                    <th>{{ __('messages.rate_m') }}</th>
+                                    <th>{{ __('messages.action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -858,7 +858,7 @@
                                     <td>
                                         <button class="btn btn-sm btn-outline-primary" 
                                                 onclick="selectFabric('{{ $fabric->type }}', '{{ $fabric->color }}', {{ $fabric->selling_rate }})">
-                                            Select
+                                            {{ __('messages.select') }}
                                         </button>
                                     </td>
                                 </tr>
@@ -868,7 +868,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('messages.close') }}</button>
                 </div>
             </div>
         </div>
@@ -945,7 +945,7 @@
                 const dressTypeId = $('#dress_type_id').val();
                 
                 if (!customerId) {
-                    alert('Please select a customer first.');
+                    alert('{{ __("messages.please_select_customer_first") }}');
                     return;
                 }
                 
@@ -999,7 +999,7 @@
                                         <td>
                                             <button class="btn btn-sm btn-outline-primary" 
                                                     onclick="applyTemplate(${JSON.stringify(measurements).replace(/"/g, '&quot;')})">
-                                                Apply
+                                                {{ __("messages.apply") }}
                                             </button>
                                         </td>
                                     </tr>
@@ -1031,7 +1031,7 @@
             });
             
             $('#measurementModal').modal('hide');
-            alert('Measurement template applied successfully!');
+            alert('{{ __("messages.measurement_template_applied") }}');
         }
 
         function selectFabric(type, color, rate) {
@@ -1063,7 +1063,7 @@
             $('#fabric_cost').val(fabricCost.toFixed(2));
             calculateTotal();
 
-            alert('Fabric selected: ' + type + ' (' + color + ')');
+            alert(`{{ __("messages.fabric_selected") }}`.replace(':type', type).replace(':color', color));
         }
 
         function calculateTotal() {
@@ -1085,7 +1085,7 @@
         }
 
         function deleteOrder() {
-            if (confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+            if (confirm('{{ __("messages.are_you_sure_delete") }}')) {
                 window.location.href = '{{ route("orders.destroy", $order) }}';
             }
         }

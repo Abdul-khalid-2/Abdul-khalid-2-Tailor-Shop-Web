@@ -142,4 +142,16 @@ return [
     'customer_added_successfully' => 'Customer added successfully!',
     'failed_to_add_customer' => 'Failed to add customer.',
     'an_error_occurred' => 'An error occurred. Please try again.',
+
+    'edit_order' => 'Edit Order: :order_number',
+    'update_order_for' => 'Update order details for :customer_name',
+    'view_order' => 'View Order',
+    'order_status' => 'Order Status',
+    'payment_status' => 'Payment Status',
+    'final_amount' => 'Final Amount (Rs)',
+    'cancel' => 'Cancel',
+    'delete_order' => 'Delete Order',
+    'update_order' => 'Update Order',
+    'no_measurements_recorded' => 'No measurements recorded yet. You can add them below.',
+    'are_you_sure_delete' => 'Are you sure you want to delete this order? This action cannot be undone.',
 ];
