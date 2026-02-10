@@ -468,6 +468,147 @@
             </div>
         </div>
     </div>
+
+    <!-- Add Payment Modal -->
+    <div class="modal fade" id="addPaymentModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Payment for Order: {{ $order->order_number }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="paymentForm" method="POST" action="{{ route('orders.payments.store', $order) }}">
+                    @csrf
+                    <div class="modal-body">
+                        <!-- Order & Balance Info -->
+                        <div class="alert alert-info">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <strong>Order Total:</strong><br>
+                                    <h5 class="mt-1 text-dark">Rs {{ number_format($order->final_amount) }}</h5>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Already Paid:</strong><br>
+                                    <h5 class="mt-1 text-success">Rs {{ number_format($order->payments->sum('amount')) }}</h5>
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Balance Due:</strong><br>
+                                    <h5 class="mt-1 text-danger">Rs {{ number_format($order->remaining_amount) }}</h5>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Payment Amount *</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">Rs</span>
+                                    </div>
+                                    <input type="number" step="0.01" class="form-control" id="payment_amount" 
+                                        name="amount" required min="0" max="{{ $order->remaining_amount }}"
+                                        placeholder="Enter payment amount">
+                                </div>
+                                <small class="form-text text-muted">Maximum: Rs {{ number_format($order->remaining_amount) }}</small>
+                                <div class="invalid-feedback">Please enter a valid payment amount.</div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Payment Date *</label>
+                                <input type="date" class="form-control" name="payment_date" 
+                                    value="{{ date('Y-m-d') }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Payment Method *</label>
+                                <select class="form-control select2" name="payment_method_id" required>
+                                    <option value="">Select Method</option>
+                                    @foreach($paymentMethods as $method)
+                                    <option value="{{ $method->id }}" {{ old('payment_method_id') == $method->id ? 'selected' : '' }}>
+                                        {{ $method->name }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                                <div class="invalid-feedback">Please select a payment method.</div>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Receipt Number</label>
+                                <input type="text" class="form-control" name="receipt_number" 
+                                    placeholder="Auto-generated if left blank"
+                                    value="{{ old('receipt_number', 'RC-' . time()) }}">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Reference/Transaction ID</label>
+                                <input type="text" class="form-control" name="reference_number" 
+                                    placeholder="e.g., Bank transaction ID, UTR No.">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Collected By</label>
+                                <input type="text" class="form-control" value="{{ auth()->user()->name }}" readonly>
+                                <input type="hidden" name="received_by" value="{{ auth()->id() }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Payment Notes</label>
+                            <textarea class="form-control" name="notes" rows="3" 
+                                    placeholder="Any additional notes about this payment..."></textarea>
+                        </div>
+
+                        <!-- Payment Preview -->
+                        <div class="card border-primary">
+                            <div class="card-header bg-light">
+                                <h6 class="mb-0">Payment Preview</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <table class="table table-sm">
+                                            <tr>
+                                                <th>Current Balance:</th>
+                                                <td class="text-danger">Rs <span id="current_balance">{{ number_format($order->remaining_amount, 2) }}</span></td>
+                                            </tr>
+                                            <tr>
+                                                <th>Payment Amount:</th>
+                                                <td class="text-success">Rs <span id="preview_amount">0.00</span></td>
+                                            </tr>
+                                            <tr>
+                                                <th>New Balance:</th>
+                                                <td class="font-weight-bold text-primary">Rs <span id="new_balance">{{ number_format($order->remaining_amount, 2) }}</span></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="alert alert-light">
+                                            <small class="text-muted">
+                                                <i class="las la-info-circle"></i>
+                                                After this payment, the remaining balance will be updated automatically.
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="savePaymentBtn">
+                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                            Record Payment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
     @push('js')
         <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
 
@@ -493,9 +634,93 @@
             }
             
             function addPayment() {
-                alert('Add payment for order {{ $order->order_number }}');
-                // Implement payment modal
+                $('#addPaymentModal').modal('show');
             }
+
+            // Payment amount preview
+            $('#payment_amount').on('input', function() {
+                const amount = parseFloat($(this).val()) || 0;
+                const currentBalance = parseFloat('{{ $order->remaining_amount }}');
+                const newBalance = currentBalance - amount;
+                
+                $('#preview_amount').text(amount.toFixed(2));
+                $('#new_balance').text(newBalance.toFixed(2));
+                
+                // Validate max amount
+                if (amount > currentBalance) {
+                    $(this).addClass('is-invalid');
+                    $('#savePaymentBtn').prop('disabled', true);
+                } else {
+                    $(this).removeClass('is-invalid');
+                    $('#savePaymentBtn').prop('disabled', false);
+                }
+            });
+
+            // Payment form submission
+            $('#paymentForm').submit(function(e) {
+                e.preventDefault();
+                
+                const saveBtn = $('#savePaymentBtn');
+                const spinner = saveBtn.find('.spinner-border');
+                
+                // Validate form
+                if (!this.checkValidity()) {
+                    e.stopPropagation();
+                    $(this).addClass('was-validated');
+                    return;
+                }
+                
+                // Show loading
+                saveBtn.prop('disabled', true);
+                spinner.removeClass('d-none');
+                
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            
+                            // Close modal and reset form
+                            $('#addPaymentModal').modal('hide');
+                            $('#paymentForm')[0].reset();
+                            $('#paymentForm').removeClass('was-validated');
+                            
+                            // Reload page to show updated payment info
+                            setTimeout(() => {
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            toastr.error(response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMessage = 'An error occurred. Please try again.';
+                        
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = xhr.responseJSON.errors;
+                            errorMessage = Object.values(errors).flat().join('<br>');
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        
+                        toastr.error(errorMessage);
+                    },
+                    complete: function() {
+                        saveBtn.prop('disabled', false);
+                        spinner.addClass('d-none');
+                    }
+                });
+            });
+
+            // Reset modal when closed
+            $('#addPaymentModal').on('hidden.bs.modal', function() {
+                $('#paymentForm')[0].reset();
+                $('#paymentForm').removeClass('was-validated');
+                $('#preview_amount').text('0.00');
+                $('#new_balance').text('{{ number_format($order->remaining_amount, 2) }}');
+            });
             
             function assignTailor() {
                 alert('Assign tailor for order {{ $order->order_number }}');

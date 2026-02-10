@@ -11,6 +11,7 @@ use App\Models\Fabric;
 use App\Models\Measurement;
 use App\Models\OrderStatus;
 use App\Models\PaymentStatus;
+use App\Models\Payment;
 use App\Models\Branch;
 use App\Models\PaymentMethod;
 use App\Models\User;
@@ -361,7 +362,8 @@ class OrderController extends Controller
             'items.dressType',
             'items.measurements',
             'items.tailorAssignments.tailor',
-            'payments',
+            'payments.paymentMethod',
+            'payments.receivedBy',
             'statusLogs.newStatus'
         ]);
 
@@ -369,7 +371,10 @@ class OrderController extends Controller
         $measurementTemplates = DB::table('measurement_templates')
             ->where('customer_id', $order->customer_id)
             ->get();
-        $paymentMethods = PaymentMethod::where('status', 'active')->get();
+        
+        // Corrected: Use 'is_active' column instead of 'status'
+        $paymentMethods = PaymentMethod::where('is_active', true)->get();
+        
         return view('dashboard.orders.show', compact('order', 'measurementTemplates', 'paymentMethods'));
     }
 
@@ -881,6 +886,86 @@ class OrderController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error creating customer: ' . $e->getMessage(),
+                'errors' => ['general' => $e->getMessage()]
+            ], 500);
+        }
+    }
+
+
+    public function addPayment(Order $order, Request $request)
+    {
+        
+        $validated = $request->validate([
+            'amount' => ['required', 'numeric', 'min:1', 'max:' . $order->remaining_amount],
+            'payment_date' => ['required', 'date'],
+            'payment_method_id' => ['required', 'exists:payment_methods,id'],
+            'receipt_number' => ['nullable', 'string', 'unique:payments,receipt_number'],
+            'reference_number' => ['nullable', 'string'],
+            'notes' => ['nullable', 'string'],
+            'received_by' => ['required', 'exists:users,id'],
+        ]);
+
+        try {
+            DB::transaction(function () use ($order, $validated) {
+                // Generate receipt number if not provided
+                if (empty($validated['receipt_number'])) {
+                    $validated['receipt_number'] = 'RC-' . $order->id . '-' . time();
+                }
+
+                // Create payment
+                $payment = Payment::create([
+                    'order_id' => $order->id,
+                    'amount' => $validated['amount'],
+                    'payment_date' => $validated['payment_date'],
+                    'payment_method_id' => $validated['payment_method_id'],
+                    'receipt_number' => $validated['receipt_number'],
+                    'reference_number' => $validated['reference_number'] ?? null,
+                    'previous_balance' => $order->remaining_amount,
+                    'new_balance' => $order->remaining_amount - $validated['amount'],
+                    'notes' => $validated['notes'] ?? null,
+                    'received_by' => $validated['received_by'],
+                    'created_by' => auth()->id(),
+                ]);
+
+                // Update order's remaining amount
+                $order->remaining_amount = $payment->new_balance;
+
+                // Update payment status
+                if ($order->remaining_amount <= 0) {
+                    $order->payment_status_id = PaymentStatus::where('slug', 'paid')->first()->id;
+                } else {
+                    $order->payment_status_id = PaymentStatus::where('slug', 'partial')->first()->id;
+                }
+
+                $order->save();
+
+                // Create payment log
+                $order->statusLogs()->create([
+                    'old_status_id' => $order->payment_status_id,
+                    'new_status_id' => $order->payment_status_id,
+                    'changed_by' => auth()->id(),
+                    'notes' => 'Payment recorded: Rs ' . number_format($validated['amount']) .
+                        ' via ' . PaymentMethod::find($validated['payment_method_id'])->name .
+                        ' (Receipt: ' . $validated['receipt_number'] . ')',
+                ]);
+
+                $this->payment = $payment; // Store for response
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment recorded successfully!',
+                'payment' => [
+                    'id' => $this->payment->id,
+                    'amount' => $this->payment->amount,
+                    'receipt_number' => $this->payment->receipt_number,
+                    'new_balance' => $this->payment->new_balance,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error recording payment: ' . $e->getMessage(),
                 'errors' => ['general' => $e->getMessage()]
             ], 500);
         }

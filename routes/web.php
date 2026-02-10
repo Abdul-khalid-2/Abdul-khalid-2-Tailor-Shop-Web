@@ -33,6 +33,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/completed', [OrderController::class, 'completed'])->name('completed');
         Route::post('/customer/store', [OrderController::class, 'customerStore'])->name('customer.store');
 
+        Route::post('orders/{order}/payments', [OrderController::class, 'addPayment'])->name('payments.store');
+
         Route::get('/', [OrderController::class, 'index'])->name('index');
         Route::get('/create', [OrderController::class, 'create'])->name('create');
         Route::post('/', [OrderController::class, 'store'])->name('store');
