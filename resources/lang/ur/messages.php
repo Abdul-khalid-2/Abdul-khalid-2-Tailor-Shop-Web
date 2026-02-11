@@ -213,4 +213,9 @@ return [
     'add_measurement_for_order' => 'آرڈر :order_number کے لیے پیمائش شامل کریں',
     'add_item_to_order' => 'آرڈر :order_number میں آئٹم شامل کریں',
     'are_you_sure_delete_order' => 'کیا آپ واقعی آرڈر :order_number حذف کرنا چاہتے ہیں؟',
+
+
+    'include_fabric_in_total' => 'کیا کپڑے کی قیمت کو کل رقم میں شامل کرنا ہے؟',
+    'fabric_cost_included' => 'کپڑے کی قیمت اب کل رقم میں شامل کر دی گئی ہے',
+    'fabric_cost_excluded' => 'کپڑے کی قیمت اب کل رقم میں شامل نہیں ہے',
 ];

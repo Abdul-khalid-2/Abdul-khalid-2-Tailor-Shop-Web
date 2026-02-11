@@ -25,7 +25,7 @@ return new class extends Migration
             $table->boolean('is_inventory_fabric')->default(false);
 
             // Inventory fabric (future)
-            $table->foreignId('fabric_product_id')->nullable()->constrained('products')->nullOnDelete();
+            $table->foreignId('fabric_id')->nullable()->constrained('fabrics')->nullOnDelete();
 
             // Customer fabric info (manual)
             $table->string('fabric_type')->nullable();      // Cotton, Silk

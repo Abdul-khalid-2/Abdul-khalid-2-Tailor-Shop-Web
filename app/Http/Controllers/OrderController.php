@@ -296,16 +296,33 @@ class OrderController extends Controller
                 }
             }
 
-            if ($orderItem->is_inventory_fabric) {
+            if ($orderItem->is_inventory_fabric && $orderItem->fabric_id) {
 
+                $fabric = Fabric::where('id', $orderItem->fabric_id)
+                    ->where('branch_id', $order->branch_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (!$fabric) {
+                    throw new \Exception('Fabric not found in this branch.');
+                }
+
+                if ($fabric->stock_meter < $orderItem->fabric_meters) {
+                    throw new \Exception('Insufficient fabric stock available.');
+                }
+
+                // Deduct stock
+                $fabric->stock_meter -= $orderItem->fabric_meters;
+                $fabric->save();
+
+                // Record transaction
                 FabricTransaction::create([
-                    'product_id' => $orderItem->fabric_product_id,
+                    'fabric_id' => $fabric->id,
                     'order_item_id' => $orderItem->id,
-                    'meters_used' => $orderItem->fabric_meters,
+                    'meter' => $orderItem->fabric_meters,
                     'type' => 'cut',
                     'created_by' => auth()->id(),
                 ]);
-
             }
 
             // Assign tailor if provided
@@ -428,7 +445,7 @@ class OrderController extends Controller
         $measurementTemplates = DB::table('measurement_templates')
             ->where('customer_id', $order->customer_id)
             ->get();
-        
+
         // Corrected: Use 'is_active' column instead of 'status'
         $paymentMethods = PaymentMethod::where('is_active', true)->get();
 

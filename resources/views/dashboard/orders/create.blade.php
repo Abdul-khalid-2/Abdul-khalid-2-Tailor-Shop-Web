@@ -335,9 +335,19 @@
                             <div class="card mb-4">
                                 <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                     <h6 class="mb-0">{{ __('messages.fabric_details') }}</h6>
-                                    <button type="button" class="btn btn-sm btn-outline-info" id="selectFabricBtn">
-                                        <i class="las la-layer-group mr-1"></i> {{ __('messages.select_from_inventory') }}
-                                    </button>
+                                    <div>
+                                        <!-- Switch Button -->
+                                        <div class="custom-control custom-switch d-inline-block mr-3">
+                                            <input type="checkbox" class="custom-control-input" id="includeFabricInTotal" >
+                                            <label class="custom-control-label" for="includeFabricInTotal">
+                                                {{ __('messages.include_fabric_in_total') }}
+                                            </label>
+                                        </div>
+                                        
+                                        <button type="button" class="btn btn-sm btn-outline-info" id="selectFabricBtn">
+                                            <i class="las la-layer-group mr-1"></i> {{ __('messages.select_from_inventory') }}
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
@@ -1067,14 +1077,38 @@
             alert(`{{ __("messages.fabric_selected") }}`.replace(':type', type).replace(':color', color));
         }
 
+        $('#includeFabricInTotal').change(function() {
+            calculateTotal();
+            
+            // Update fabric cost field appearance based on switch state
+            if ($(this).is(':checked')) {
+                $('#fabric_cost').removeClass('bg-light text-muted');
+                $('#fabric_cost').addClass('bg-success-light');
+                toastr.info('{{ __("messages.fabric_cost_included") }}');
+            } else {
+                $('#fabric_cost').removeClass('bg-success-light');
+                $('#fabric_cost').addClass('bg-light text-muted');
+                toastr.warning('{{ __("messages.fabric_cost_excluded") }}');
+            }
+        });
+
+        // Calculate total amount
         function calculateTotal() {
             const basePrice = parseFloat($('#base_price').val()) || 0;
             const fabricCost = parseFloat($('#fabric_cost').val()) || 0;
             const stitching = parseFloat($('#stitching_charges').val()) || 0;
             const additional = parseFloat($('#additional_charges').val()) || 0;
             const discount = parseFloat($('#discount_amount').val()) || 0;
-
-            const total = basePrice + fabricCost + stitching + additional - discount;
+            
+            // Check if fabric should be included
+            const includeFabric = $('#includeFabricInTotal').is(':checked');
+            
+            // Calculate total with or without fabric cost
+            let total = basePrice + stitching + additional - discount;
+            if (includeFabric) {
+                total += fabricCost;
+            }
+            
             $('#total_amount').val(total.toFixed(2));
             
             // Calculate balance

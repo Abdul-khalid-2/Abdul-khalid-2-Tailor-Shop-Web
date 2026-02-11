@@ -213,4 +213,9 @@ return [
     'add_measurement_for_order' => 'Add measurement for order :order_number',
     'add_item_to_order' => 'Add item to order :order_number',
     'are_you_sure_delete_order' => 'Are you sure you want to delete order :order_number?',
+
+
+    'include_fabric_in_total' => 'Include Fabric in Total',
+    'fabric_cost_included' => 'Fabric cost is now included in total amount',
+    'fabric_cost_excluded' => 'Fabric cost is now excluded from total amount',
 ];
