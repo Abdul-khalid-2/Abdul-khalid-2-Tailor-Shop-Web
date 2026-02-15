@@ -4,7 +4,7 @@
             <span class="item-count-badge">{{ __('messages.item') }} #{{ $index + 1 }}</span>
             <span class="ml-2 text-muted small">
                 <i class="las la-tag"></i> 
-                <span id="item_total_display_{{ $index }}">Rs 0.00</span>
+                <span id="item_total_header_{{ $index }}">Rs 0.00</span>
             </span>
         </div>
         <div>
@@ -24,7 +24,7 @@
                 <select class="form-control select2 dress-type-select" 
                         id="dress_type_id_{{ $index }}" 
                         name="items[{{ $index }}][dress_type_id]" 
-                        data-item-id="{{ $index }}" required>
+                        data-item-id="{{ $index }}">
                     <option value="">{{ __('messages.select_dress_type') }}</option>
                     @foreach($dressTypes as $dressType)
                     <option value="{{ $dressType->id }}" 
@@ -147,7 +147,7 @@
                     <label class="form-label">{{ __('messages.height') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][height]" 
-                           placeholder="170">
+                           placeholder="-- 170 --">
                 </div>
                 @endif
                 
@@ -156,7 +156,7 @@
                     <label class="form-label">{{ __('messages.weight') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][weight]" 
-                           placeholder="70">
+                           placeholder="-- 70 --">
                 </div>
                 @endif
                 
@@ -165,7 +165,7 @@
                     <label class="form-label">{{ __('messages.chest') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][chest]" 
-                           placeholder="42">
+                           placeholder="-- 42 --">
                 </div>
                 @endif
                 
@@ -174,7 +174,7 @@
                     <label class="form-label">{{ __('messages.waist') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][waist]" 
-                           placeholder="38">
+                           placeholder="-- 38 --">
                 </div>
                 @endif
                 
@@ -183,7 +183,7 @@
                     <label class="form-label">{{ __('messages.hips') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][hips]" 
-                           placeholder="44">
+                           placeholder="-- 44 --">
                 </div>
                 @endif
                 
@@ -192,7 +192,7 @@
                     <label class="form-label">{{ __('messages.shoulder') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][shoulder]" 
-                           placeholder="18">
+                           placeholder="-- 18 --">
                 </div>
                 @endif
                 
@@ -201,7 +201,7 @@
                     <label class="form-label">{{ __('messages.sleeve_length') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][sleeve_length]" 
-                           placeholder="60">
+                           placeholder="-- 60 --">
                 </div>
                 @endif
                 
@@ -210,7 +210,7 @@
                     <label class="form-label">{{ __('messages.sleeve_width') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][sleeve_width]" 
-                           placeholder="18">
+                           placeholder="-- 18 --">
                 </div>
                 @endif
             </div>
@@ -221,7 +221,7 @@
                     <label class="form-label">{{ __('messages.collar') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][collar]" 
-                           placeholder="16">
+                           placeholder="-- 16 --">
                 </div>
                 @endif
                 
@@ -230,7 +230,7 @@
                     <label class="form-label">{{ __('messages.bicep') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][bicep]" 
-                           placeholder="12">
+                           placeholder="-- 12 --">
                 </div>
                 @endif
                 
@@ -239,7 +239,7 @@
                     <label class="form-label">{{ __('messages.wrist') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][wrist]" 
-                           placeholder="8">
+                           placeholder="-- 8 --">
                 </div>
                 @endif
                 
@@ -248,7 +248,7 @@
                     <label class="form-label">{{ __('messages.pant_length') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][pant_length]" 
-                           placeholder="100">
+                           placeholder="-- 100 --">
                 </div>
                 @endif
                 
@@ -257,7 +257,7 @@
                     <label class="form-label">{{ __('messages.inseam') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][inseam]" 
-                           placeholder="80">
+                           placeholder="-- 80 --">
                 </div>
                 @endif
                 
@@ -266,7 +266,7 @@
                     <label class="form-label">{{ __('messages.thigh') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][thigh]" 
-                           placeholder="24">
+                           placeholder="-- 24 --">
                 </div>
                 @endif
                 
@@ -275,7 +275,7 @@
                     <label class="form-label">{{ __('messages.knee') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][knee]" 
-                           placeholder="18">
+                           placeholder="-- 18 --">
                 </div>
                 @endif
                 
@@ -284,7 +284,7 @@
                     <label class="form-label">{{ __('messages.bottom') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][bottom]" 
-                           placeholder="22">
+                           placeholder="-- 22 --">
                 </div>
                 @endif
                 
@@ -293,7 +293,7 @@
                     <label class="form-label">{{ __('messages.ankle') }}</label>
                     <input type="number" step="0.1" class="form-control" 
                            name="items[{{ $index }}][measurements][ankle]" 
-                           placeholder="10">
+                           placeholder="-- 10 --">
                 </div>
                 @endif
             </div>

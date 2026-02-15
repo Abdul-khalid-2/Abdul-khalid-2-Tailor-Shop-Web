@@ -188,7 +188,7 @@
                 <!-- Order Items -->
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 font-weight-bold text-primary">{{ __('Order Items') }}</h6>
+                        <h6 class="m-0 font-weight-bold text-primary">{{ __('messages.order_items') }}</h6>
                         <button class="btn btn-sm btn-outline-primary" onclick="addItem({{ $order->id }})">
                             <i class="las la-plus"></i> {{ __('Add Item') }}
                         </button>
@@ -196,90 +196,99 @@
                     <div class="card-body p-0">
                         <div class="list-group list-group-flush">
                             @foreach($order->items as $index => $item)
-                            <div class="list-group-item p-3">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div class="list-group-item p-3" style="border-left: 4px solid {{ $item->dressType->color ?? '#007bff' }};">
+                                <!-- Item Header -->
+                                <div class="d-flex justify-content-between align-items-start mb-3">
                                     <div>
                                         <h6 class="mb-1 font-weight-bold">
-                                            {{ $item->item_name ?? $item->dressType->name ?? 'N/A' }}
+                                            {{ $item->dressType->name ?? 'N/A' }}
                                             <span class="badge badge-pill badge-{{ $item->item_status == 'pending' ? 'warning' : ($item->item_status == 'cutting' ? 'info' : ($item->item_status == 'stitching' ? 'primary' : ($item->item_status == 'ready' ? 'success' : 'secondary'))) }} ml-2">
-                                                {{ ucfirst($item->item_status) }}
+                                                {{ ucfirst(str_replace('_', ' ', $item->item_status)) }}
                                             </span>
                                         </h6>
                                         <small class="text-muted">
-                                            <i class="las la-tag"></i> {{ __('Item #:index', ['index' => $index + 1]) }}
+                                            <i class="las la-tag"></i> {{ __('messages.item') }} #{{ $index + 1 }}
                                         </small>
                                     </div>
                                     <div class="text-right">
-                                        <div class="font-weight-bold text-success">
+                                        <div class="h6 mb-1 font-weight-bold text-success">
                                             Rs {{ number_format($item->total, 0) }}
                                         </div>
-                                        <small class="text-muted">{{ __('Qty: :quantity', ['quantity' => $item->quantity]) }}</small>
+                                        <small class="text-muted d-block">{{ __('Item Total') }}</small>
                                     </div>
                                 </div>
 
-                                <div class="row mt-2">
-                                    <div class="col-md-4">
-                                        <small class="text-muted d-block">{{ __('Base Price') }}:</small>
-                                        <span class="font-weight-bold">Rs {{ number_format($item->price, 0) }}</span>
+                                <!-- Item Pricing Details -->
+                                <div class="row mb-3">
+                                    <div class="col-md-3">
+                                        <small class="text-muted d-block font-weight-bold">{{ __('messages.quantity') }}</small>
+                                        <span class="h6">{{ $item->quantity }}</span>
                                     </div>
-                                    @if($item->fabric_type || $item->fabric_color || $item->fabric_meters)
-                                    <div class="col-md-8">
-                                        <small class="text-muted d-block">{{ __('Fabric Details') }}:</small>
-                                        <span>
-                                            @if($item->fabric_type){{ $item->fabric_type }}@endif
-                                            @if($item->fabric_color) / {{ $item->fabric_color }}@endif
-                                            @if($item->fabric_meters) / {{ $item->fabric_meters }} m @endif
-                                            @if($item->fabric_rate) @ Rs {{ number_format($item->fabric_rate, 0) }}/m @endif
-                                        </span>
+                                    <div class="col-md-3">
+                                        <small class="text-muted d-block font-weight-bold">{{ __('messages.base_price') }}</small>
+                                        <span class="h6">Rs {{ number_format($item->price, 0) }}</span>
                                     </div>
-                                    @endif
+                                    <div class="col-md-3">
+                                        <small class="text-muted d-block font-weight-bold">{{ __('messages.stitching_charges') }}</small>
+                                        <span class="h6">Rs {{ number_format($item->stitching_charge ?? 0, 0) }}</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <small class="text-muted d-block font-weight-bold">{{ __('messages.additional_charges') }}</small>
+                                        <span class="h6">Rs {{ number_format($item->additional_charges ?? 0, 0) }}</span>
+                                    </div>
                                 </div>
 
-                                <!-- Tailor Assignment -->
-                                @if($item->tailorAssignments->count() > 0)
-                                <div class="mt-2 pt-2 border-top">
-                                    <div class="row align-items-center">
-                                        <div class="col-md-6">
-                                            @php $assignment = $item->tailorAssignments->first(); @endphp
-                                            <small class="text-muted d-block">{{ __('Tailor') }}:</small>
-                                            <div class="d-flex align-items-center mt-1">
-                                                <div class="avatar avatar-sm bg-info text-white rounded-circle mr-2">
-                                                    <span class="avatar-title">{{ substr($assignment->tailor->name, 0, 1) }}</span>
-                                                </div>
-                                                <div>
-                                                    <strong>{{ $assignment->tailor->name }}</strong>
-                                                    <small class="d-block text-muted">
-                                                        <span class="badge" style="background-color: {{ $assignment->status->color }}; color: white;">
-                                                            {{ $assignment->status->name }}
-                                                        </span>
-                                                    </small>
-                                                </div>
-                                            </div>
+                                <!-- Fabric Details Section -->
+                                @if($item->fabric_type || $item->fabric_color || $item->fabric_meters)
+                                <div class="mt-3 pt-3 border-top">
+                                    <h6 class="mb-2 font-weight-bold">
+                                        <i class="las la-layer-group text-info mr-2"></i>{{ __('messages.fabric_details') }}
+                                    </h6>
+                                    <div class="row">
+                                        @if($item->fabric_type)
+                                        <div class="col-md-2">
+                                            <small class="text-muted d-block">{{ __('messages.fabric_type') }}</small>
+                                            <span class="font-weight-bold">{{ $item->fabric_type }}</span>
                                         </div>
-                                        <div class="col-md-6">
-                                            <small class="text-muted d-block">{{ __('Progress') }}:</small>
+                                        @endif
+                                        @if($item->fabric_color)
+                                        <div class="col-md-2">
+                                            <small class="text-muted d-block">{{ __('messages.color') }}</small>
                                             <div class="d-flex align-items-center">
-                                                <div class="progress flex-grow-1 mr-2" style="height: 6px;">
-                                                    <div class="progress-bar" role="progressbar"
-                                                        style="width: {{ $assignment->progress_percentage }}%; background-color: {{ $assignment->status->color }};">
-                                                    </div>
-                                                </div>
-                                                <span class="small font-weight-bold">{{ $assignment->progress_percentage }}%</span>
+                                                <span class="badge" style="background-color: {{ $item->fabric_color }}; color: white; min-width: 60px;">
+                                                    {{ $item->fabric_color }}
+                                                </span>
                                             </div>
-                                            <small class="text-muted d-block mt-1">
-                                                <!-- {{ __('Stitching Charge') }}: Rs {{ number_format($assignment->stitching_charge, 0) }} -->
-                                            </small>
                                         </div>
+                                        @endif
+                                        @if($item->fabric_meters)
+                                        <div class="col-md-2">
+                                            <small class="text-muted d-block">{{ __('messages.meter_required') }}</small>
+                                            <span class="font-weight-bold">{{ $item->fabric_meters }} m</span>
+                                        </div>
+                                        @endif
+                                        @if($item->fabric_rate)
+                                        <div class="col-md-2">
+                                            <small class="text-muted d-block">{{ __('messages.fabric_rate_m') }}</small>
+                                            <span class="font-weight-bold">Rs {{ number_format($item->fabric_rate, 0) }}/m</span>
+                                        </div>
+                                        @endif
+                                        @if($item->fabric_cost)
+                                        <div class="col-md-2">
+                                            <small class="text-muted d-block">{{ __('messages.fabric_cost') }}</small>
+                                            <span class="font-weight-bold text-danger">Rs {{ number_format($item->fabric_cost, 0) }}</span>
+                                        </div>
+                                        @endif
                                     </div>
                                 </div>
                                 @endif
 
-                                <!-- Measurements -->
+                                <!-- Measurements Section -->
                                 @if($item->measurements->count() > 0)
-                                <div class="mt-2 pt-2 border-top">
-                                    <div class="d-flex align-items-center">
-                                        <i class="las la-ruler text-primary mr-2"></i>
-                                        <small class="font-weight-bold">{{ __('messages.measurements_cm') }}:</small>
+                                <div class="mt-3 pt-3 border-top">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="las la-ruler text-primary mr-2 fa-lg"></i>
+                                        <h6 class="mb-0 font-weight-bold">{{ __('messages.measurements_cm') }}</h6>
                                     </div>
                                     <div class="row mt-2">
                                         @php
@@ -290,8 +299,8 @@
                                         @foreach($enabledFields as $field)
                                         @if($measurement->$field !== null)
                                         <div class="col-md-3 col-6 mb-2">
-                                            <div class="bg-light p-2 rounded">
-                                                <small class="text-muted d-block">{{ __('messages.' . $field) }}</small>
+                                            <div class="bg-light p-2 rounded small">
+                                                <small class="text-muted d-block text-capitalize">{{ str_replace('_', ' ', $field) }}</small>
                                                 <span class="font-weight-bold">{{ $measurement->$field }} cm</span>
                                             </div>
                                         </div>
@@ -309,15 +318,15 @@
                                     @if($measurement->fitting_preferences || $measurement->notes)
                                     <div class="mt-2">
                                         @if($measurement->fitting_preferences)
-                                        <div class="bg-warning-light p-2 rounded">
-                                            <small class="text-muted d-block">{{ __('messages.fitting_preferences') }}</small>
+                                        <div class="bg-warning-light p-2 rounded small mb-2">
+                                            <small class="text-muted d-block font-weight-bold">{{ __('messages.fitting_preferences') }}</small>
                                             <span>{{ $measurement->fitting_preferences }}</span>
                                         </div>
                                         @endif
 
                                         @if($measurement->notes)
-                                        <div class="bg-info-light p-2 rounded mt-1">
-                                            <small class="text-muted d-block">{{ __('messages.measurement_notes') }}</small>
+                                        <div class="bg-info-light p-2 rounded small">
+                                            <small class="text-muted d-block font-weight-bold">{{ __('messages.measurement_notes') }}</small>
                                             <span>{{ $measurement->notes }}</span>
                                         </div>
                                         @endif
@@ -326,26 +335,65 @@
                                 </div>
                                 @endif
 
-                                <!-- Instructions -->
-                                @if($item->instructions)
-                                <div class="mt-2 pt-2 border-top">
-                                    <div class="d-flex">
-                                        <i class="las la-clipboard-list text-warning mr-2"></i>
-                                        <div>
-                                            <small class="font-weight-bold d-block">{{ __('messages.special_instructions') }}:</small>
-                                            <span class="small">{{ $item->instructions }}</span>
+                                <!-- Discount & Special Instructions -->
+                                <div class="row mt-3 pt-3 border-top">
+                                    @if($item->discount)
+                                    <div class="col-md-6">
+                                        <small class="text-muted d-block font-weight-bold">{{ __('messages.discount') }}</small>
+                                        <span class="h6 text-danger">- Rs {{ number_format($item->discount, 0) }}</span>
+                                    </div>
+                                    @endif
+                                    @if($item->instructions)
+                                    <div class="col-md-{{ $item->discount ? '6' : '12' }}">
+                                        <small class="text-muted d-block font-weight-bold">{{ __('messages.special_instructions') }}</small>
+                                        <p class="small mb-0">{{ $item->instructions }}</p>
+                                    </div>
+                                    @endif
+                                </div>
+
+                                <!-- Tailor Assignment -->
+                                @if($item->tailorAssignments->count() > 0)
+                                <div class="mt-3 pt-3 border-top">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6">
+                                            @php $assignment = $item->tailorAssignments->first(); @endphp
+                                            <small class="text-muted d-block font-weight-bold">{{ __('Tailor Assignment') }}</small>
+                                            <div class="d-flex align-items-center mt-2">
+                                                <div class="avatar avatar-sm bg-info text-white rounded-circle mr-2">
+                                                    <span class="avatar-title">{{ substr($assignment->tailor->name, 0, 1) }}</span>
+                                                </div>
+                                                <div>
+                                                    <strong>{{ $assignment->tailor->name }}</strong>
+                                                    <small class="d-block text-muted">
+                                                        <span class="badge" style="background-color: {{ $assignment->status->color }}; color: white;">
+                                                            {{ $assignment->status->name }}
+                                                        </span>
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <small class="text-muted d-block font-weight-bold">{{ __('Progress') }}</small>
+                                            <div class="d-flex align-items-center mt-2">
+                                                <div class="progress flex-grow-1 mr-2" style="height: 6px;">
+                                                    <div class="progress-bar" role="progressbar"
+                                                        style="width: {{ $assignment->progress_percentage }}%; background-color: {{ $assignment->status->color }};">
+                                                    </div>
+                                                </div>
+                                                <span class="small font-weight-bold">{{ $assignment->progress_percentage }}%</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 @endif
 
                                 <!-- Item Actions -->
-                                <div class="mt-2 pt-2 border-top text-right">
+                                <div class="mt-3 pt-3 border-top text-right">
                                     <button class="btn btn-xs btn-outline-info" onclick="updateItemStatus({{ $item->id }}, '{{ $item->item_status }}')">
                                         <i class="las la-sync"></i> {{ __('Update Status') }}
                                     </button>
                                     <button class="btn btn-xs btn-outline-primary" onclick="editItem({{ $item->id }})">
-                                        <i class="las la-edit"></i> {{ __('Edit') }}
+                                        <i class="las la-edit"></i> {{ __('messages.edit') }}
                                     </button>
                                     @if($item->tailorAssignments->count() == 0)
                                     <button class="btn btn-xs btn-outline-warning" onclick="assignTailorToItem({{ $item->id }})">
@@ -355,6 +403,71 @@
                                 </div>
                             </div>
                             @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary & Pricing Breakdown -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">{{ __('messages.order_summary_payment') }}</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-7">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                                            <span>{{ __('messages.sub_total') }}:</span>
+                                            <span class="font-weight-bold">Rs {{ number_format($order->total_amount ?? 0, 0) }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                                            <span>{{ __('messages.total_fabric_cost') }}:</span>
+                                            <span class="font-weight-bold">Rs {{ number_format($order->items->sum('fabric_cost') ?? 0, 0) }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                                            <span>{{ __('messages.total_stitching_charges') }}:</span>
+                                            <span class="font-weight-bold">Rs {{ number_format($order->items->sum('stitching_charge') ?? 0, 0) }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                                            <span>{{ __('messages.total_additional_charges') }}:</span>
+                                            <span class="font-weight-bold">Rs {{ number_format($order->items->sum('additional_charges') ?? 0, 0) }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-3">
+                                            <span>{{ __('messages.total_discount') }}:</span>
+                                            <span class="font-weight-bold text-danger">- Rs {{ number_format($order->discount_amount ?? 0, 0) }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between pt-2">
+                                            <strong class="h6 mb-0">{{ __('messages.grand_total') }}:</strong>
+                                            <strong class="h6 mb-0 text-success">Rs {{ number_format($order->final_amount, 0) }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="card bg-primary text-white">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-white mb-3">{{ __('messages.payment_details') }}</h6>
+                                        
+                                        <div class="mb-3">
+                                            <small>{{ __('messages.advance_paid') }}</small>
+                                            <div class="h6 text-white mb-0">Rs {{ number_format($order->advance_amount, 0) }}</div>
+                                        </div>
+
+                                        @if($order->payment_method)
+                                        <div class="mb-3">
+                                            <small>{{ __('messages.payment_method') }}</small>
+                                            <div class="h6 text-white mb-0">{{ $order->paymentMethod->name ?? 'N/A' }}</div>
+                                        </div>
+                                        @endif
+
+                                        <div class="border-top pt-3">
+                                            <small>{{ __('messages.balance_due') }}</small>
+                                            <div class="h5 text-white font-weight-bold">Rs {{ number_format($order->remaining_amount, 0) }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -550,20 +663,44 @@
                     </div>
                 </div>
 
-                <!-- Order Notes -->
+                <!-- Internal Notes Section -->
+                <div class="card shadow mb-4 border-left-warning">
+                    <div class="card-header py-3 bg-light">
+                        <h6 class="m-0 font-weight-bold text-primary">
+                            <i class="las la-lock text-warning mr-2"></i>{{ __('messages.internal_notes') }}
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        @if($order->internal_notes)
+                        <div class="alert alert-warning-light mb-3 p-3 rounded">
+                            <i class="las la-info-circle mr-2"></i>
+                            <strong>{{ __('Current Notes') }}:</strong><br>
+                            <p class="mb-0 mt-2">{{ $order->internal_notes }}</p>
+                        </div>
+                        @else
+                        <div class="alert alert-info mb-3">
+                            <i class="las la-sticky-note mr-2"></i>{{ __('No internal notes yet.') }}
+                        </div>
+                        @endif
+                        
+                        {{-- Form to add/update internal notes would go here --}}
+                    </div>
+                </div>
+
+                <!-- Additional Notes -->
                 <div class="card shadow mb-4">
                     <div class="card-header py-3">
                         <h6 class="m-0 font-weight-bold text-primary">{{ __('messages.additional_notes') }}</h6>
                     </div>
                     <div class="card-body">
-                        @if($order->internal_notes)
+                        @if($order->notes)
                         <div class="mb-3">
                             <div class="d-flex align-items-center mb-2">
-                                <i class="las la-lock text-warning mr-2"></i>
-                                <strong>{{ __('messages.internal_notes') }}</strong>
+                                <i class="las la-sticky-note text-info mr-2"></i>
+                                <strong>{{ __('Customer Notes') }}</strong>
                             </div>
                             <div class="bg-light p-3 rounded">
-                                {{ $order->internal_notes }}
+                                {{ $order->notes }}
                             </div>
                         </div>
                         @endif
@@ -571,14 +708,8 @@
                         <form id="addNoteForm" method="POST" action="">
                             @csrf
                             <div class="form-group">
-                                <label for="note">{{ __('Add New Note') }}</label>
-                                <textarea class="form-control" id="note" name="notes" rows="3" placeholder="{{ __('Add internal note...') }}"></textarea>
-                            </div>
-                            <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" id="is_internal" name="is_internal" checked>
-                                <label class="form-check-label" for="is_internal">
-                                    {{ __('Internal note (not visible to customer)') }}
-                                </label>
+                                <label for="note" class="font-weight-bold">{{ __('Add New Internal Note') }}</label>
+                                <textarea class="form-control" id="note" name="notes" rows="3" placeholder="{{ __('Add internal note (not visible to customer)...') }}"></textarea>
                             </div>
                             <button type="submit" class="btn btn-primary btn-block">
                                 <i class="las la-save"></i> {{ __('Save Note') }}

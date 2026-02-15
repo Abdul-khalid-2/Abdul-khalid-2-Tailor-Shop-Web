@@ -107,6 +107,59 @@
             font-weight: bold;
             font-size: 1.1rem;
         }
+
+        /* Validation Styling */
+        .form-control.is-invalid,
+        .form-control:invalid {
+            border-color: #dc3545 !important;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath fill='%23dc3545' d='M8 4a.5.5 0 0 0-.854-.354L6.5 5.293 4.854 3.646A.5.5 0 1 0 4 4.5L5.293 6l-1.147 1.146A.5.5 0 0 0 4.854 8.5L6.5 6.707l1.646 1.647A.5.5 0 0 0 8 7.5L6.707 6 8 4.707a.5.5 0 0 0 0-.707z'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+
+        .form-control.is-invalid:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+
+        .invalid-feedback,
+        .invalid-tooltip {
+            display: block;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+            color: #dc3545;
+        }
+
+        /* Select2 Validation Styling */
+        .select2-container.select2-container--default.is-invalid .select2-selection--single,
+        .select2-container.select2-container--default.is-invalid .select2-selection--multiple {
+            border-color: #dc3545 !important;
+        }
+
+        .select2-container.select2-container--default.is-invalid .select2-selection--single:focus,
+        .select2-container.select2-container--default.is-invalid .select2-selection--multiple:focus {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+
+        .select2-wrapper {
+            position: relative;
+        }
+
+        .select2-wrapper.is-invalid .select2-wrapper__error {
+            display: block;
+        }
+
+        .select2-wrapper__error {
+            display: none;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+            color: #dc3545;
+        }
     </style>
     @endpush
 
@@ -141,7 +194,7 @@
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">{{ __('messages.customer') }} *</label>
                                             <div class="input-group">
-                                                <select class="form-control select2" id="customer_id" name="customer_id" required>
+                                                <select class="form-control select2" id="customer_id" name="customer_id">
                                                     <option value="">{{ __('messages.select_customer') }}</option>
                                                     @foreach($customers as $customer)
                                                     <option value="{{ $customer->id }}"
@@ -167,7 +220,7 @@
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">{{ __('messages.order_date') }} *</label>
                                             <input type="date" class="form-control" name="order_date" 
-                                                   value="{{ old('order_date', date('Y-m-d')) }}" required>
+                                                   value="{{ old('order_date', date('Y-m-d')) }}">
                                             @error('order_date')
                                             <div class="text-danger small">{{ $message }}</div>
                                             @enderror
@@ -191,7 +244,7 @@
 
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">{{ __('messages.branch') }} *</label>
-                                            <select class="form-control select2" name="branch_id" required>
+                                            <select class="form-control select2" name="branch_id">
                                                 <option value="">{{ __('messages.select_branch') }}</option>
                                                 @foreach($branches as $branch)
                                                 <option value="{{ $branch->id }}" {{ old('branch_id') == $branch->id ? 'selected' : '' }}>
@@ -244,6 +297,14 @@
                                     <div class="row">
                                         <div class="col-md-7">
                                             <div class="price-summary">
+                                                <!-- Items Breakdown -->
+                                                <div class="mb-3 pb-3" style="border-bottom: 1px solid #dee2e6;">
+                                                    <h6 class="mb-2">{{ __('messages.item_wise_breakdown') }}</h6>
+                                                    <div id="itemsBreakdown" class="small">
+                                                        <!-- Item totals will be populated here -->
+                                                    </div>
+                                                </div>
+
                                                 <div class="price-row">
                                                     <span>{{ __('messages.sub_total') }}:</span>
                                                     <span id="subTotal">Rs 0.00</span>
@@ -277,7 +338,7 @@
                                                     <div class="form-group mb-3">
                                                         <label class="form-label">{{ __('messages.advance_paid') }} *</label>
                                                         <input type="number" step="0.01" class="form-control" id="advance_amount" 
-                                                               name="advance_amount" value="{{ old('advance_amount', 0) }}" required>
+                                                               name="advance_amount" value="{{ old('advance_amount', 0) }}">
                                                         @error('advance_amount')
                                                         <div class="text-danger small">{{ $message }}</div>
                                                         @enderror
@@ -356,12 +417,12 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">{{ __('messages.name') }} *</label>
-                                <input type="text" class="form-control" id="new_customer_name" name="name" required>
+                                <input type="text" class="form-control" id="new_customer_name" name="name">
                                 <div class="invalid-feedback">{{ __('Please enter customer name.') }}</div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">{{ __('messages.phone') }} *</label>
-                                <input type="text" class="form-control" id="new_customer_phone" name="phone" required>
+                                <input type="text" class="form-control" id="new_customer_phone" name="phone">
                                 <div class="invalid-feedback">{{ __('Please enter phone number.') }}</div>
                             </div>
                         </div>
@@ -378,7 +439,7 @@
                         <div class="row">
                             <div class="col-md-12 mb-3">
                                 <label class="form-label">{{ __('messages.branch') }} *</label>
-                                <select class="form-control" id="new_customer_branch" name="branch_id" required>
+                                <select class="form-control" id="new_customer_branch" name="branch_id">
                                     <option value="">{{ __('messages.select_branch') }}</option>
                                     @foreach($branches as $branch)
                                     <option value="{{ $branch->id }}">{{ $branch->name }}</option>
@@ -598,10 +659,11 @@
             $(document).on('change', '.dress-type-select', function() {
                 const itemId = $(this).data('item-id');
                 const selectedOption = $(this).find('option:selected');
-                const basePrice = selectedOption.data('price') || 0;
+                const basePrice = parseFloat(selectedOption.data('price')) || 0;
                 const estimatedDays = selectedOption.data('days') || 7;
                 
-                $(`#base_price_${itemId}`).val(basePrice);
+                // Set base price
+                $(`#base_price_${itemId}`).val(basePrice.toFixed(2));
                 
                 const orderDate = $('input[name="order_date"]').val();
                 if (orderDate && itemId === 0) {
@@ -611,8 +673,18 @@
                     $('#delivery_date').val(formattedDate);
                 }
                 
-                calculateItemTotal(itemId);
-                calculateGrandTotal();
+                // Clear validation error when dress type is selected
+                if ($(this).val()) {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.select2-container').removeClass('is-invalid');
+                    $(this).siblings('.invalid-feedback').remove();
+                }
+                
+                // Calculate item total immediately
+                setTimeout(function() {
+                    calculateItemTotal(itemId);
+                    calculateGrandTotal();
+                }, 50);
             });
 
             // Fabric calculations
@@ -643,6 +715,11 @@
             // Stitching charges, additional charges, discount
             $(document).on('input', '.stitching-charges, .additional-charges, .item-discount', function() {
                 const itemId = $(this).data('item-id');
+// Clear validation error for dress type
+                $(this).removeClass('is-invalid');
+                $(this).siblings('.select2-container').removeClass('is-invalid');
+                $(this).siblings('.invalid-feedback').remove();
+                
                 calculateItemTotal(itemId);
                 calculateGrandTotal();
             });
@@ -650,12 +727,62 @@
             // Quantity change
             $(document).on('input', '.item-quantity', function() {
                 const itemId = $(this).data('item-id');
+                const quantity = parseFloat($(this).val()) || 0;
+                
+                // Clear validation error if value is now valid
+                if (quantity > 0) {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.invalid-feedback').remove();
+                }
+                
                 calculateItemTotal(itemId);
                 calculateGrandTotal();
             });
 
+            // Real-time validation clearing for text/date/number inputs
+            $(document).on('change input blur', 'input[name="order_date"], #advance_amount', function() {
+                const value = $(this).val();
+                if (value && value.toString().trim()) {
+                    $(this).removeClass('is-invalid');
+                    $(this).next('.invalid-feedback').remove();
+                }
+            });
+
+            // Real-time validation clearing for Select2 fields
+            $('#customer_id, select[name="branch_id"]').on('change', function() {
+                if ($(this).val()) {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.select2-container').removeClass('is-invalid');
+                    $(this).siblings('.invalid-feedback').remove();
+                }
+            });
+
+            // Select2 change event for customer
+            $('#customer_id').on('change', function() {
+                if ($(this).val()) {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.select2-container').removeClass('is-invalid');
+                    $(this).siblings('.invalid-feedback').remove();
+                }
+                
+                // Load customer details
+                const customerId = $(this).val();
+                const selectedOption = $(this).find('option:selected');
+                if (customerId && selectedOption.length) {
+                    const phone = selectedOption.data('phone');
+                    const address = selectedOption.data('address');
+                    const type = selectedOption.data('type');
+                    
+                    // You can populate customer details here if needed
+                }
+            });
+
             // Advance amount change
             $('#advance_amount').on('input', function() {
+                // Clear validation error
+                $(this).removeClass('is-invalid');
+                $(this).siblings('.invalid-feedback').remove();
+                
                 calculateBalance();
             });
 
@@ -761,6 +888,9 @@
                     
                     itemCount++;
                     
+                    // Initialize grand total calculation
+                    calculateGrandTotal();
+                    
                     // Scroll to new item
                     $('html, body').animate({
                         scrollTop: $(`#order_item_${itemCount - 1}`).offset().top - 100
@@ -798,15 +928,23 @@
             
             const includeFabric = $(`#includeFabricInTotal_${itemId}`).is(':checked');
             
-            let itemTotal = basePrice + stitching + additional - discount;
+            // Calculate base item subtotal (without fabric)
+            let itemSubTotal = (basePrice + stitching + additional - discount);
+            
+            // Apply quantity
+            itemSubTotal = itemSubTotal * quantity;
+            
+            // Calculate total with fabric if included
+            let itemTotal = itemSubTotal;
             if (includeFabric) {
-                itemTotal += fabricCost;
+                itemTotal += (fabricCost * quantity);
             }
             
-            itemTotal = itemTotal * quantity;
-            
+            // Update hidden input and display elements
+            const displayValue = 'Rs ' + itemTotal.toFixed(2);
             $(`#item_total_${itemId}`).val(itemTotal.toFixed(2));
-            $(`#item_total_display_${itemId}`).text('Rs ' + itemTotal.toFixed(2));
+            $(`#item_total_display_${itemId}`).text(displayValue);
+            $(`#item_total_header_${itemId}`).text(displayValue);
         }
 
         function calculateGrandTotal() {
@@ -816,6 +954,7 @@
             let totalAdditional = 0;
             let totalDiscount = 0;
             let grandTotal = 0;
+            let itemsBreakdownHTML = '';
             
             $('.order-item-card').each(function() {
                 const itemId = $(this).data('item-id');
@@ -841,7 +980,18 @@
                     itemGrandTotal += fabricCost * quantity;
                 }
                 grandTotal += itemGrandTotal;
+                
+                // Build items breakdown
+                itemsBreakdownHTML += `
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Item #${itemId + 1}:</span>
+                        <strong class="text-primary">Rs ${itemGrandTotal.toFixed(2)}</strong>
+                    </div>
+                `;
             });
+            
+            // Update items breakdown
+            $('#itemsBreakdown').html(itemsBreakdownHTML || '<p class="text-muted mb-0">No items added</p>');
             
             $('#subTotal').text('Rs ' + subTotal.toFixed(2));
             $('#totalFabricCost').text('Rs ' + totalFabricCost.toFixed(2));
@@ -1055,33 +1205,283 @@
             $('#orderForm').submit();
         }
 
-        $('#orderForm').submit(function(e) {
-            const requiredFields = $(this).find('[required]');
-            let valid = true;
+        function clearValidationMessages() {
+            // Clear all previous error messages
+            $('.invalid-feedback').remove();
+            $('.form-control').removeClass('is-invalid');
+            $('.select2-container').removeClass('is-invalid');
+        }
+
+        function showFieldError(fieldElement, errorMessage) {
+            // Add is-invalid class
+            fieldElement.addClass('is-invalid');
             
-            requiredFields.each(function() {
-                if (!$(this).val().trim()) {
-                    valid = false;
-                    $(this).addClass('is-invalid');
-                } else {
-                    $(this).removeClass('is-invalid');
+            // For Select2, also add class to the container
+            if (fieldElement.hasClass('select2')) {
+                fieldElement.siblings('.select2-container').addClass('is-invalid');
+            }
+            
+            // Remove existing error message if any
+            fieldElement.siblings('.invalid-feedback').remove();
+            
+            // Add error message after the field
+            const errorHtml = `<div class="invalid-feedback" style="display: block;">${errorMessage}</div>`;
+            fieldElement.after(errorHtml);
+        }
+
+        // Form validation without HTML required attributes
+        function validateAllFields() {
+            clearValidationMessages();
+            
+            let isValid = true;
+            let firstErrorField = null;
+            
+            // 1. Validate Customer (required)
+            const $customerSelect = $('#customer_id');
+            if (!$customerSelect.val()) {
+                isValid = false;
+                showFieldError($customerSelect, '{{ __("messages.customer_is_required") }}');
+                if (!firstErrorField) firstErrorField = $customerSelect;
+            }
+            
+            // 2. Validate Order Date (required)
+            const $orderDate = $('input[name="order_date"]');
+            if (!$orderDate.val()) {
+                isValid = false;
+                showFieldError($orderDate, '{{ __("messages.order_date_is_required") }}');
+                if (!firstErrorField) firstErrorField = $orderDate;
+            }
+            
+            // 3. Validate Branch (required)
+            const $branchSelect = $('select[name="branch_id"]');
+            if (!$branchSelect.val()) {
+                isValid = false;
+                showFieldError($branchSelect, '{{ __("messages.branch_is_required") }}');
+                if (!firstErrorField) firstErrorField = $branchSelect;
+            }
+            
+            // 4. Validate Advance Amount (required and must be >= 0)
+            const $advanceAmount = $('#advance_amount');
+            const advanceValue = parseFloat($advanceAmount.val());
+            if ($advanceAmount.val() === '' || isNaN(advanceValue)) {
+                isValid = false;
+                showFieldError($advanceAmount, '{{ __("messages.advance_amount_is_required") }}');
+                if (!firstErrorField) firstErrorField = $advanceAmount;
+            } else if (advanceValue < 0) {
+                isValid = false;
+                showFieldError($advanceAmount, '{{ __("messages.advance_amount_cannot_be_negative") }}');
+                if (!firstErrorField) firstErrorField = $advanceAmount;
+            }
+            
+            // 5. Validate Order Items
+            if ($('.order-item-card').length === 0) {
+                isValid = false;
+                toastr.error('{{ __("messages.please_add_at_least_one_item") }}');
+                return false;
+            }
+            
+            // Validate each order item
+            $('.order-item-card').each(function(index) {
+                const itemId = $(this).data('item-id');
+                const itemElement = this;
+                
+                // Validate Dress Type (required for each item)
+                const $dressType = $(`#dress_type_id_${itemId}`);
+                if (!$dressType.val()) {
+                    isValid = false;
+                    showFieldError($dressType, '{{ __("messages.dress_type_is_required") }}');
+                    if (!firstErrorField) firstErrorField = $dressType;
+                }
+                
+                // Validate Quantity (required, must be > 0)
+                const $quantity = $(`#quantity_${itemId}`);
+                const quantityValue = parseInt($quantity.val());
+                if (!$quantity.val() || isNaN(quantityValue) || quantityValue < 1) {
+                    isValid = false;
+                    showFieldError($quantity, '{{ __("messages.quantity_must_be_at_least_1") }}');
+                    if (!firstErrorField) firstErrorField = $quantity;
+                }
+                
+                // Validate Fabric Meters if fabric rate is provided
+                const $fabricMeters = $(`#fabric_meters_${itemId}`);
+                const $fabricRate = $(`#fabric_rate_${itemId}`);
+                const fabricMeters = parseFloat($fabricMeters.val()) || 0;
+                const fabricRate = parseFloat($fabricRate.val()) || 0;
+                
+                if (fabricRate > 0 && fabricMeters <= 0) {
+                    isValid = false;
+                    showFieldError($fabricMeters, '{{ __("messages.fabric_meters_required_when_rate_provided") }}');
+                    if (!firstErrorField) firstErrorField = $fabricMeters;
+                }
+                
+                // Validate Stitching Charges (must be >= 0)
+                const $stitching = $(`#stitching_charges_${itemId}`);
+                const stitchingValue = parseFloat($stitching.val()) || 0;
+                if (stitchingValue < 0) {
+                    isValid = false;
+                    showFieldError($stitching, '{{ __("messages.stitching_charges_cannot_be_negative") }}');
+                    if (!firstErrorField) firstErrorField = $stitching;
+                }
+                
+                // Validate Additional Charges (must be >= 0)
+                const $additional = $(`#additional_charges_${itemId}`);
+                const additionalValue = parseFloat($additional.val()) || 0;
+                if (additionalValue < 0) {
+                    isValid = false;
+                    showFieldError($additional, '{{ __("messages.additional_charges_cannot_be_negative") }}');
+                    if (!firstErrorField) firstErrorField = $additional;
+                }
+                
+                // Validate Discount (must be >= 0 and not exceed item total)
+                const $discount = $(`#item_discount_${itemId}`);
+                const discountValue = parseFloat($discount.val()) || 0;
+                const basePrice = parseFloat($(`#base_price_${itemId}`).val()) || 0;
+                
+                if (discountValue < 0) {
+                    isValid = false;
+                    showFieldError($discount, '{{ __("messages.discount_cannot_be_negative") }}');
+                    if (!firstErrorField) firstErrorField = $discount;
+                } else if (discountValue > basePrice) {
+                    isValid = false;
+                    showFieldError($discount, '{{ __("messages.discount_cannot_exceed_base_price") }}');
+                    if (!firstErrorField) firstErrorField = $discount;
                 }
             });
             
-            if (!valid) {
-                e.preventDefault();
-                toastr.error('{{ __("messages.please_fill_required_fields") }}');
-                return;
-            }
-            
+            // 6. Validate Grand Total (must be > 0)
             const grandTotal = parseFloat($('#grandTotal').text().replace('Rs ', '')) || 0;
             if (grandTotal <= 0) {
-                e.preventDefault();
-                toastr.error('{{ __("messages.check_pricing_total") }}');
-                return;
+                isValid = false;
+                toastr.error('{{ __("messages.grand_total_must_be_greater_than_zero") }}');
             }
             
-            calculateBalance(grandTotal);
+            // Scroll to first error field if exists
+            if (firstErrorField) {
+                $('html, body').animate({
+                    scrollTop: firstErrorField.offset().top - 150
+                }, 500);
+            }
+            
+            return isValid;
+        }
+
+        // Enhanced showFieldError function
+        function showFieldError(fieldElement, errorMessage) {
+            // Remove any existing error for this field
+            fieldElement.siblings('.invalid-feedback').remove();
+            
+            // Add is-invalid class
+            fieldElement.addClass('is-invalid');
+            
+            // Special handling for Select2
+            if (fieldElement.hasClass('select2-hidden-accessible')) {
+                fieldElement.next('.select2-container').addClass('is-invalid');
+            } else if (fieldElement.hasClass('select2')) {
+                fieldElement.siblings('.select2-container').addClass('is-invalid');
+            }
+            
+            // Add error message after the field or its container
+            const errorHtml = `<div class="invalid-feedback" style="display: block;">${errorMessage}</div>`;
+            
+            if (fieldElement.hasClass('select2-hidden-accessible')) {
+                fieldElement.next('.select2-container').after(errorHtml);
+            } else if (fieldElement.hasClass('select2')) {
+                fieldElement.siblings('.select2-container').after(errorHtml);
+            } else {
+                fieldElement.after(errorHtml);
+            }
+        }
+
+        // Enhanced clearValidationMessages function
+        function clearValidationMessages() {
+            // Remove all error messages
+            $('.invalid-feedback').remove();
+            
+            // Remove is-invalid class from all inputs and selects
+            $('.form-control').removeClass('is-invalid');
+            $('select').removeClass('is-invalid');
+            $('.select2-container').removeClass('is-invalid');
+        }
+
+        // Real-time validation clearing
+        $(document).on('focus change input', '.form-control, select', function() {
+            const $this = $(this);
+            
+            // Clear validation for this field when user interacts with it
+            $this.removeClass('is-invalid');
+            $this.siblings('.invalid-feedback').remove();
+            
+            // Handle Select2
+            if ($this.hasClass('select2-hidden-accessible')) {
+                $this.next('.select2-container').removeClass('is-invalid');
+            } else if ($this.hasClass('select2')) {
+                $this.siblings('.select2-container').removeClass('is-invalid');
+            }
+        });
+
+        // Form submission handler
+        $('#orderForm').submit(function(e) {
+            e.preventDefault(); // Prevent default submission
+            
+            // Clear all previous validation messages
+            clearValidationMessages();
+            
+            // Run validation
+            if (validateAllFields()) {
+                // Calculate final balance before submitting
+                calculateBalance();
+                
+                // Submit the form
+                this.submit();
+            } else {
+                toastr.error('{{ __("messages.please_fix_validation_errors") }}');
+            }
+        });
+
+        // Add validation for numeric fields to prevent negative values
+        $(document).on('input', 'input[type="number"]', function() {
+            const value = parseFloat($(this).val());
+            if (value < 0) {
+                $(this).val(0);
+            }
+        });
+
+        // Validate advance amount doesn't exceed grand total
+        $('#advance_amount').on('blur', function() {
+            const advance = parseFloat($(this).val()) || 0;
+            const grandTotal = parseFloat($('#grandTotal').text().replace('Rs ', '')) || 0;
+            
+            if (advance > grandTotal) {
+                showFieldError($(this), '{{ __("messages.advance_amount_cannot_exceed_grand_total") }}');
+            } else {
+                $(this).removeClass('is-invalid');
+                $(this).siblings('.invalid-feedback').remove();
+            }
+            
+            calculateBalance();
+        });
+
+        $('#orderForm').submit(function(e) {
+            const validation = validateAllFields();
+            
+            if (!validation.valid) {
+                e.preventDefault();
+                const message = validation.errors.length > 0 
+                    ? validation.errors.slice(0, 4).join('<br>') + (validation.errors.length > 4 ? '<br>And more...' : '')
+                    : '{{ __("messages.please_fill_required_fields") }}';
+                toastr.error(message);
+                
+                // Scroll to first error
+                const firstError = $('.is-invalid').first();
+                if (firstError.length) {
+                    $('html, body').animate({
+                        scrollTop: firstError.offset().top - 100
+                    }, 500);
+                }
+                return false;
+            }
+            
+            calculateBalance(parseFloat($('#grandTotal').text().replace('Rs ', '')) || 0);
         });
 
         // Modal reset on close

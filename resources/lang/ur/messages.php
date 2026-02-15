@@ -235,7 +235,15 @@ return [
     'total_discount' => 'کل رعایت',
     'grand_total' => 'عظیم کل',
     'payment_details' => 'ادائیگی کی تفصیلات',
+    'item_wise_breakdown' => 'چیز کے لحاظ سے تفصیل',
     'add_new_order_multiple_items' => 'گاہک کے لیے متعدد اشیاء کے ساتھ نیا سلائی کا آرڈر شامل کریں',
+
+    // Validation messages
+    'is_required' => 'ضروری ہے',
+    'quantity_must_be_greater_than_zero' => 'مقدار صفر سے زیادہ ہونی چاہیے',
+    'must_be_greater_than_zero' => 'صفر سے زیادہ ہونی چاہیے',
+    'please_add_at_least_one_item' => 'براہ کرم آرڈر میں کم از کم ایک چیز شامل کریں',
+    'please_select_dress_type' => 'براہ کرم لباس کی قسم منتخب کریں',
 
     // Navigation and header translations
     'cart' => 'کارٹ',
@@ -244,4 +252,21 @@ return [
     'view_all' => 'تمام دیکھیں',
     'notifications' => 'اطلاعات',
     'order_notes' => 'آرڈر کے نوٹس',
+
+
+    'customer_is_required' => 'Please select a customer.',
+    'order_date_is_required' => 'Order date is required.',
+    'branch_is_required' => 'Please select a branch.',
+    'advance_amount_is_required' => 'Advance amount is required.',
+    'advance_amount_cannot_be_negative' => 'Advance amount cannot be negative.',
+    'advance_amount_cannot_exceed_grand_total' => 'Advance amount cannot exceed grand total.',
+    'dress_type_is_required' => 'Please select a dress type for this item.',
+    'quantity_must_be_at_least_1' => 'Quantity must be at least 1.',
+    'fabric_meters_required_when_rate_provided' => 'Fabric meters required when rate is provided.',
+    'stitching_charges_cannot_be_negative' => 'Stitching charges cannot be negative.',
+    'additional_charges_cannot_be_negative' => 'Additional charges cannot be negative.',
+    'discount_cannot_be_negative' => 'Discount cannot be negative.',
+    'discount_cannot_exceed_base_price' => 'Discount cannot exceed base price.',
+    'grand_total_must_be_greater_than_zero' => 'Grand total must be greater than zero.',
+    'please_fix_validation_errors' => 'Please fix the validation errors before submitting.',
 ];

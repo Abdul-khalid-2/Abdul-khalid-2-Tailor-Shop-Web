@@ -235,7 +235,15 @@ return [
     'total_discount' => 'Total Discount',
     'grand_total' => 'Grand Total',
     'payment_details' => 'Payment Details',
+    'item_wise_breakdown' => 'Item Wise Breakdown',
     'add_new_order_multiple_items' => 'Add a new tailoring order with multiple items for customer',
+
+    // Validation messages
+    'is_required' => 'is required',
+    'quantity_must_be_greater_than_zero' => 'Quantity must be greater than 0',
+    'must_be_greater_than_zero' => 'must be greater than 0',
+    'please_add_at_least_one_item' => 'Please add at least one item to the order',
+    'please_select_dress_type' => 'Please select a dress type',
 
     // Navigation and header translations
     'cart' => 'Cart',
@@ -244,4 +252,21 @@ return [
     'view_all' => 'View All',
     'notifications' => 'Notifications',
     'order_notes' => 'Order Notes',
+
+
+    'customer_is_required' => 'Please select a customer.',
+    'order_date_is_required' => 'Order date is required.',
+    'branch_is_required' => 'Please select a branch.',
+    'advance_amount_is_required' => 'Advance amount is required.',
+    'advance_amount_cannot_be_negative' => 'Advance amount cannot be negative.',
+    'advance_amount_cannot_exceed_grand_total' => 'Advance amount cannot exceed grand total.',
+    'dress_type_is_required' => 'Please select a dress type for this item.',
+    'quantity_must_be_at_least_1' => 'Quantity must be at least 1.',
+    'fabric_meters_required_when_rate_provided' => 'Fabric meters required when rate is provided.',
+    'stitching_charges_cannot_be_negative' => 'Stitching charges cannot be negative.',
+    'additional_charges_cannot_be_negative' => 'Additional charges cannot be negative.',
+    'discount_cannot_be_negative' => 'Discount cannot be negative.',
+    'discount_cannot_exceed_base_price' => 'Discount cannot exceed base price.',
+    'grand_total_must_be_greater_than_zero' => 'Grand total must be greater than zero.',
+    'please_fix_validation_errors' => 'Please fix the validation errors before submitting.',
 ];
