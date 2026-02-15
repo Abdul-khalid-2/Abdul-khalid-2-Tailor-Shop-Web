@@ -218,4 +218,30 @@ return [
     'include_fabric_in_total' => 'Include Fabric in Total',
     'fabric_cost_included' => 'Fabric cost is now included in total amount',
     'fabric_cost_excluded' => 'Fabric cost is now excluded from total amount',
+
+    // Missing order item translations
+    'item' => 'Item',
+    'quantity' => 'Quantity',
+    'item_total' => 'Item Total',
+    'load_template' => 'Load Template',
+    'remove_item' => 'Remove Item',
+    'add_another_item' => 'Add Another Item',
+    'click_to_add_more_clothes' => 'Click to add more clothes to the order',
+    'order_summary_payment' => 'Order Summary & Payment',
+    'sub_total' => 'Sub Total',
+    'total_fabric_cost' => 'Total Fabric Cost',
+    'total_stitching_charges' => 'Total Stitching Charges',
+    'total_additional_charges' => 'Total Additional Charges',
+    'total_discount' => 'Total Discount',
+    'grand_total' => 'Grand Total',
+    'payment_details' => 'Payment Details',
+    'add_new_order_multiple_items' => 'Add a new tailoring order with multiple items for customer',
+
+    // Navigation and header translations
+    'cart' => 'Cart',
+    'type_to_search' => 'Type to search...',
+    'all_messages' => 'All Messages',
+    'view_all' => 'View All',
+    'notifications' => 'Notifications',
+    'order_notes' => 'Order Notes',
 ];

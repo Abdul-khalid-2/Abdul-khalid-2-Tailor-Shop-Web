@@ -218,4 +218,30 @@ return [
     'include_fabric_in_total' => 'کیا کپڑے کی قیمت کو کل رقم میں شامل کرنا ہے؟',
     'fabric_cost_included' => 'کپڑے کی قیمت اب کل رقم میں شامل کر دی گئی ہے',
     'fabric_cost_excluded' => 'کپڑے کی قیمت اب کل رقم میں شامل نہیں ہے',
+
+    // Missing order item translations
+    'item' => 'چیز',
+    'quantity' => 'مقدار',
+    'item_total' => 'چیز کا کل',
+    'load_template' => 'ٹیمپلیٹ لوڈ کریں',
+    'remove_item' => 'چیز کو ہٹائیں',
+    'add_another_item' => 'ایک اور چیز شامل کریں',
+    'click_to_add_more_clothes' => 'آرڈر میں زیادہ کپڑے شامل کرنے کے لیے کلک کریں',
+    'order_summary_payment' => 'آرڈر کا خلاصہ اور ادائیگی',
+    'sub_total' => 'ذیلی کل',
+    'total_fabric_cost' => 'کپڑے کی کل لاگت',
+    'total_stitching_charges' => 'سلائی کے کل اخراجات',
+    'total_additional_charges' => 'اضافی کل اخراجات',
+    'total_discount' => 'کل رعایت',
+    'grand_total' => 'عظیم کل',
+    'payment_details' => 'ادائیگی کی تفصیلات',
+    'add_new_order_multiple_items' => 'گاہک کے لیے متعدد اشیاء کے ساتھ نیا سلائی کا آرڈر شامل کریں',
+
+    // Navigation and header translations
+    'cart' => 'کارٹ',
+    'type_to_search' => 'تلاش کے لیے لکھیں...',
+    'all_messages' => 'تمام پیغامات',
+    'view_all' => 'تمام دیکھیں',
+    'notifications' => 'اطلاعات',
+    'order_notes' => 'آرڈر کے نوٹس',
 ];

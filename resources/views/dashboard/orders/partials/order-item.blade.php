@@ -70,6 +70,7 @@
                     <div class="custom-control custom-switch d-inline-block mr-3">
                         <input type="checkbox" class="custom-control-input include-fabric-checkbox" 
                                id="includeFabricInTotal_{{ $index }}" 
+                               name="include_fabric_in_total[{{ $index }}]"
                                data-item-id="{{ $index }}" checked>
                         <label class="custom-control-label" for="includeFabricInTotal_{{ $index }}">
                             {{ __('messages.include_fabric_in_total') }}

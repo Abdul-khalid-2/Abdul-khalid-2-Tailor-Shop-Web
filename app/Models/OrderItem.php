@@ -58,6 +58,10 @@ class OrderItem extends Model
     {
         return $this->hasMany(TailorAssignment::class);
     }
+    public function tailorAssignment()
+    {
+        return $this->hasOne(TailorAssignment::class);
+    }
 
     public function fabricTransactions()
     {

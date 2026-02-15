@@ -522,6 +522,9 @@
 
             // Initialize color pickers for existing items
             initializeColorPickers();
+            
+            // Initialize fabric cost field styling for existing items
+            initializeFabricCostFieldStyles();
 
             // Add Customer Modal
             $('#addCustomerBtn').click(function() {
@@ -747,6 +750,15 @@
                     // Initialize color picker for new item
                     initializeColorPickerForItem(itemCount);
                     
+                    // Initialize fabric cost field styling for new item
+                    const fabricCostField = $(`#fabric_cost_${itemCount}`);
+                    const checkbox = $(`#includeFabricInTotal_${itemCount}`);
+                    if (checkbox.is(':checked')) {
+                        fabricCostField.removeClass('bg-light text-muted').addClass('bg-success-light');
+                    } else {
+                        fabricCostField.removeClass('bg-success-light').addClass('bg-light text-muted');
+                    }
+                    
                     itemCount++;
                     
                     // Scroll to new item
@@ -926,6 +938,19 @@
             $('.color-picker-btn').each(function() {
                 const itemId = $(this).data('item-id');
                 initializeColorPickerForItem(itemId);
+            });
+        }
+
+        function initializeFabricCostFieldStyles() {
+            $('.include-fabric-checkbox').each(function() {
+                const itemId = $(this).data('item-id');
+                const fabricCostField = $(`#fabric_cost_${itemId}`);
+                
+                if ($(this).is(':checked')) {
+                    fabricCostField.removeClass('bg-light text-muted').addClass('bg-success-light');
+                } else {
+                    fabricCostField.removeClass('bg-success-light').addClass('bg-light text-muted');
+                }
             });
         }
 
