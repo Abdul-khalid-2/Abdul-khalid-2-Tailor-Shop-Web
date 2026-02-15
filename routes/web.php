@@ -81,7 +81,8 @@ Route::group([
             Route::get('/dress-type/{id}/details', [OrderController::class, 'getDressTypeDetails'])->name('dress-type.details');
         });
     });
-
+    Route::get('/orders/get-item-partial', [OrderController::class, 'getItemPartial'])->name('orders.get-item-partial');
+    Route::get('/orders/get-item-partial', [OrderController::class, 'getItemPartial'])->name('orders.get-item-partial');
     // Customers
     // Replace your customer routes with:
     Route::prefix('dashboard/customers')->name('customers.')->group(function () {

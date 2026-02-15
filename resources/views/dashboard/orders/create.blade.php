@@ -12,6 +12,102 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css"/>
     <!-- Select2 CSS -->
     <link rel="stylesheet" href="{{ asset('backend/assets/vendor/select2/css/select2.min.css') }}">
+    <style>
+        .order-item-card {
+            border: 1px solid #e9ecef;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        .order-item-header {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            border-radius: 0.5rem 0.5rem 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .remove-item-btn {
+            color: #dc3545;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .remove-item-btn:hover {
+            color: #bd2130;
+            transform: scale(1.1);
+        }
+        .item-count-badge {
+            background-color: #007bff;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+        }
+        .add-item-card {
+            border: 2px dashed #dee2e6;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 1.5rem;
+        }
+        .add-item-card:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .add-item-card i {
+            font-size: 2rem;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+        .add-item-card:hover i {
+            color: #007bff;
+        }
+        .total-section {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+        .grand-total {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .measurement-section {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.25rem;
+        }
+        .fabric-section {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.25rem;
+        }
+        .price-summary {
+            background-color: #e9ecef;
+            padding: 1rem;
+            border-radius: 0.375rem;
+        }
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        .price-row.total {
+            border-top: 1px solid #dee2e6;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+    </style>
     @endpush
 
     <div class="container-fluid">
@@ -19,7 +115,7 @@
         <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
             <div>
                 <h4 class="mb-3">{{ __('messages.create_order') }}</h4>
-                <p class="mb-0">{{ __('messages.add_new_order') }}</p>
+                <p class="mb-0">{{ __('messages.add_new_order_multiple_items') }}</p>
             </div>
             <div>
                 <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary">
@@ -79,15 +175,6 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.order_date') }} *</label>
-                                            <input type="date" class="form-control" name="order_date" 
-                                                value="{{ old('order_date', date('Y-m-d')) }}" required>
-                                            @error('order_date')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        
-                                        <div class="col-md-6 mb-3">
                                             <label class="form-label">{{ __('messages.order_number') }}</label>
                                             <div class="input-group">
                                                 <div class="input-group-prepend">
@@ -101,9 +188,7 @@
                                             </small>
                                             <input type="hidden" name="order_number" value="{{ $orderNumber }}">
                                         </div>
-                                    </div>
 
-                                    <div class="row">
                                         <div class="col-md-6 mb-3">
                                             <label class="form-label">{{ __('messages.branch') }} *</label>
                                             <select class="form-control select2" name="branch_id" required>
@@ -118,48 +203,12 @@
                                             <div class="text-danger small">{{ $message }}</div>
                                             @enderror
                                         </div>
-
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.dress_type') }} *</label>
-                                            <select class="form-control select2" id="dress_type_id" name="dress_type_id" required>
-                                                <option value="">{{ __('messages.select_dress_type') }}</option>
-                                                @foreach($dressTypes as $dressType)
-                                                <option value="{{ $dressType->id }}" 
-                                                        data-price="{{ $dressType->base_price }}"
-                                                        data-days="{{ $dressType->estimated_days }}">
-                                                    {{ $dressType->name }} - Rs {{ number_format($dressType->base_price) }}
-                                                </option>
-                                                @endforeach
-                                            </select>
-                                            @error('dress_type_id')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.delivery_date') }} *</label>
-                                            <input type="date" class="form-control" id="delivery_date" name="delivery_date" 
-                                                   value="{{ old('delivery_date', date('Y-m-d', strtotime('+7 days'))) }}" required>
-                                            @error('delivery_date')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.base_price') }} *</label>
-                                            <input type="number" step="0.01" class="form-control" id="base_price" 
-                                                   name="base_price" value="{{ old('base_price', 0) }}" required readonly>
-                                            @error('base_price')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
                                     </div>
 
                                     <div class="mb-3">
-                                        <label class="form-label">{{ __('messages.order_description') }}</label>
+                                        <label class="form-label">{{ __('messages.order_notes') }}</label>
                                         <textarea class="form-control" name="notes" rows="2" 
-                                                  placeholder="{{ __('Brief description of the order...') }}">{{ old('notes') }}</textarea>
+                                                  placeholder="{{ __('General notes about the order...') }}">{{ old('notes') }}</textarea>
                                         @error('notes')
                                         <div class="text-danger small">{{ $message }}</div>
                                         @enderror
@@ -167,358 +216,106 @@
                                 </div>
                             </div>
 
-                            <!-- Measurement Section -->
-                            <div class="card mb-4">
-                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0">{{ __('messages.measurements_cm') }}</h6>
-                                    <button type="button" class="btn btn-sm btn-outline-primary" id="loadTemplatesBtn">
-                                        <i class="las la-ruler mr-1"></i> {{ __('messages.use_template') }}
-                                    </button>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        @if(in_array('height', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.height') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[height]" 
-                                                   placeholder="-- 170 --" value="{{ old('measurements.height') }}">
-                                        </div>
-                                        @endif
-                                        
-                                        @if(in_array('weight', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.weight') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[weight]" 
-                                                placeholder="-- 70 --" value="{{ old('measurements.weight') }}">
-                                        </div>
-                                        @endif
-                                        
-                                        @if(in_array('chest', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.chest') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[chest]" 
-                                                   placeholder="-- 42 --" value="{{ old('measurements.chest') }}">
-                                        </div>
-                                        @endif
-                                        
-                                        @if(in_array('waist', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.waist') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[waist]" 
-                                                   placeholder="-- 38 --" value="{{ old('measurements.waist') }}">
-                                        </div>
-                                        @endif
-                                        
-                                        @if(in_array('hips', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.hips') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[hips]" 
-                                                   placeholder="-- 44 --" value="{{ old('measurements.hips') }}">
-                                        </div>
-                                        @endif
-                                        
-                                        @if(in_array('shoulder', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.shoulder') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[shoulder]" 
-                                                   placeholder="-- 18 --" value="{{ old('measurements.shoulder') }}">
-                                        </div>
-                                        @endif
-                                        
-                                        @if(in_array('sleeve_length', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.sleeve_length') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[sleeve_length]" 
-                                                   placeholder="-- 60 --" value="{{ old('measurements.sleeve_length') }}">
-                                        </div>
-                                        @endif
-                                        
-                                        @if(in_array('sleeve_width', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.sleeve_width') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[sleeve_width]" 
-                                                placeholder="-- 18 --" value="{{ old('measurements.sleeve_width') }}">
-                                        </div>
-                                        @endif
-                                    </div>
-                                    
-                                    <div class="row">
-                                        @if(in_array('collar', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.collar') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[collar]" 
-                                                placeholder="-- 16 --" value="{{ old('measurements.collar') }}">
-                                        </div>
-                                        @endif
-                                        
-                                        @if(in_array('bicep', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.bicep') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[bicep]" 
-                                                placeholder="-- 12 --" value="{{ old('measurements.bicep') }}">
-                                        </div>
-                                        @endif
-                                        
-                                        @if(in_array('wrist', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.wrist') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[wrist]" 
-                                                placeholder="-- 8 --" value="{{ old('measurements.wrist') }}">
-                                        </div>
-                                        @endif
-                                        
-                                        @if(in_array('pant_length', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.pant_length') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[pant_length]" 
-                                                   placeholder="-- 100 --" value="{{ old('measurements.pant_length') }}">
-                                        </div>
-                                        @endif
-                                        
-                                        @if(in_array('inseam', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.inseam') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[inseam]" 
-                                                   placeholder="-- 80 --" value="{{ old('measurements.inseam') }}">
-                                        </div>
-                                        @endif
-                                        
-                                        @if(in_array('thigh', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.thigh') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[thigh]" 
-                                                placeholder="-- 24 --" value="{{ old('measurements.thigh') }}">
-                                        </div>
-                                        @endif
-                                        
-                                        @if(in_array('knee', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.knee') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[knee]" 
-                                                placeholder="-- 18 --" value="{{ old('measurements.knee') }}">
-                                        </div>
-                                        @endif
-                                        
-                                        @if(in_array('bottom', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.bottom') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[bottom]" 
-                                                placeholder="-- 22 --" value="{{ old('measurements.bottom') }}">
-                                        </div>
-                                        @endif
-                                        
-                                        @if(in_array('ankle', $enabledFields))
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.ankle') }}</label>
-                                            <input type="number" step="0.1" class="form-control" name="measurements[ankle]" 
-                                                placeholder="-- 10 --" value="{{ old('measurements.ankle') }}">
-                                        </div>
-                                        @endif
-                                    </div>
-                                    
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.fitting_preferences') }}</label>
-                                            <textarea class="form-control" name="measurements[fitting_preferences]" rows="2" 
-                                                      placeholder="{{ __('Loose, tight, or any specific preferences...') }}">{{ old('measurements.fitting_preferences') }}</textarea>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.measurement_notes') }}</label>
-                                            <textarea class="form-control" name="measurements[notes]" rows="2" 
-                                                      placeholder="{{ __('Additional notes about measurements...') }}">{{ old('measurements.notes') }}</textarea>
-                                        </div>
-                                    </div>
-                                </div>
+                            <!-- Order Items Container -->
+                            <div id="orderItemsContainer">
+                                <!-- Order Item 1 (Default) -->
+                                @include('dashboard.orders.partials.order-item', [
+                                    'index' => 0,
+                                    'dressTypes' => $dressTypes,
+                                    'tailors' => $tailors,
+                                    'fabrics' => $fabrics,
+                                    'enabledFields' => $enabledFields
+                                ])
                             </div>
 
-                            <!-- Fabric Details -->
-                            <div class="card mb-4">
-                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0">{{ __('messages.fabric_details') }}</h6>
-                                    <div>
-                                        <!-- Switch Button -->
-                                        <div class="custom-control custom-switch d-inline-block mr-3">
-                                            <input type="checkbox" class="custom-control-input" id="includeFabricInTotal" >
-                                            <label class="custom-control-label" for="includeFabricInTotal">
-                                                {{ __('messages.include_fabric_in_total') }}
-                                            </label>
-                                        </div>
-                                        
-                                        <button type="button" class="btn btn-sm btn-outline-info" id="selectFabricBtn">
-                                            <i class="las la-layer-group mr-1"></i> {{ __('messages.select_from_inventory') }}
-                                        </button>
-                                    </div>
+                            <!-- Add More Items Button -->
+                            <div class="add-item-card" id="addItemBtn">
+                                <i class="las la-plus-circle"></i>
+                                <h6 class="mt-2 mb-0">{{ __('messages.add_another_item') }}</h6>
+                                <small class="text-muted">{{ __('messages.click_to_add_more_clothes') }}</small>
+                            </div>
+
+                            <!-- Order Summary & Payment -->
+                            <div class="card mb-4 mt-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">{{ __('messages.order_summary_payment') }}</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">{{ __('messages.fabric_type') }}</label>
-                                            <input type="text" class="form-control" name="fabric_type" id="fabric_type" 
-                                                   placeholder="{{ __('e.g., Silk, Cotton') }}" value="{{ old('fabric_type') }}">
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">{{ __('messages.color') }}</label>
-                                            <div class="input-group">
-                                                <input type="text" class="form-control" name="fabric_color" id="fabric_color"
-                                                    placeholder="{{ __('e.g., Navy Blue') }}" value="{{ old('fabric_color') }}">
-                                                <div class="input-group-append">
-                                                    <button type="button" class="btn btn-outline-secondary" id="colorPickerBtn">
-                                                        <i class="las la-eye-dropper"></i>
-                                                    </button>
+                                        <div class="col-md-7">
+                                            <div class="price-summary">
+                                                <div class="price-row">
+                                                    <span>{{ __('messages.sub_total') }}:</span>
+                                                    <span id="subTotal">Rs 0.00</span>
+                                                </div>
+                                                <div class="price-row">
+                                                    <span>{{ __('messages.total_fabric_cost') }}:</span>
+                                                    <span id="totalFabricCost">Rs 0.00</span>
+                                                </div>
+                                                <div class="price-row">
+                                                    <span>{{ __('messages.total_stitching_charges') }}:</span>
+                                                    <span id="totalStitchingCharges">Rs 0.00</span>
+                                                </div>
+                                                <div class="price-row">
+                                                    <span>{{ __('messages.total_additional_charges') }}:</span>
+                                                    <span id="totalAdditionalCharges">Rs 0.00</span>
+                                                </div>
+                                                <div class="price-row">
+                                                    <span>{{ __('messages.total_discount') }}:</span>
+                                                    <span id="totalDiscount" class="text-danger">- Rs 0.00</span>
+                                                </div>
+                                                <div class="price-row total">
+                                                    <span>{{ __('messages.grand_total') }}:</span>
+                                                    <span id="grandTotal" class="grand-total">Rs 0.00</span>
                                                 </div>
                                             </div>
-                                            <div id="colorPickerContainer" class="mt-2"></div>
                                         </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">{{ __('messages.meter_required') }}</label>
-                                            <input type="number" step="0.01" class="form-control" name="fabric_meters" id="fabric_meters" 
-                                                   placeholder="3.5" value="{{ old('fabric_meters', 0) }}">
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.fabric_rate_m') }}</label>
-                                            <input type="number" step="0.01" class="form-control" name="fabric_rate" id="fabric_rate" 
-                                                   value="{{ old('fabric_rate', 0) }}">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.fabric_cost') }}</label>
-                                            <input type="number" step="0.01" class="form-control" id="fabric_cost" 
-                                                   name="fabric_cost" value="{{ old('fabric_cost', 0) }}" readonly>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Pricing & Payment -->
-                            <div class="card mb-4">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0">{{ __('messages.pricing_payment') }}</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.stitching_charges') }}</label>
-                                            <input type="number" step="0.01" class="form-control" id="stitching_charges" 
-                                                   name="stitching_charges" value="{{ old('stitching_charges', 0) }}">
-                                            @error('stitching_charges')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.additional_charges') }}</label>
-                                            <input type="number" step="0.01" class="form-control" id="additional_charges" 
-                                                   name="additional_charges" value="{{ old('additional_charges', 0) }}">
-                                            @error('additional_charges')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.discount') }}</label>
-                                            <input type="number" step="0.01" class="form-control" id="discount_amount" 
-                                                   name="discount_amount" value="{{ old('discount_amount', 0) }}">
-                                            @error('discount_amount')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.total_amount') }}</label>
-                                            <input type="number" step="0.01" class="form-control font-weight-bold" 
-                                                   id="total_amount" value="0" readonly style="font-size: 1.2rem;">
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.advance_paid') }} *</label>
-                                            <input type="number" step="0.01" class="form-control" id="advance_amount" 
-                                                   name="advance_amount" value="{{ old('advance_amount', 0) }}" required>
-                                            @error('advance_amount')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.payment_method') }}</label>
-                                            <select class="form-control" name="payment_method_id">
-                                                @foreach($paymentMethods as $method)
-                                                <option value="{{ $method->id }}" {{ old('payment_method_id', 1) == $method->id ? 'selected' : '' }}>
-                                                    {{ $method->name }}
-                                                </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.balance_due') }}</label>
-                                            <input type="number" step="0.01" class="form-control font-weight-bold text-danger" 
-                                                   id="balance_due" value="0" readonly>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.remaining_amount') }}</label>
-                                            <input type="number" step="0.01" class="form-control" id="remaining_amount" 
-                                                   name="remaining_amount" value="{{ old('remaining_amount', 0) }}" readonly>
-                                            @error('remaining_amount')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
+                                        <div class="col-md-5">
+                                            <div class="card bg-light">
+                                                <div class="card-body">
+                                                    <h6 class="mb-3">{{ __('messages.payment_details') }}</h6>
+                                                    <div class="form-group mb-3">
+                                                        <label class="form-label">{{ __('messages.advance_paid') }} *</label>
+                                                        <input type="number" step="0.01" class="form-control" id="advance_amount" 
+                                                               name="advance_amount" value="{{ old('advance_amount', 0) }}" required>
+                                                        @error('advance_amount')
+                                                        <div class="text-danger small">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="form-group mb-3">
+                                                        <label class="form-label">{{ __('messages.payment_method') }}</label>
+                                                        <select class="form-control" name="payment_method_id">
+                                                            @foreach($paymentMethods as $method)
+                                                            <option value="{{ $method->id }}" {{ old('payment_method_id', 1) == $method->id ? 'selected' : '' }}>
+                                                                {{ $method->name }}
+                                                            </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group mb-0">
+                                                        <label class="form-label">{{ __('messages.balance_due') }}</label>
+                                                        <input type="number" step="0.01" class="form-control font-weight-bold text-danger" 
+                                                               id="balance_due" value="0" readonly>
+                                                        <input type="hidden" name="remaining_amount" id="remaining_amount" value="0">
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Tailor Assignment -->
+                            <!-- Internal Notes -->
                             <div class="card mb-4">
                                 <div class="card-header bg-light">
-                                    <h6 class="mb-0">{{ __('messages.tailor_assignment') }}</h6>
+                                    <h6 class="mb-0">{{ __('messages.internal_notes') }}</h6>
                                 </div>
                                 <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.assign_to_tailor') }}</label>
-                                            <select class="form-control select2" id="tailor_id" name="tailor_id">
-                                                <option value="">{{ __('messages.select_tailor') }}</option>
-                                                @foreach($tailors as $tailor)
-                                                <option value="{{ $tailor->id }}" {{ old('tailor_id') == $tailor->id ? 'selected' : '' }}>
-                                                    {{ $tailor->name }} - {{ ucfirst($tailor->employment_type) }}
-                                                    @if($tailor->specializations)
-                                                    ({{ $tailor->specializations[0] ?? 'General' }})
-                                                    @endif
-                                                </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.expected_completion') }}</label>
-                                            <input type="date" class="form-control" id="expected_completion" 
-                                                   value="{{ date('Y-m-d', strtotime('+5 days')) }}">
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">{{ __('messages.special_instructions') }}</label>
-                                        <textarea class="form-control" rows="2" placeholder="{{ __('Any special instructions for tailor...') }}"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Notes -->
-                            <div class="card mb-4">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0">{{ __('messages.additional_notes') }}</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <label class="form-label">{{ __('messages.internal_notes') }}</label>
-                                        <textarea class="form-control" name="internal_notes" rows="3" 
-                                                  placeholder="{{ __('Internal notes about this order...') }}">{{ old('internal_notes') }}</textarea>
-                                        @error('internal_notes')
-                                        <div class="text-danger small">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="urgentOrder" name="urgent_order">
-                                        <label class="form-check-label text-warning" for="urgentOrder">
-                                            <i class="las la-exclamation-circle"></i> {{ __('messages.mark_as_urgent') }}
-                                        </label>
-                                    </div>
+                                    <textarea class="form-control" name="internal_notes" rows="3" 
+                                              placeholder="{{ __('Internal notes about this order (not visible to customer)...') }}">{{ old('internal_notes') }}</textarea>
+                                    @error('internal_notes')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
 
@@ -632,9 +429,7 @@
                                         <th>{{ __('messages.action') }}</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <!-- Templates will be loaded here -->
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -685,8 +480,10 @@
                                     <td>{{ number_format($fabric->stock_meter, 2) }}</td>
                                     <td>{{ number_format($fabric->selling_rate) }}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary" 
-                                                onclick="selectFabric('{{ $fabric->type }}', '{{ $fabric->color }}', {{ $fabric->selling_rate }})">
+                                        <button class="btn btn-sm btn-outline-primary select-fabric-btn" 
+                                                data-type="{{ $fabric->type }}"
+                                                data-color="{{ $fabric->color }}"
+                                                data-rate="{{ $fabric->selling_rate }}">
                                             {{ __('messages.select') }}
                                         </button>
                                     </td>
@@ -705,49 +502,448 @@
 
     @push('js')
     <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
-    <!-- Select2 JS -->
     <script src="{{ asset('backend/assets/vendor/select2/js/select2.min.js') }}"></script>
-    <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <!-- Simple Color Picker JS -->
     <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
-
-    <!-- Table Treeview JavaScript -->
     <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
-
-    <!-- Chart Custom JavaScript -->
     <script src="{{ asset('backend/assets/js/customizer.js') }}"></script>
-
-    <!-- Chart Custom JavaScript -->
-    <script async src="{{ asset('backend/assets/js/chart-custom.js') }}"></script>
-
-    <!-- app JavaScript -->
+    <script src="{{ asset('backend/assets/js/chart-custom.js') }}"></script>
     <script src="{{ asset('backend/assets/js/app.js') }}"></script>
 
     <script>
+        let itemCount = 1;
+        let pickrInstances = {};
+
         $(document).ready(function() {
             // Initialize Select2
             $('.select2').select2({
                 theme: 'bootstrap'
             });
 
-            // Initialize Color Picker
-            let pickr = null;
-            
-            // Create color picker when button is clicked
-            $('#colorPickerBtn').click(function(e) {
+            // Initialize color pickers for existing items
+            initializeColorPickers();
+
+            // Add Customer Modal
+            $('#addCustomerBtn').click(function() {
+                $('#addCustomerModal').modal('show');
+            });
+
+            // Save new customer via AJAX
+            $('#newCustomerForm').submit(function(e) {
                 e.preventDefault();
-                e.stopPropagation();
+
+                const saveBtn = $('#saveCustomerBtn');
+                const spinner = saveBtn.find('.spinner-border');
+
+                if (!this.checkValidity()) {
+                    e.stopPropagation();
+                    $(this).addClass('was-validated');
+                    return;
+                }
+
+                saveBtn.prop('disabled', true);
+                spinner.removeClass('d-none');
+
+                $.ajax({
+                    url: '{{ route("orders.customer.store") }}',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            const newOption = new Option(
+                                response.customer.name + ' (' + response.customer.phone + ')',
+                                response.customer.id,
+                                false,
+                                true
+                            );
+                            $('#customer_id').append(newOption).trigger('change');
+                            $('#addCustomerModal').modal('hide');
+                            $('#newCustomerForm')[0].reset();
+                            $('#newCustomerForm').removeClass('was-validated');
+                            toastr.success('{{ __("messages.customer_added_successfully") }}');
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMessage = '{{ __("messages.an_error_occurred") }}';
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            const errors = xhr.responseJSON.errors;
+                            errorMessage = Object.values(errors).flat().join('<br>');
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+                        toastr.error(errorMessage);
+                    },
+                    complete: function() {
+                        saveBtn.prop('disabled', false);
+                        spinner.addClass('d-none');
+                    }
+                });
+            });
+
+            // Add new order item
+            $('#addItemBtn').click(function() {
+                addNewOrderItem();
+            });
+
+            // Remove order item
+            $(document).on('click', '.remove-item-btn', function() {
+                const itemId = $(this).data('item-id');
+                removeOrderItem(itemId);
+            });
+
+            // Dress type change
+            $(document).on('change', '.dress-type-select', function() {
+                const itemId = $(this).data('item-id');
+                const selectedOption = $(this).find('option:selected');
+                const basePrice = selectedOption.data('price') || 0;
+                const estimatedDays = selectedOption.data('days') || 7;
                 
-                // If pickr already exists, show it
-                if (pickr) {
-                    pickr.show();
+                $(`#base_price_${itemId}`).val(basePrice);
+                
+                const orderDate = $('input[name="order_date"]').val();
+                if (orderDate && itemId === 0) {
+                    const deliveryDate = new Date(orderDate);
+                    deliveryDate.setDate(deliveryDate.getDate() + parseInt(estimatedDays));
+                    const formattedDate = deliveryDate.toISOString().split('T')[0];
+                    $('#delivery_date').val(formattedDate);
+                }
+                
+                calculateItemTotal(itemId);
+                calculateGrandTotal();
+            });
+
+            // Fabric calculations
+            $(document).on('input', '.fabric-meters, .fabric-rate', function() {
+                const itemId = $(this).data('item-id');
+                const meter = parseFloat($(`#fabric_meters_${itemId}`).val()) || 0;
+                const rate = parseFloat($(`#fabric_rate_${itemId}`).val()) || 0;
+                const fabricCost = meter * rate;
+                $(`#fabric_cost_${itemId}`).val(fabricCost.toFixed(2));
+                calculateItemTotal(itemId);
+                calculateGrandTotal();
+            });
+
+            // Include fabric checkbox
+            $(document).on('change', '.include-fabric-checkbox', function() {
+                const itemId = $(this).data('item-id');
+                calculateItemTotal(itemId);
+                calculateGrandTotal();
+                
+                const fabricCostField = $(`#fabric_cost_${itemId}`);
+                if ($(this).is(':checked')) {
+                    fabricCostField.removeClass('bg-light text-muted').addClass('bg-success-light');
+                } else {
+                    fabricCostField.removeClass('bg-success-light').addClass('bg-light text-muted');
+                }
+            });
+
+            // Stitching charges, additional charges, discount
+            $(document).on('input', '.stitching-charges, .additional-charges, .item-discount', function() {
+                const itemId = $(this).data('item-id');
+                calculateItemTotal(itemId);
+                calculateGrandTotal();
+            });
+
+            // Quantity change
+            $(document).on('input', '.item-quantity', function() {
+                const itemId = $(this).data('item-id');
+                calculateItemTotal(itemId);
+                calculateGrandTotal();
+            });
+
+            // Advance amount change
+            $('#advance_amount').on('input', function() {
+                calculateBalance();
+            });
+
+            // Select fabric button
+            $(document).on('click', '.select-fabric-btn', function() {
+                const type = $(this).data('type');
+                const color = $(this).data('color');
+                const rate = $(this).data('rate');
+                const activeItemId = window.activeFabricItemId || 0;
+                
+                $(`#fabric_type_${activeItemId}`).val(type);
+                $(`#fabric_color_${activeItemId}`).val(color);
+                $(`#fabric_rate_${activeItemId}`).val(rate);
+                
+                $('#fabricModal').modal('hide');
+                
+                // Suggest meter requirement
+                const dressTypeName = $(`#dress_type_id_${activeItemId} option:selected`).text().toLowerCase();
+                let suggestedMeters = 2.5;
+                
+                if (dressTypeName.includes('sherwani') || dressTypeName.includes('gown')) {
+                    suggestedMeters = 5.5;
+                } else if (dressTypeName.includes('suit')) {
+                    suggestedMeters = 4.0;
+                } else if (dressTypeName.includes('kurta') || dressTypeName.includes('shalwar')) {
+                    suggestedMeters = 3.5;
+                } else if (dressTypeName.includes('lehenga')) {
+                    suggestedMeters = 6.0;
+                }
+                
+                $(`#fabric_meters_${activeItemId}`).val(suggestedMeters);
+                
+                const fabricCost = suggestedMeters * rate;
+                $(`#fabric_cost_${activeItemId}`).val(fabricCost.toFixed(2));
+                calculateItemTotal(activeItemId);
+                calculateGrandTotal();
+            });
+
+            // Load measurement templates
+            $('#loadTemplatesBtn').click(function() {
+                const customerId = $('#customer_id').val();
+                const itemId = $(this).data('item-id');
+                
+                if (!customerId) {
+                    alert('{{ __("messages.please_select_customer_first") }}');
                     return;
                 }
                 
-                // Create new pickr instance
-                pickr = Pickr.create({
-                    el: '#colorPickerContainer',
+                window.activeMeasurementItemId = itemId;
+                $('#measurementModal').modal('show');
+                loadMeasurementTemplates(customerId);
+            });
+
+            // Load customer details
+            $('#customer_id').change(function() {
+                const customerId = $(this).val();
+                if (customerId) {
+                    $('.load-templates-btn').prop('disabled', false);
+                } else {
+                    $('.load-templates-btn').prop('disabled', true);
+                }
+            });
+
+            // Initialize calculations
+            calculateGrandTotal();
+        });
+
+        function addNewOrderItem() {
+            $.ajax({
+                url: '{{ route("orders.get-item-partial") }}',
+                type: 'GET',
+                data: {
+                    index: itemCount,
+                    dressTypes: @json($dressTypes),
+                    tailors: @json($tailors),
+                    enabledFields: @json($enabledFields)
+                },
+                success: function(response) {
+                    $('#orderItemsContainer').append(response.html);
+                    
+                    // Initialize Select2 for new item
+                    $(`#dress_type_id_${itemCount}`).select2({
+                        theme: 'bootstrap',
+                        dropdownParent: $(`#dress_type_id_${itemCount}`).parent()
+                    });
+                    
+                    $(`#tailor_id_${itemCount}`).select2({
+                        theme: 'bootstrap',
+                        dropdownParent: $(`#tailor_id_${itemCount}`).parent()
+                    });
+                    
+                    // Initialize color picker for new item
+                    initializeColorPickerForItem(itemCount);
+                    
+                    itemCount++;
+                    
+                    // Scroll to new item
+                    $('html, body').animate({
+                        scrollTop: $(`#order_item_${itemCount - 1}`).offset().top - 100
+                    }, 500);
+                    
+                    toastr.info('{{ __("messages.new_item_added") }}');
+                },
+                error: function() {
+                    toastr.error('{{ __("messages.failed_to_add_item") }}');
+                }
+            });
+        }
+
+        function removeOrderItem(itemId) {
+            if (itemCount === 1) {
+                toastr.warning('{{ __("messages.cannot_remove_last_item") }}');
+                return;
+            }
+            
+            if (confirm('{{ __("messages.are_you_sure_remove_item") }}')) {
+                $(`#order_item_${itemId}`).remove();
+                itemCount--;
+                calculateGrandTotal();
+                toastr.success('{{ __("messages.item_removed") }}');
+            }
+        }
+
+        function calculateItemTotal(itemId) {
+            const basePrice = parseFloat($(`#base_price_${itemId}`).val()) || 0;
+            const fabricCost = parseFloat($(`#fabric_cost_${itemId}`).val()) || 0;
+            const stitching = parseFloat($(`#stitching_charges_${itemId}`).val()) || 0;
+            const additional = parseFloat($(`#additional_charges_${itemId}`).val()) || 0;
+            const discount = parseFloat($(`#item_discount_${itemId}`).val()) || 0;
+            const quantity = parseFloat($(`#quantity_${itemId}`).val()) || 1;
+            
+            const includeFabric = $(`#includeFabricInTotal_${itemId}`).is(':checked');
+            
+            let itemTotal = basePrice + stitching + additional - discount;
+            if (includeFabric) {
+                itemTotal += fabricCost;
+            }
+            
+            itemTotal = itemTotal * quantity;
+            
+            $(`#item_total_${itemId}`).val(itemTotal.toFixed(2));
+            $(`#item_total_display_${itemId}`).text('Rs ' + itemTotal.toFixed(2));
+        }
+
+        function calculateGrandTotal() {
+            let subTotal = 0;
+            let totalFabricCost = 0;
+            let totalStitching = 0;
+            let totalAdditional = 0;
+            let totalDiscount = 0;
+            let grandTotal = 0;
+            
+            $('.order-item-card').each(function() {
+                const itemId = $(this).data('item-id');
+                
+                const basePrice = parseFloat($(`#base_price_${itemId}`).val()) || 0;
+                const fabricCost = parseFloat($(`#fabric_cost_${itemId}`).val()) || 0;
+                const stitching = parseFloat($(`#stitching_charges_${itemId}`).val()) || 0;
+                const additional = parseFloat($(`#additional_charges_${itemId}`).val()) || 0;
+                const discount = parseFloat($(`#item_discount_${itemId}`).val()) || 0;
+                const quantity = parseFloat($(`#quantity_${itemId}`).val()) || 1;
+                const includeFabric = $(`#includeFabricInTotal_${itemId}`).is(':checked');
+                
+                const itemSubTotal = (basePrice + stitching + additional - discount) * quantity;
+                subTotal += itemSubTotal;
+                
+                totalFabricCost += includeFabric ? (fabricCost * quantity) : 0;
+                totalStitching += stitching * quantity;
+                totalAdditional += additional * quantity;
+                totalDiscount += discount * quantity;
+                
+                let itemGrandTotal = itemSubTotal;
+                if (includeFabric) {
+                    itemGrandTotal += fabricCost * quantity;
+                }
+                grandTotal += itemGrandTotal;
+            });
+            
+            $('#subTotal').text('Rs ' + subTotal.toFixed(2));
+            $('#totalFabricCost').text('Rs ' + totalFabricCost.toFixed(2));
+            $('#totalStitchingCharges').text('Rs ' + totalStitching.toFixed(2));
+            $('#totalAdditionalCharges').text('Rs ' + totalAdditional.toFixed(2));
+            $('#totalDiscount').text('- Rs ' + totalDiscount.toFixed(2));
+            $('#grandTotal').text('Rs ' + grandTotal.toFixed(2));
+            
+            calculateBalance(grandTotal);
+        }
+
+        function calculateBalance(grandTotal = null) {
+            if (grandTotal === null) {
+                grandTotal = parseFloat($('#grandTotal').text().replace('Rs ', '')) || 0;
+            }
+            
+            const advancePaid = parseFloat($('#advance_amount').val()) || 0;
+            const balance = grandTotal - advancePaid;
+            
+            $('#balance_due').val(balance.toFixed(2));
+            $('#remaining_amount').val(balance.toFixed(2));
+        }
+
+        function loadMeasurementTemplates(customerId) {
+            $('#templateLoading').show();
+            $('#templateContent').hide();
+            $('#noTemplates').hide();
+            
+            $.ajax({
+                url: `/orders/customer/${customerId}/details`,
+                type: 'GET',
+                success: function(response) {
+                    $('#templateLoading').hide();
+                    
+                    const templates = response.customer.measurement_templates || [];
+                    const tableBody = $('#templatesTable tbody');
+                    tableBody.empty();
+                    
+                    if (templates.length > 0) {
+                        templates.forEach(template => {
+                            const measurements = template.measurements;
+                            const row = `
+                                <tr>
+                                    <td>${template.template_name}</td>
+                                    <td>${template.dress_type}</td>
+                                    <td>${measurements.height || 'N/A'}</td>
+                                    <td>${measurements.chest || 'N/A'}</td>
+                                    <td>${measurements.waist || 'N/A'}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary apply-template-btn" 
+                                                data-measurements='${JSON.stringify(measurements)}'
+                                                data-item-id="${window.activeMeasurementItemId}">
+                                            {{ __("messages.apply") }}
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                            tableBody.append(row);
+                        });
+                        
+                        $('#templateContent').show();
+                        
+                        // Apply template button handler
+                        $('.apply-template-btn').click(function() {
+                            const measurements = $(this).data('measurements');
+                            const itemId = $(this).data('item-id');
+                            applyTemplate(measurements, itemId);
+                        });
+                    } else {
+                        $('#noTemplates').show();
+                    }
+                },
+                error: function() {
+                    $('#templateLoading').hide();
+                    $('#noTemplates').show();
+                }
+            });
+        }
+
+        function applyTemplate(measurements, itemId) {
+            Object.keys(measurements).forEach(key => {
+                const input = $(`#order_item_${itemId} input[name="measurements[${itemId}][${key}]"], 
+                               #order_item_${itemId} textarea[name="measurements[${itemId}][${key}]"]`);
+                if (input.length) {
+                    input.val(measurements[key]);
+                }
+            });
+            
+            $('#measurementModal').modal('hide');
+            toastr.success('{{ __("messages.measurement_template_applied") }}');
+        }
+
+        function initializeColorPickers() {
+            $('.color-picker-btn').each(function() {
+                const itemId = $(this).data('item-id');
+                initializeColorPickerForItem(itemId);
+            });
+        }
+
+        function initializeColorPickerForItem(itemId) {
+            const btnId = `#colorPickerBtn_${itemId}`;
+            const containerId = `#colorPickerContainer_${itemId}`;
+            
+            $(btnId).click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (pickrInstances[itemId]) {
+                    pickrInstances[itemId].show();
+                    return;
+                }
+                
+                pickrInstances[itemId] = Pickr.create({
+                    el: containerId,
                     theme: 'nano',
                     default: '#1D4ED8',
                     swatches: [
@@ -770,494 +966,113 @@
                         }
                     }
                 });
-
-                // Show picker
-                $('#colorPickerContainer').show();
-                pickr.show();
-
-                // When color is selected
-                pickr.on('save', (color, instance) => {
+                
+                $(containerId).show();
+                pickrInstances[itemId].show();
+                
+                pickrInstances[itemId].on('save', (color, instance) => {
                     const hexColor = color.toHEXA().toString();
-                    $('#fabric_color').val(hexColor);
-                    $('#colorPickerContainer').hide();
-                    pickr.hide();
+                    $(`#fabric_color_${itemId}`).val(hexColor);
+                    $(containerId).hide();
+                    instance.hide();
                 });
-
-                // When clear button is clicked
-                pickr.on('clear', (instance) => {
-                    $('#fabric_color').val('');
-                    $('#colorPickerContainer').hide();
-                    pickr.hide();
+                
+                pickrInstances[itemId].on('clear', (instance) => {
+                    $(`#fabric_color_${itemId}`).val('');
+                    $(containerId).hide();
+                    instance.hide();
                 });
-            });
-
-            // Close color picker when clicking outside
-            $(document).click(function(e) {
-                if (!$(e.target).closest('#colorPickerContainer, #colorPickerBtn, .pcr-button').length) {
-                    if (pickr) {
-                        $('#colorPickerContainer').hide();
-                        pickr.hide();
-                    }
-                }
-            });
-
-            // Add Customer Modal
-            $('#addCustomerBtn').click(function() {
-                $('#addCustomerModal').modal('show');
-            });
-
-            // Save new customer via AJAX - Fixed URL
-            $('#newCustomerForm').submit(function(e) {
-                e.preventDefault();
-
-                const saveBtn = $('#saveCustomerBtn');
-                const spinner = saveBtn.find('.spinner-border');
-
-                // Validate form
-                if (!this.checkValidity()) {
-                    e.stopPropagation();
-                    $(this).addClass('was-validated');
-                    return;
-                }
-
-                // Show loading
-                saveBtn.prop('disabled', true);
-                spinner.removeClass('d-none');
-
-                $.ajax({
-                    url: '{{ route("orders.customer.store") }}', // Use the new route
-                    type: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        if (response.success) {
-                            // Add new customer to select2 dropdown
-                            const newOption = new Option(
-                                response.customer.name + ' (' + response.customer.phone + ')',
-                                response.customer.id,
-                                false,
-                                true
-                            );
-
-                            $('#customer_id').append(newOption).trigger('change');
-
-                            // Close modal and reset form
-                            $('#addCustomerModal').modal('hide');
-                            $('#newCustomerForm')[0].reset();
-                            $('#newCustomerForm').removeClass('was-validated');
-
-                            toastr.success('{{ __("messages.customer_added_successfully") }}');
-                        } else {
-                            toastr.error('{{ __("messages.failed_to_add_customer") }}');
-                        }
-                    },
-                    error: function(xhr) {
-                        let errorMessage = '{{ __("messages.an_error_occurred") }}';
-
-                        if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            const errors = xhr.responseJSON.errors;
-                            errorMessage = Object.values(errors).flat().join('<br>');
-                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        }
-
-                        toastr.error(errorMessage);
-                    },
-                    complete: function() {
-                        saveBtn.prop('disabled', false);
-                        spinner.addClass('d-none');
-                    }
-                });
-            });
-
-            // Reset modal when closed
-            $('#addCustomerModal').on('hidden.bs.modal', function() {
-                $('#newCustomerForm')[0].reset();
-                $('#newCustomerForm').removeClass('was-validated');
-            });
-
-            // Update base price when dress type changes
-            $('#dress_type_id').change(function() {
-                const selectedOption = $(this).find('option:selected');
-                const basePrice = selectedOption.data('price') || 0;
-                const estimatedDays = selectedOption.data('days') || 7;
-                
-                $('#base_price').val(basePrice);
-                
-                // Update delivery date based on estimated days
-                const orderDate = $('input[name="order_date"]').val();
-                if (orderDate) {
-                    const deliveryDate = new Date(orderDate);
-                    deliveryDate.setDate(deliveryDate.getDate() + parseInt(estimatedDays));
-                    const formattedDate = deliveryDate.toISOString().split('T')[0];
-                    $('#delivery_date').val(formattedDate);
-                }
-                
-                calculateTotal();
-            });
-
-            // Calculate fabric cost
-            $('#fabric_meters, #fabric_rate').on('input', function() {
-                const meter = parseFloat($('#fabric_meters').val()) || 0;
-                const rate = parseFloat($('#fabric_rate').val()) || 0;
-                const fabricCost = meter * rate;
-                $('#fabric_cost').val(fabricCost.toFixed(2));
-                calculateTotal();
-            });
-
-            // Calculate total amount
-            $('#stitching_charges, #additional_charges, #discount_amount, #advance_amount').on('input', calculateTotal);
-
-            // Load measurement templates when customer changes
-            $('#customer_id').change(function() {
-                const customerId = $(this).val();
-                if (customerId) {
-                    $('#loadTemplatesBtn').prop('disabled', false);
-                } else {
-                    $('#loadTemplatesBtn').prop('disabled', true);
-                }
-            });
-
-            // Load templates button click
-            $('#loadTemplatesBtn').click(function() {
-                const customerId = $('#customer_id').val();
-                const dressTypeId = $('#dress_type_id').val();
-                
-                if (!customerId) {
-                    alert('{{ __("messages.please_select_customer_first") }}');
-                    return;
-                }
-                
-                $('#measurementModal').modal('show');
-                loadMeasurementTemplates(customerId, dressTypeId);
-            });
-
-            // Select fabric button click
-            $('#selectFabricBtn').click(function() {
-                $('#fabricModal').modal('show');
-            });
-
-            // Form submission
-            $('#orderForm').submit(function(e) {
-                // Validate form
-                const requiredFields = $(this).find('[required]');
-                let valid = true;
-
-                requiredFields.each(function() {
-                    if (!$(this).val().trim()) {
-                        valid = false;
-                        $(this).addClass('is-invalid');
-                    } else {
-                        $(this).removeClass('is-invalid');
-                    }
-                });
-
-                if (!valid) {
-                    e.preventDefault();
-                    alert('{{ __("messages.please_fill_required_fields") }}');
-                    return;
-                }
-
-                // Check if total amount is valid
-                const totalAmount = parseFloat($('#total_amount').val()) || 0;
-                if (totalAmount <= 0) {
-                    e.preventDefault();
-                    alert('{{ __("messages.check_pricing_total") }}');
-                    return;
-                }
-
-                // Auto-calculate remaining amount before submission
-                calculateTotal();
-            });
-
-            // Initialize calculations
-            calculateTotal();
-        });
-
-        function loadMeasurementTemplates(customerId, dressTypeId) {
-            $('#templateLoading').show();
-            $('#templateContent').hide();
-            $('#noTemplates').hide();
-            
-            $.ajax({
-                url: `/orders/customer/${customerId}/details`,
-                type: 'GET',
-                success: function(response) {
-                    $('#templateLoading').hide();
-                    
-                    const templates = response.customer.measurement_templates || [];
-                    const tableBody = $('#templatesTable tbody');
-                    tableBody.empty();
-                    
-                    if (templates.length > 0) {
-                        // Filter by dress type if selected
-                        let filteredTemplates = templates;
-                        if (dressTypeId) {
-                            filteredTemplates = templates.filter(template => 
-                                template.dress_type.toLowerCase().includes($('#dress_type_id option:selected').text().toLowerCase())
-                            );
-                        }
-                        
-                        if (filteredTemplates.length > 0) {
-                            filteredTemplates.forEach(template => {
-                                const measurements = template.measurements;
-                                const row = `
-                                    <tr>
-                                        <td>${template.template_name}</td>
-                                        <td>${template.dress_type}</td>
-                                        <td>${measurements.height || 'N/A'}</td>
-                                        <td>${measurements.chest || 'N/A'}</td>
-                                        <td>${measurements.waist || 'N/A'}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary" 
-                                                    onclick="applyTemplate(${JSON.stringify(measurements).replace(/"/g, '&quot;')})">
-                                                {{ __("messages.apply") }}
-                                            </button>
-                                        </td>
-                                    </tr>
-                                `;
-                                tableBody.append(row);
-                            });
-                            $('#templateContent').show();
-                        } else {
-                            $('#noTemplates').show();
-                        }
-                    } else {
-                        $('#noTemplates').show();
-                    }
-                },
-                error: function() {
-                    $('#templateLoading').hide();
-                    $('#noTemplates').show();
-                }
             });
         }
 
-        function applyTemplate(measurements) {
-            // Apply measurements to form fields
-            Object.keys(measurements).forEach(key => {
-                const input = $(`input[name="measurements[${key}]"], textarea[name="measurements[${key}]"]`);
-                if (input.length) {
-                    input.val(measurements[key]);
-                }
-            });
-            
-            $('#measurementModal').modal('hide');
-            alert('{{ __("messages.measurement_template_applied") }}');
-        }
-
-        function selectFabric(type, color, rate) {
-            $('#fabric_type').val(type);
-            $('#fabric_color').val(color);
-            $('#fabric_rate').val(rate);
-            $('#fabricModal').modal('hide');
-
-            // Suggest meter requirement based on dress type
-            const dressTypeName = $('#dress_type_id option:selected').text().toLowerCase();
-            let suggestedMeters = 0;
-
-            if (dressTypeName.includes('sherwani') || dressTypeName.includes('gown')) {
-                suggestedMeters = 5.5;
-            } else if (dressTypeName.includes('suit')) {
-                suggestedMeters = 4.0;
-            } else if (dressTypeName.includes('kurta') || dressTypeName.includes('shalwar')) {
-                suggestedMeters = 3.5;
-            } else if (dressTypeName.includes('lehenga')) {
-                suggestedMeters = 6.0;
-            } else {
-                suggestedMeters = 2.5;
-            }
-
-            $('#fabric_meters').val(suggestedMeters);
-
-            // Calculate fabric cost
-            const fabricCost = suggestedMeters * rate;
-            $('#fabric_cost').val(fabricCost.toFixed(2));
-            calculateTotal();
-
-            alert(`{{ __("messages.fabric_selected") }}`.replace(':type', type).replace(':color', color));
-        }
-
-        $('#includeFabricInTotal').change(function() {
-            calculateTotal();
-            
-            // Update fabric cost field appearance based on switch state
-            if ($(this).is(':checked')) {
-                $('#fabric_cost').removeClass('bg-light text-muted');
-                $('#fabric_cost').addClass('bg-success-light');
-                toastr.info('{{ __("messages.fabric_cost_included") }}');
-            } else {
-                $('#fabric_cost').removeClass('bg-success-light');
-                $('#fabric_cost').addClass('bg-light text-muted');
-                toastr.warning('{{ __("messages.fabric_cost_excluded") }}');
+        $(document).click(function(e) {
+            if (!$(e.target).closest('[id^="colorPickerContainer"]').length && 
+                !$(e.target).closest('[id^="colorPickerBtn"]').length && 
+                !$(e.target).closest('.pcr-button').length) {
+                
+                Object.keys(pickrInstances).forEach(itemId => {
+                    $(`#colorPickerContainer_${itemId}`).hide();
+                    if (pickrInstances[itemId]) {
+                        pickrInstances[itemId].hide();
+                    }
+                });
             }
         });
-
-        // Calculate total amount
-        function calculateTotal() {
-            const basePrice = parseFloat($('#base_price').val()) || 0;
-            const fabricCost = parseFloat($('#fabric_cost').val()) || 0;
-            const stitching = parseFloat($('#stitching_charges').val()) || 0;
-            const additional = parseFloat($('#additional_charges').val()) || 0;
-            const discount = parseFloat($('#discount_amount').val()) || 0;
-            
-            // Check if fabric should be included
-            const includeFabric = $('#includeFabricInTotal').is(':checked');
-            
-            // Calculate total with or without fabric cost
-            let total = basePrice + stitching + additional - discount;
-            if (includeFabric) {
-                total += fabricCost;
-            }
-            
-            $('#total_amount').val(total.toFixed(2));
-            
-            // Calculate balance
-            const advancePaid = parseFloat($('#advance_amount').val()) || 0;
-            const balance = total - advancePaid;
-            $('#balance_due').val(balance.toFixed(2));
-            $('#remaining_amount').val(balance.toFixed(2));
-        }
 
         function resetForm() {
             if (confirm('{{ __("messages.are_you_sure_reset") }}')) {
                 document.getElementById('orderForm').reset();
                 $('.select2').val(null).trigger('change');
-                $('#base_price').val(0);
-                $('#fabric_cost').val(0);
-                $('#total_amount').val(0);
-                $('#balance_due').val(0);
-                $('#remaining_amount').val(0);
-                alert('{{ __("messages.form_reset_successfully") }}');
+                
+                // Keep first item, remove others
+                $('.order-item-card:not([data-item-id="0"])').remove();
+                itemCount = 1;
+                
+                // Reset first item
+                $('#base_price_0').val(0);
+                $('#fabric_cost_0').val(0);
+                $('#stitching_charges_0').val(0);
+                $('#additional_charges_0').val(0);
+                $('#item_discount_0').val(0);
+                $('#quantity_0').val(1);
+                $('#item_total_0').val(0);
+                $('#item_total_display_0').text('Rs 0.00');
+                
+                $('#advance_amount').val(0);
+                
+                calculateGrandTotal();
+                toastr.success('{{ __("messages.form_reset_successfully") }}');
             }
         }
 
         function saveAsDraft() {
-            // In real app: AJAX call to save as draft
-            // For now, just submit the form
             $('#orderForm').append('<input type="hidden" name="save_as_draft" value="1">');
             $('#orderForm').submit();
         }
 
-        // Helper function to get color code
-        function getColorCode(colorName) {
-            const colors = {
-                'navy blue': '#1D4ED8',
-                'white': '#FFFFFF',
-                'black': '#000000',
-                'red': '#EF4444',
-                'blue': '#3B82F6',
-                'green': '#10B981',
-                'yellow': '#F59E0B',
-                'pink': '#EC4899',
-                'purple': '#8B5CF6',
-                'gray': '#6B7280',
-                'brown': '#92400E',
-                'beige': '#FDE68A',
-                'maroon': '#991B1B',
-                'orange': '#F97316',
-                'gold': '#FBBF24',
-                'silver': '#D1D5DB',
-            };
-            return colors[colorName.toLowerCase()] || '#6B7280';
-        }
+        $('#orderForm').submit(function(e) {
+            const requiredFields = $(this).find('[required]');
+            let valid = true;
+            
+            requiredFields.each(function() {
+                if (!$(this).val().trim()) {
+                    valid = false;
+                    $(this).addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid');
+                }
+            });
+            
+            if (!valid) {
+                e.preventDefault();
+                toastr.error('{{ __("messages.please_fill_required_fields") }}');
+                return;
+            }
+            
+            const grandTotal = parseFloat($('#grandTotal').text().replace('Rs ', '')) || 0;
+            if (grandTotal <= 0) {
+                e.preventDefault();
+                toastr.error('{{ __("messages.check_pricing_total") }}');
+                return;
+            }
+            
+            calculateBalance(grandTotal);
+        });
+
+        // Modal reset on close
+        $('#addCustomerModal').on('hidden.bs.modal', function() {
+            $('#newCustomerForm')[0].reset();
+            $('#newCustomerForm').removeClass('was-validated');
+        });
+
+        // Set active fabric item ID when opening fabric modal
+        $('.select-fabric-from-inventory').click(function() {
+            window.activeFabricItemId = $(this).data('item-id');
+            $('#fabricModal').modal('show');
+        });
+
+        // Initialize tooltips
+        $('[data-toggle="tooltip"]').tooltip();
     </script>
-
-    <style>
-        .card {
-            border-radius: 0.5rem;
-        }
-
-        .card-header.bg-light {
-            background-color: #f8f9fa !important;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .btn {
-            border-radius: 0.375rem;
-        }
-
-        .form-control {
-            border-radius: 0.375rem;
-        }
-
-        .modal-content {
-            border-radius: 0.5rem;
-            border: none;
-        }
-
-        .close {
-            font-size: 1.5rem;
-            font-weight: 300;
-        }
-
-        .table th {
-            border-top: none;
-            font-weight: 600;
-            color: #6c757d;
-        }
-
-        .badge {
-            font-size: 0.75em;
-            font-weight: 500;
-            padding: 0.35em 0.65em;
-        }
-
-        #total_amount {
-            background-color: #f8f9fa;
-            font-weight: bold;
-            color: #28a745;
-        }
-
-        #balance_due {
-            background-color: #f8f9fa;
-            font-weight: bold;
-            color: #dc3545;
-        }
-
-        .form-check-input:checked {
-            background-color: #ffc107;
-            border-color: #ffc107;
-        }
-
-        .select2-container--bootstrap .select2-selection {
-            border-radius: 0.375rem;
-        }
-        
-        .spinner-border {
-            width: 3rem;
-            height: 3rem;
-        }
-
-        /* Color Picker Styles */
-        #colorPickerContainer {
-            display: none;
-            position: absolute;
-            z-index: 1000;
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            width: 350px;
-        }
-
-        .pickr {
-            width: 100% !important;
-        }
-
-        .pcr-button {
-            width: 100% !important;
-            height: 40px !important;
-            border-radius: 4px;
-        }
-
-        /* Toastr customization */
-        .toast-success {
-            background-color: #28a745 !important;
-        }
-
-        .toast-error {
-            background-color: #dc3545 !important;
-        }
-    </style>
     @endpush
 </x-app-layout>

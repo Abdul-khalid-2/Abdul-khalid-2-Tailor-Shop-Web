@@ -33,6 +33,7 @@ return new class extends Migration
             $table->decimal('fabric_meters', 8, 2)->nullable();
             $table->decimal('fabric_rate', 10, 2)->nullable();
             $table->decimal('fabric_cost', 10, 2)->nullable();
+            $table->decimal('additional_charges', 10, 2)->nullable();
 
             $table->timestamps();
             $table->softDeletes();

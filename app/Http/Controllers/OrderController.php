@@ -15,6 +15,7 @@ use App\Models\Payment;
 use App\Models\Branch;
 use App\Models\FabricTransaction;
 use App\Models\PaymentMethod;
+use App\Models\TailorAssignment;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -213,51 +214,107 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-
         $validated = $request->validate([
+            // Order level validation
             'customer_id' => 'required|exists:customers,id',
             'branch_id' => 'required|exists:branches,id',
             'order_date' => 'required|date',
-            'delivery_date' => 'required|date|after_or_equal:order_date',
-            'dress_type_id' => 'required|exists:dress_types,id',
-            'base_price' => 'required|numeric|min:0',
-            'fabric_cost' => 'numeric|min:0',
-            'stitching_charges' => 'numeric|min:0',
-            'additional_charges' => 'numeric|min:0',
-            'discount_amount' => 'numeric|min:0',
-            'advance_amount' => 'numeric|min:0',
+            'order_number' => 'required|string|unique:orders,order_number',
             'notes' => 'nullable|string',
             'internal_notes' => 'nullable|string',
+            'advance_amount' => 'required|numeric|min:0',
+            'payment_method_id' => 'required|exists:payment_methods,id',
+            'remaining_amount' => 'nullable|numeric|min:0',
+
+            // Items validation
+            'items' => 'required|array|min:1',
+            'items.*.dress_type_id' => 'required|exists:dress_types,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.base_price' => 'required|numeric|min:0',
+            'items.*.item_total' => 'required|numeric|min:0',
+            'items.*.fabric_type' => 'nullable|string|max:255',
+            'items.*.fabric_color' => 'nullable|string|max:255',
+            'items.*.fabric_meters' => 'nullable|numeric|min:0',
+            'items.*.fabric_rate' => 'nullable|numeric|min:0',
+            'items.*.fabric_cost' => 'nullable|numeric|min:0',
+            'items.*.stitching_charges' => 'nullable|numeric|min:0',
+            'items.*.additional_charges' => 'nullable|numeric|min:0',
+            'items.*.discount_amount' => 'nullable|numeric|min:0',
+            'items.*.tailor_id' => 'nullable|exists:tailors,id',
+            'items.*.instructions' => 'nullable|string',
+
+            // Measurements validation
+            'items.*.measurements' => 'nullable|array',
+            'items.*.measurements.height' => 'nullable|numeric|min:0|max:300',
+            'items.*.measurements.weight' => 'nullable|numeric|min:0|max:300',
+            'items.*.measurements.chest' => 'nullable|numeric|min:0|max:200',
+            'items.*.measurements.waist' => 'nullable|numeric|min:0|max:200',
+            'items.*.measurements.hips' => 'nullable|numeric|min:0|max:200',
+            'items.*.measurements.shoulder' => 'nullable|numeric|min:0|max:100',
+            'items.*.measurements.sleeve_length' => 'nullable|numeric|min:0|max:150',
+            'items.*.measurements.sleeve_width' => 'nullable|numeric|min:0|max:100',
+            'items.*.measurements.collar' => 'nullable|numeric|min:0|max:100',
+            'items.*.measurements.bicep' => 'nullable|numeric|min:0|max:100',
+            'items.*.measurements.wrist' => 'nullable|numeric|min:0|max:50',
+            'items.*.measurements.pant_length' => 'nullable|numeric|min:0|max:200',
+            'items.*.measurements.inseam' => 'nullable|numeric|min:0|max:150',
+            'items.*.measurements.thigh' => 'nullable|numeric|min:0|max:150',
+            'items.*.measurements.knee' => 'nullable|numeric|min:0|max:100',
+            'items.*.measurements.bottom' => 'nullable|numeric|min:0|max:100',
+            'items.*.measurements.ankle' => 'nullable|numeric|min:0|max:80',
+            'items.*.measurements.fitting_preferences' => 'nullable|string|max:500',
+            'items.*.measurements.notes' => 'nullable|string|max:500',
         ]);
+
         DB::beginTransaction();
 
         try {
-            // Calculate total amount
-            $totalAmount = $validated['base_price']
-                + ($validated['fabric_cost'] ?? 0)
-                + ($validated['stitching_charges'] ?? 0)
-                + ($validated['additional_charges'] ?? 0)
-                - ($validated['discount_amount'] ?? 0);
+            // Calculate order totals from items
+            $subTotal = 0;
+            $totalFabricCost = 0;
+            $totalStitchingCharges = 0;
+            $totalAdditionalCharges = 0;
+            $totalDiscountAmount = 0;
+            $totalAmount = 0;
+
+            foreach ($request->items as $item) {
+                $quantity = $item['quantity'] ?? 1;
+                $itemSubTotal = ($item['base_price'] ?? 0) +
+                    ($item['stitching_charges'] ?? 0) +
+                    ($item['additional_charges'] ?? 0) -
+                    ($item['discount_amount'] ?? 0);
+
+                $itemTotal = $itemSubTotal * $quantity;
+
+                // Add fabric cost if fabric is included (check box will determine this in form)
+                // For now, we'll assume fabric is always included in total
+                if (isset($item['fabric_cost'])) {
+                    $itemTotal += $item['fabric_cost'] * $quantity;
+                    $totalFabricCost += $item['fabric_cost'] * $quantity;
+                }
+
+                $subTotal += $itemSubTotal * $quantity;
+                $totalStitchingCharges += ($item['stitching_charges'] ?? 0) * $quantity;
+                $totalAdditionalCharges += ($item['additional_charges'] ?? 0) * $quantity;
+                $totalDiscountAmount += ($item['discount_amount'] ?? 0) * $quantity;
+                $totalAmount += $itemTotal;
+            }
 
             $remainingAmount = $totalAmount - ($validated['advance_amount'] ?? 0);
 
-            // Generate order number
-            $lastOrder = Order::orderBy('id', 'desc')->first();
-            $orderNumber = 'TS-' . str_pad(($lastOrder?->id ?? 0) + 1001, 4, '0', STR_PAD_LEFT);
-
             // Create order
             $order = Order::create([
-                'order_number' => $orderNumber,
+                'order_number' => $validated['order_number'],
                 'customer_id' => $validated['customer_id'],
                 'branch_id' => $validated['branch_id'],
                 'status_id' => 1, // Pending
-                'payment_status_id' => ($validated['advance_amount'] ?? 0) > 0 ? 2 : 1, // Partial or Pending
+                'payment_status_id' => ($validated['advance_amount'] ?? 0) >= $totalAmount ? 3 : ($validated['advance_amount'] > 0 ? 2 : 1), // Paid, Partial, or Pending
                 'order_date' => $validated['order_date'],
-                'delivery_date' => $validated['delivery_date'],
+                'delivery_date' => now()->addDays(7), // Calculate based on max estimated days from items
                 'total_amount' => $totalAmount,
                 'advance_amount' => $validated['advance_amount'] ?? 0,
-                'remaining_amount' => $remainingAmount,
-                'discount_amount' => $validated['discount_amount'] ?? 0,
+                'remaining_amount' => max(0, $remainingAmount),
+                'discount_amount' => $totalDiscountAmount,
                 'final_amount' => $totalAmount,
                 'notes' => $validated['notes'] ?? null,
                 'internal_notes' => $validated['internal_notes'] ?? null,
@@ -266,99 +323,74 @@ class OrderController extends Controller
                 'updated_by' => auth()->id(),
             ]);
 
-            // Create order item
-            $orderItem = OrderItem::create([
-                'order_id' => $order->id,
-                'dress_type_id' => $validated['dress_type_id'],
-                'item_name' => DressType::find($validated['dress_type_id'])->name,
-                'quantity' => 1,
-                'price' => $validated['base_price'],
-                'total' => $validated['base_price'],
-                'item_status' => 'pending',
-                'item_type' => 'tailoring',
+            // Create order items
+            foreach ($request->items as $index => $itemData) {
+                $dressType = DressType::find($itemData['dress_type_id']);
 
-                'is_inventory_fabric' => $request->filled('fabric_product_id'),
-                'fabric_product_id'   => $request->fabric_product_id,
-                'fabric_type'         => $request->fabric_type,
-                'fabric_color'        => $request->fabric_color,
-                'fabric_meters'       => $request->fabric_meters,
-                'fabric_rate'         => $request->fabric_rate,
-                'fabric_cost'         => $request->fabric_cost,
-
-                'instructions' => $validated['notes'] ?? null,
-            ]);
-
-            // Add measurements if provided
-            if ($request->has('measurements')) {
-                $measurementData = $this->prepareMeasurementData($request->measurements, $orderItem->id);
-                if ($measurementData) {
-                    Measurement::create($measurementData);
-                }
-            }
-
-            if ($orderItem->is_inventory_fabric && $orderItem->fabric_id) {
-
-                $fabric = Fabric::where('id', $orderItem->fabric_id)
-                    ->where('branch_id', $order->branch_id)
-                    ->lockForUpdate()
-                    ->first();
-
-                if (!$fabric) {
-                    throw new \Exception('Fabric not found in this branch.');
-                }
-
-                if ($fabric->stock_meter < $orderItem->fabric_meters) {
-                    throw new \Exception('Insufficient fabric stock available.');
-                }
-
-                // Deduct stock
-                $fabric->stock_meter -= $orderItem->fabric_meters;
-                $fabric->save();
-
-                // Record transaction
-                FabricTransaction::create([
-                    'fabric_id' => $fabric->id,
-                    'order_item_id' => $orderItem->id,
-                    'meter' => $orderItem->fabric_meters,
-                    'type' => 'cut',
-                    'created_by' => auth()->id(),
+                $orderItem = OrderItem::create([
+                    'order_id' => $order->id,
+                    'dress_type_id' => $itemData['dress_type_id'],
+                    'item_name' => $dressType->name,
+                    'quantity' => $itemData['quantity'] ?? 1,
+                    'price' => $itemData['base_price'],
+                    'total' => $itemData['item_total'] ?? 0,
+                    'item_status' => 'pending',
+                    'item_type' => 'tailoring',
+                    'is_inventory_fabric' => false, // Set based on your logic
+                    'fabric_type' => $itemData['fabric_type'] ?? null,
+                    'fabric_color' => $itemData['fabric_color'] ?? null,
+                    'fabric_meters' => $itemData['fabric_meters'] ?? null,
+                    'fabric_rate' => $itemData['fabric_rate'] ?? null,
+                    'fabric_cost' => $itemData['fabric_cost'] ?? null,
+                    'additional_charges' => $itemData['additional_charges'] ?? null,
+                    'instructions' => $itemData['instructions'] ?? null,
                 ]);
-            }
 
-            // Assign tailor if provided
-            if ($request->has('tailor_id') && $request->tailor_id != null) {
-                DB::table('tailor_assignments')->insert([
-                    'order_item_id' => $orderItem->id,
-                    'tailor_id' => $request->tailor_id,
-                    'status_id' => 1, // Assigned
-                    'assign_date' => now(),
-                    'expected_date' => $validated['delivery_date'],
-                    'stitching_charge' => $validated['stitching_charges'] ?? 0,
-                    'advance_paid' => 0,
-                    'remaining_payment' => $validated['stitching_charges'] ?? 0,
-                    'assigned_by' => auth()->id(),
-                    'created_by' => auth()->id(),
-                    'updated_by' => auth()->id(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+                // Add measurements if provided
+                if (isset($itemData['measurements']) && !empty(array_filter($itemData['measurements']))) {
+                    $measurementData = $this->prepareMeasurementData($itemData['measurements'], $orderItem->id);
+                    if ($measurementData) {
+                        Measurement::create($measurementData);
+                    }
+                }
+
+                // Assign tailor if provided
+                if (!empty($itemData['tailor_id'])) {
+                    DB::table('tailor_assignments')->insert([
+                        'order_item_id' => $orderItem->id,
+                        'tailor_id' => $itemData['tailor_id'],
+                        'status_id' => 1, // Assigned
+                        'assign_date' => now(),
+                        'expected_date' => now()->addDays($dressType->estimated_days ?? 7),
+                        'stitching_charge' => $itemData['stitching_charges'] ?? 0,
+                        'advance_paid' => 0,
+                        'remaining_payment' => $itemData['stitching_charges'] ?? 0,
+                        'assigned_by' => auth()->id(),
+                        'created_by' => auth()->id(),
+                        'updated_by' => auth()->id(),
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
             }
 
             // Record payment if advance paid
             if (($validated['advance_amount'] ?? 0) > 0) {
-                DB::table('payments')->insert([
+                $lastPayment = DB::table('payments')->orderBy('id', 'desc')->first();
+                $receiptNumber = 'RCPT-' . str_pad(($lastPayment?->id ?? 0) + 1001, 5, '0', STR_PAD_LEFT);
+
+                Payment::create([
                     'order_id' => $order->id,
-                    'payment_method_id' => $request->payment_method_id ?? 1, // Cash
+                    'payment_method_id' => $validated['payment_method_id'] ?? 1,
                     'amount' => $validated['advance_amount'],
                     'previous_balance' => $totalAmount,
                     'new_balance' => $remainingAmount,
                     'payment_date' => now(),
-                    'receipt_number' => 'RCPT-' . str_pad(DB::table('payments')->count() + 1001, 5, '0', STR_PAD_LEFT),
+                    'receipt_number' => $receiptNumber,
                     'received_by' => auth()->id(),
                     'created_by' => auth()->id(),
                     'updated_by' => auth()->id(),
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'notes' => 'Advance payment for order #' . $order->order_number,
                 ]);
             }
 
@@ -370,12 +402,20 @@ class OrderController extends Controller
                 'changed_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
+                'notes' => 'Order created with ' . count($request->items) . ' item(s)',
             ]);
+
+            // Update next receipt number in settings
+            $settings = \App\Models\Setting::first();
+            if ($settings) {
+                $settings->next_receipt_number = intval(substr($validated['order_number'], strpos($validated['order_number'], '-') + 1)) + 1;
+                $settings->save();
+            }
 
             DB::commit();
 
             return redirect()->route('orders.show', $order->id)
-                ->with('success', 'Order created successfully! Order #: ' . $order->order_number);
+                ->with('success', 'Order created successfully! Order #: ' . $order->order_number . ' with ' . count($request->items) . ' item(s).');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()
@@ -384,16 +424,19 @@ class OrderController extends Controller
         }
     }
 
+    /**
+     * Prepare measurement data for database insertion
+     */
     private function prepareMeasurementData($measurements, $orderItemId)
     {
-        $validMeasurements = [];
-        foreach ($measurements as $key => $value) {
-            if (!empty($value)) {
-                $validMeasurements[$key] = $value;
-            }
-        }
+        // Filter out empty values
+        $validMeasurements = array_filter($measurements, function ($value) {
+            return $value !== null && $value !== '';
+        });
 
-        if (empty($validMeasurements)) return null;
+        if (empty($validMeasurements)) {
+            return null;
+        }
 
         return [
             'order_item_id' => $orderItemId,
@@ -418,10 +461,11 @@ class OrderController extends Controller
             'notes' => $measurements['notes'] ?? null,
             'version' => 1,
             'is_current' => true,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'created_by' => auth()->id(),
+            'updated_by' => auth()->id(),
         ];
     }
+
 
     /**
      * Display the specified resource.
@@ -482,7 +526,8 @@ class OrderController extends Controller
             'order',
             'measurementTemplates',
             'paymentMethods',
-            'enabledFields'
+            'enabledFields',
+            'settings' // Make sure to pass settings to the view
         ));
     }
 
@@ -559,43 +604,521 @@ class OrderController extends Controller
     public function update(Request $request, Order $order)
     {
         $validated = $request->validate([
+            // Order level validation
             'customer_id' => 'required|exists:customers,id',
             'branch_id' => 'required|exists:branches,id',
             'status_id' => 'required|exists:order_statuses,id',
             'payment_status_id' => 'required|exists:payment_statuses,id',
             'order_date' => 'required|date',
             'delivery_date' => 'required|date|after_or_equal:order_date',
-            'total_amount' => 'required|numeric|min:0',
-            'advance_amount' => 'required|numeric|min:0',
-            'remaining_amount' => 'required|numeric|min:0',
-            'discount_amount' => 'required|numeric|min:0',
-            'final_amount' => 'required|numeric|min:0',
+            'order_number' => 'required|string|unique:orders,order_number,' . $order->id,
             'notes' => 'nullable|string',
             'internal_notes' => 'nullable|string',
+            'advance_amount' => 'required|numeric|min:0',
+            'discount_amount' => 'required|numeric|min:0',
+            'payment_method_id' => 'nullable|exists:payment_methods,id',
+            'total_amount' => 'nullable|numeric|min:0',
+            'final_amount' => 'nullable|numeric|min:0',
+            'remaining_amount' => 'nullable|numeric|min:0',
+
+            // Items validation
+            'items' => 'required|array|min:1',
+            'items.*.id' => 'nullable|exists:order_items,id',
+            'items.*.dress_type_id' => 'required|exists:dress_types,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'items.*.base_price' => 'required|numeric|min:0',
+            'items.*.item_total' => 'required|numeric|min:0',
+            'items.*.fabric_type' => 'nullable|string|max:255',
+            'items.*.fabric_color' => 'nullable|string|max:255',
+            'items.*.fabric_meters' => 'nullable|numeric|min:0',
+            'items.*.fabric_rate' => 'nullable|numeric|min:0',
+            'items.*.fabric_cost' => 'nullable|numeric|min:0',
+            'items.*.stitching_charges' => 'nullable|numeric|min:0',
+            'items.*.additional_charges' => 'nullable|numeric|min:0',
+            'items.*.discount_amount' => 'nullable|numeric|min:0',
+            'items.*.tailor_id' => 'nullable|exists:tailors,id',
+            'items.*.tailor_assignment_id' => 'nullable|exists:tailor_assignments,id',
+            'items.*.expected_date' => 'nullable|date',
+            'items.*.progress_percentage' => 'nullable|integer|min:0|max:100',
+            'items.*.instructions' => 'nullable|string',
+            'items.*.item_status' => 'nullable|in:pending,cutting,stitching,ready,delivered',
+            'items.*.delete' => 'nullable|boolean',
+
+            // Measurements validation
+            'items.*.measurements' => 'nullable|array',
+            'items.*.measurements.id' => 'nullable|exists:measurements,id',
+            'items.*.measurements.height' => 'nullable|numeric|min:0|max:300',
+            'items.*.measurements.weight' => 'nullable|numeric|min:0|max:300',
+            'items.*.measurements.chest' => 'nullable|numeric|min:0|max:200',
+            'items.*.measurements.waist' => 'nullable|numeric|min:0|max:200',
+            'items.*.measurements.hips' => 'nullable|numeric|min:0|max:200',
+            'items.*.measurements.shoulder' => 'nullable|numeric|min:0|max:100',
+            'items.*.measurements.sleeve_length' => 'nullable|numeric|min:0|max:150',
+            'items.*.measurements.sleeve_width' => 'nullable|numeric|min:0|max:100',
+            'items.*.measurements.collar' => 'nullable|numeric|min:0|max:100',
+            'items.*.measurements.bicep' => 'nullable|numeric|min:0|max:100',
+            'items.*.measurements.wrist' => 'nullable|numeric|min:0|max:50',
+            'items.*.measurements.pant_length' => 'nullable|numeric|min:0|max:200',
+            'items.*.measurements.inseam' => 'nullable|numeric|min:0|max:150',
+            'items.*.measurements.thigh' => 'nullable|numeric|min:0|max:150',
+            'items.*.measurements.knee' => 'nullable|numeric|min:0|max:100',
+            'items.*.measurements.bottom' => 'nullable|numeric|min:0|max:100',
+            'items.*.measurements.ankle' => 'nullable|numeric|min:0|max:80',
+            'items.*.measurements.fitting_preferences' => 'nullable|string|max:500',
+            'items.*.measurements.notes' => 'nullable|string|max:500',
+            'items.*.measurements.version' => 'nullable|integer',
         ]);
 
-        // Check if status changed
-        $statusChanged = $order->status_id != $validated['status_id'];
+        DB::beginTransaction();
 
-        $validated['updated_by'] = auth()->id();
+        try {
+            // Check if status changed for logging
+            $statusChanged = $order->status_id != $validated['status_id'];
+            $oldStatusId = $order->status_id;
 
-        $order->update($validated);
+            // Calculate order totals from items (excluding items marked for deletion)
+            $totals = $this->calculateOrderTotals($request->items);
 
-        // Log status change if applicable
-        if ($statusChanged) {
-            DB::table('order_status_logs')->insert([
-                'order_id' => $order->id,
-                'old_status_id' => $order->getOriginal('status_id'),
-                'new_status_id' => $validated['status_id'],
-                'changed_by' => auth()->id(),
-                'changed_at' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
+            $totalAmount = $totals['totalAmount'];
+            $totalFabricCost = $totals['totalFabricCost'];
+            $totalStitchingCharges = $totals['totalStitchingCharges'];
+            $totalAdditionalCharges = $totals['totalAdditionalCharges'];
+            $totalDiscountAmount = $totals['totalDiscountAmount'] + ($validated['discount_amount'] ?? 0);
+
+            // Apply order-level discount
+            $finalAmount = $totalAmount - ($validated['discount_amount'] ?? 0);
+            $remainingAmount = $finalAmount - ($validated['advance_amount'] ?? 0);
+
+            // Determine payment status based on advance payment
+            $paymentStatusId = $this->determinePaymentStatus(
+                $validated['advance_amount'] ?? 0,
+                $finalAmount,
+                $validated['payment_status_id'] ?? $order->payment_status_id
+            );
+
+            // Update order
+            $order->update([
+                'customer_id' => $validated['customer_id'],
+                'branch_id' => $validated['branch_id'],
+                'status_id' => $validated['status_id'],
+                'payment_status_id' => $paymentStatusId,
+                'order_date' => $validated['order_date'],
+                'delivery_date' => $validated['delivery_date'],
+                'total_amount' => $totalAmount,
+                'advance_amount' => $validated['advance_amount'] ?? 0,
+                'remaining_amount' => max(0, $remainingAmount),
+                'discount_amount' => $totalDiscountAmount,
+                'final_amount' => max(0, $finalAmount),
+                'notes' => $validated['notes'] ?? null,
+                'internal_notes' => $validated['internal_notes'] ?? null,
+                'updated_by' => auth()->id(),
             ]);
+
+            // Process items (update existing, create new, delete removed)
+            $existingItemIds = $order->items->pluck('id')->toArray();
+            $submittedItemIds = [];
+
+            foreach ($request->items as $index => $itemData) {
+                // Skip items marked for deletion
+                if (isset($itemData['delete']) && $itemData['delete'] == 1) {
+                    if (!empty($itemData['id'])) {
+                        $this->deleteOrderItem($itemData['id']);
+                    }
+                    continue;
+                }
+
+                $dressType = DressType::find($itemData['dress_type_id']);
+
+                // Prepare item data
+                $orderItemData = [
+                    'order_id' => $order->id,
+                    'dress_type_id' => $itemData['dress_type_id'],
+                    'item_name' => $dressType->name,
+                    'quantity' => $itemData['quantity'] ?? 1,
+                    'price' => $itemData['base_price'],
+                    'total' => $itemData['item_total'] ?? 0,
+                    'item_status' => $itemData['item_status'] ?? 'pending',
+                    'item_type' => 'tailoring',
+                    'is_inventory_fabric' => isset($itemData['fabric_product_id']) && !empty($itemData['fabric_product_id']),
+                    'fabric_product_id' => $itemData['fabric_product_id'] ?? null,
+                    'fabric_type' => $itemData['fabric_type'] ?? null,
+                    'fabric_color' => $itemData['fabric_color'] ?? null,
+                    'fabric_meters' => $itemData['fabric_meters'] ?? null,
+                    'fabric_rate' => $itemData['fabric_rate'] ?? null,
+                    'fabric_cost' => $itemData['fabric_cost'] ?? null,
+                    'additional_charges' => $itemData['additional_charges'] ?? null,
+                    'instructions' => $itemData['instructions'] ?? null,
+                ];
+
+                // Update or create order item
+                if (!empty($itemData['id'])) {
+                    // Update existing item
+                    $orderItem = OrderItem::find($itemData['id']);
+                    $orderItem->update($orderItemData);
+                    $submittedItemIds[] = $orderItem->id;
+                } else {
+                    // Create new item
+                    $orderItem = OrderItem::create($orderItemData);
+                    $submittedItemIds[] = $orderItem->id;
+                }
+
+                // Handle measurements
+                if (isset($itemData['measurements'])) {
+                    $this->updateOrCreateMeasurements($itemData['measurements'], $orderItem->id);
+                }
+
+                // Handle tailor assignment
+                $this->updateOrCreateTailorAssignment($itemData, $orderItem->id, $dressType);
+            }
+
+            // Delete items that were removed from the order (not in submitted list)
+            $itemsToDelete = array_diff($existingItemIds, $submittedItemIds);
+            foreach ($itemsToDelete as $itemId) {
+                $this->deleteOrderItem($itemId);
+            }
+
+            // Handle payment record if advance amount changed
+            $this->handlePaymentUpdate($order, $validated, $finalAmount, $remainingAmount);
+
+            // Log status change if applicable
+            if ($statusChanged) {
+                $this->logStatusChange($order->id, $oldStatusId, $validated['status_id']);
+            }
+
+            // Log order update
+            $this->logOrderUpdate($order->id, 'Order updated successfully');
+
+            DB::commit();
+
+            return redirect()->route('orders.show', $order->id)
+                ->with('success', 'Order #' . $order->order_number . ' updated successfully!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->with('error', 'Error updating order: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    /**
+     * Calculate order totals from items
+     */
+    private function calculateOrderTotals($items)
+    {
+        $totalAmount = 0;
+        $totalFabricCost = 0;
+        $totalStitchingCharges = 0;
+        $totalAdditionalCharges = 0;
+        $totalDiscountAmount = 0;
+
+        foreach ($items as $item) {
+            // Skip items marked for deletion
+            if (isset($item['delete']) && $item['delete'] == 1) {
+                continue;
+            }
+
+            $quantity = $item['quantity'] ?? 1;
+
+            $itemSubTotal = ($item['base_price'] ?? 0) +
+                ($item['stitching_charges'] ?? 0) +
+                ($item['additional_charges'] ?? 0) -
+                ($item['discount_amount'] ?? 0);
+
+            $itemTotal = $itemSubTotal * $quantity;
+
+            // Add fabric cost if exists
+            if (isset($item['fabric_cost']) && $item['fabric_cost'] > 0) {
+                $itemTotal += $item['fabric_cost'] * $quantity;
+                $totalFabricCost += $item['fabric_cost'] * $quantity;
+            }
+
+            $totalAmount += $itemTotal;
+            $totalStitchingCharges += ($item['stitching_charges'] ?? 0) * $quantity;
+            $totalAdditionalCharges += ($item['additional_charges'] ?? 0) * $quantity;
+            $totalDiscountAmount += ($item['discount_amount'] ?? 0) * $quantity;
         }
 
-        return redirect()->route('orders.show', $order->id)
-            ->with('success', 'Order updated successfully!');
+        return [
+            'totalAmount' => $totalAmount,
+            'totalFabricCost' => $totalFabricCost,
+            'totalStitchingCharges' => $totalStitchingCharges,
+            'totalAdditionalCharges' => $totalAdditionalCharges,
+            'totalDiscountAmount' => $totalDiscountAmount,
+        ];
+    }
+
+    /**
+     * Determine payment status based on advance payment
+     */
+    private function determinePaymentStatus($advanceAmount, $finalAmount, $currentStatusId = null)
+    {
+        if ($advanceAmount <= 0) {
+            return PaymentStatus::where('slug', 'pending')->first()->id ?? 1;
+        } elseif ($advanceAmount >= $finalAmount) {
+            return PaymentStatus::where('slug', 'paid')->first()->id ?? 3;
+        } else {
+            return PaymentStatus::where('slug', 'partial')->first()->id ?? 2;
+        }
+    }
+
+    /**
+     * Update or create measurements for an order item
+     */
+    private function updateOrCreateMeasurements($measurementData, $orderItemId)
+    {
+        // Filter out empty values
+        $validMeasurements = array_filter($measurementData, function ($value) {
+            return $value !== null && $value !== '';
+        });
+
+        if (empty($validMeasurements)) {
+            return null;
+        }
+
+        // Remove metadata fields from measurements array
+        $measurementFields = [
+            'height',
+            'weight',
+            'shoulder',
+            'chest',
+            'waist',
+            'hips',
+            'sleeve_length',
+            'sleeve_width',
+            'collar',
+            'bicep',
+            'wrist',
+            'pant_length',
+            'inseam',
+            'thigh',
+            'knee',
+            'bottom',
+            'ankle',
+            'fitting_preferences',
+            'notes'
+        ];
+
+        $measurementsToSave = [];
+        foreach ($measurementFields as $field) {
+            if (isset($measurementData[$field])) {
+                $measurementsToSave[$field] = $measurementData[$field];
+            }
+        }
+
+        $measurementsToSave['order_item_id'] = $orderItemId;
+        $measurementsToSave['updated_by'] = auth()->id();
+
+        // Check if measurement exists
+        if (!empty($measurementData['id'])) {
+            // Update existing measurement
+            $measurement = Measurement::find($measurementData['id']);
+
+            // Increment version if data changed
+            if ($this->measurementDataChanged($measurement, $measurementsToSave)) {
+                $measurementsToSave['version'] = ($measurement->version ?? 0) + 1;
+                $measurementsToSave['is_current'] = true;
+
+                // Set previous version as not current
+                Measurement::where('order_item_id', $orderItemId)
+                    ->where('is_current', true)
+                    ->update(['is_current' => false]);
+            }
+
+            $measurement->update($measurementsToSave);
+            return $measurement;
+        } else {
+            // Create new measurement
+            $measurementsToSave['version'] = 1;
+            $measurementsToSave['is_current'] = true;
+            $measurementsToSave['created_by'] = auth()->id();
+
+            return Measurement::create($measurementsToSave);
+        }
+    }
+
+    /**
+     * Check if measurement data has changed
+     */
+    private function measurementDataChanged($measurement, $newData)
+    {
+        $fields = [
+            'height',
+            'weight',
+            'shoulder',
+            'chest',
+            'waist',
+            'hips',
+            'sleeve_length',
+            'sleeve_width',
+            'collar',
+            'bicep',
+            'wrist',
+            'pant_length',
+            'inseam',
+            'thigh',
+            'knee',
+            'bottom',
+            'ankle',
+            'fitting_preferences',
+            'notes'
+        ];
+
+        foreach ($fields as $field) {
+            if (isset($newData[$field]) && $measurement->$field != $newData[$field]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Update or create tailor assignment for an order item
+     */
+    private function updateOrCreateTailorAssignment($itemData, $orderItemId, $dressType)
+    {
+        // If no tailor selected and no existing assignment, skip
+        if (empty($itemData['tailor_id'])) {
+            // Check if there's an existing assignment that should be removed
+            if (!empty($itemData['tailor_assignment_id'])) {
+                $assignment = TailorAssignment::find($itemData['tailor_assignment_id']);
+                if ($assignment) {
+                    $assignment->delete();
+                }
+            }
+            return null;
+        }
+
+        $assignmentData = [
+            'order_item_id' => $orderItemId,
+            'tailor_id' => $itemData['tailor_id'],
+            'status_id' => 1, // Assigned
+            'assign_date' => now(),
+            'expected_date' => !empty($itemData['expected_date'])
+                ? Carbon::parse($itemData['expected_date'])
+                : now()->addDays($dressType->estimated_days ?? 7),
+            'stitching_charge' => $itemData['stitching_charges'] ?? 0,
+            'advance_paid' => 0,
+            'remaining_payment' => $itemData['stitching_charges'] ?? 0,
+            'progress_percentage' => $itemData['progress_percentage'] ?? 0,
+            'instructions' => $itemData['instructions'] ?? null,
+            'updated_by' => auth()->id(),
+        ];
+
+        if (!empty($itemData['tailor_assignment_id'])) {
+            // Update existing assignment
+            $assignment = TailorAssignment::find($itemData['tailor_assignment_id']);
+            $assignment->update($assignmentData);
+            return $assignment;
+        } else {
+            // Create new assignment
+            $assignmentData['assigned_by'] = auth()->id();
+            $assignmentData['created_by'] = auth()->id();
+            return TailorAssignment::create($assignmentData);
+        }
+    }
+
+    /**
+     * Delete order item and related records
+     */
+    private function deleteOrderItem($itemId)
+    {
+        $orderItem = OrderItem::find($itemId);
+
+        if ($orderItem) {
+            // Delete measurements
+            Measurement::where('order_item_id', $itemId)->delete();
+
+            // Delete tailor assignments
+            TailorAssignment::where('order_item_id', $itemId)->delete();
+
+            // Delete order item
+            $orderItem->delete();
+        }
+    }
+
+    /**
+     * Handle payment update
+     */
+    private function handlePaymentUpdate($order, $validated, $finalAmount, $remainingAmount)
+    {
+        $advanceAmount = $validated['advance_amount'] ?? 0;
+        $oldAdvanceAmount = $order->getOriginal('advance_amount');
+
+        // If advance amount changed, record a payment adjustment
+        if ($advanceAmount != $oldAdvanceAmount) {
+            $difference = $advanceAmount - $oldAdvanceAmount;
+
+            if ($difference > 0) {
+                // Additional payment received
+                $lastPayment = Payment::orderBy('id', 'desc')->first();
+                $receiptNumber = 'RCPT-' . str_pad(($lastPayment?->id ?? 0) + 1001, 5, '0', STR_PAD_LEFT);
+
+                Payment::create([
+                    'order_id' => $order->id,
+                    'payment_method_id' => $validated['payment_method_id'] ?? 1,
+                    'amount' => $difference,
+                    'previous_balance' => $order->getOriginal('remaining_amount'),
+                    'new_balance' => $remainingAmount,
+                    'payment_date' => now(),
+                    'receipt_number' => $receiptNumber,
+                    'received_by' => auth()->id(),
+                    'created_by' => auth()->id(),
+                    'updated_by' => auth()->id(),
+                    'notes' => 'Payment adjustment for order #' . $order->order_number,
+                ]);
+            } elseif ($difference < 0) {
+                // Payment refunded or reduced
+                $lastPayment = Payment::orderBy('id', 'desc')->first();
+                $receiptNumber = 'REF-' . str_pad(($lastPayment?->id ?? 0) + 1001, 5, '0', STR_PAD_LEFT);
+
+                Payment::create([
+                    'order_id' => $order->id,
+                    'payment_method_id' => $validated['payment_method_id'] ?? 1,
+                    'amount' => abs($difference),
+                    'previous_balance' => $order->getOriginal('remaining_amount'),
+                    'new_balance' => $remainingAmount,
+                    'payment_date' => now(),
+                    'receipt_number' => $receiptNumber,
+                    'received_by' => auth()->id(),
+                    'created_by' => auth()->id(),
+                    'updated_by' => auth()->id(),
+                    'notes' => 'Payment refund/adjustment for order #' . $order->order_number,
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Log order status change
+     */
+    private function logStatusChange($orderId, $oldStatusId, $newStatusId, $notes = null)
+    {
+        DB::table('order_status_logs')->insert([
+            'order_id' => $orderId,
+            'old_status_id' => $oldStatusId,
+            'new_status_id' => $newStatusId,
+            'notes' => $notes,
+            'changed_by' => auth()->id(),
+            'changed_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+    }
+
+    /**
+     * Log order update
+     */
+    private function logOrderUpdate($orderId, $notes = null)
+    {
+        DB::table('order_status_logs')->insert([
+            'order_id' => $orderId,
+            'new_status_id' => DB::table('orders')->where('id', $orderId)->value('status_id'),
+            'notes' => $notes,
+            'changed_by' => auth()->id(),
+            'changed_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     /**
@@ -1107,5 +1630,47 @@ class OrderController extends Controller
                 'errors' => ['general' => $e->getMessage()]
             ], 500);
         }
+    }
+
+    /**
+     * Get order item partial for AJAX
+     */
+    public function getItemPartial(Request $request)
+    {
+        $index = $request->index;
+        $dressTypes = DressType::where('is_active', true)->get();
+        $tailors = Tailor::where('status', 'active')->get();
+
+        $settings = \App\Models\Setting::first();
+        $enabledFields = $settings && !empty($settings->measurement_fields)
+            ? $settings->measurement_fields
+            : [
+                'height',
+                'weight',
+                'chest',
+                'waist',
+                'hips',
+                'shoulder',
+                'sleeve_length',
+                'sleeve_width',
+                'collar',
+                'bicep',
+                'wrist',
+                'pant_length',
+                'inseam',
+                'thigh',
+                'knee',
+                'bottom',
+                'ankle'
+            ];
+
+        $html = view('dashboard.orders.partials.order-item', compact(
+            'index',
+            'dressTypes',
+            'tailors',
+            'enabledFields'
+        ))->render();
+
+        return response()->json(['html' => $html]);
     }
 }

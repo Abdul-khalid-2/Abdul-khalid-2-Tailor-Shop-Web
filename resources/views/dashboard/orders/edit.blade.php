@@ -6,20 +6,131 @@
     <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
     <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
     <link rel="stylesheet" href="{{ asset('backend/assets/vendor/select2/css/select2.min.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/themes/nano.min.css"/>
+    <style>
+        .order-item-card {
+            border: 1px solid #e9ecef;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        .order-item-header {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            border-radius: 0.5rem 0.5rem 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .remove-item-btn {
+            color: #dc3545;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .remove-item-btn:hover {
+            color: #bd2130;
+            transform: scale(1.1);
+        }
+        .item-count-badge {
+            background-color: #007bff;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+        }
+        .add-item-card {
+            border: 2px dashed #dee2e6;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 1.5rem;
+        }
+        .add-item-card:hover {
+            border-color: #007bff;
+            background-color: #f8f9fa;
+        }
+        .add-item-card i {
+            font-size: 2rem;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+        .add-item-card:hover i {
+            color: #007bff;
+        }
+        .total-section {
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+        .grand-total {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .measurement-section {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.25rem;
+        }
+        .fabric-section {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0.25rem;
+        }
+        .price-summary {
+            background-color: #e9ecef;
+            padding: 1rem;
+            border-radius: 0.375rem;
+        }
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        .price-row.total {
+            border-top: 1px solid #dee2e6;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .bg-success-light {
+            background-color: #d4edda;
+        }
+        .color-picker-container {
+            display: none;
+            position: absolute;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 350px;
+        }
+    </style>
     @endpush
+
     <div class="container-fluid">
         <!-- Page Header -->
         <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
             <div>
-                <h4 class="mb-3">{{ __('messages.edit_order', ['order_number' => $order->order_number]) }}</h4>
-                <p class="mb-0">{{ __('messages.update_order_for', ['customer_name' => $order->customer->name]) }}</p>
+                <h4 class="mb-3">{{ __('Edit Order: :order_number', ['order_number' => $order->order_number]) }}</h4>
+                <p class="mb-0">{{ __('Update order for :customer_name', ['customer_name' => $order->customer->name]) }}</p>
             </div>
             <div>
-                <a href="{{ route('orders.show', $order) }}" class="btn btn-outline-secondary mr-2">
-                    <i class="las la-eye mr-1"></i> {{ __('messages.view_order') }}
+                <a href="{{ route('orders.show', $order) }}" class="btn btn-outline-info mr-2">
+                    <i class="las la-eye mr-1"></i> {{ __('View Order') }}
                 </a>
                 <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary">
-                    <i class="las la-arrow-left mr-1"></i> {{ __('messages.back_to_orders') }}
+                    <i class="las la-arrow-left mr-1"></i> {{ __('Back to Orders') }}
                 </a>
             </div>
         </div>
@@ -54,14 +165,14 @@
                             <!-- Customer & Basic Info -->
                             <div class="card mb-4">
                                 <div class="card-header bg-light">
-                                    <h6 class="mb-0">{{ __('messages.customer_order_info') }}</h6>
+                                    <h6 class="mb-0">{{ __('Customer & Order Information') }}</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.customer') }} *</label>
+                                            <label class="form-label">{{ __('Customer') }} *</label>
                                             <select class="form-control select2" id="customer_id" name="customer_id" required>
-                                                <option value="">{{ __('messages.select_customer') }}</option>
+                                                <option value="">{{ __('Select Customer') }}</option>
                                                 @foreach($customers as $customer)
                                                 <option value="{{ $customer->id }}" 
                                                     data-phone="{{ $customer->phone }}"
@@ -79,7 +190,7 @@
                                         </div>
 
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.order_date') }} *</label>
+                                            <label class="form-label">{{ __('Order Date') }} *</label>
                                             <input type="date" class="form-control" name="order_date" 
                                                    value="{{ old('order_date', $order->order_date->format('Y-m-d')) }}" required>
                                             @error('order_date')
@@ -90,9 +201,21 @@
 
                                     <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.branch') }} *</label>
+                                            <label class="form-label">{{ __('Order Number') }}</label>
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">#</span>
+                                                </div>
+                                                <input type="text" class="form-control font-weight-bold" 
+                                                       value="{{ $order->order_number }}" readonly>
+                                                <input type="hidden" name="order_number" value="{{ $order->order_number }}">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">{{ __('Branch') }} *</label>
                                             <select class="form-control select2" name="branch_id" required>
-                                                <option value="">{{ __('messages.select_branch') }}</option>
+                                                <option value="">{{ __('Select Branch') }}</option>
                                                 @foreach($branches as $branch)
                                                 <option value="{{ $branch->id }}" {{ old('branch_id', $order->branch_id) == $branch->id ? 'selected' : '' }}>
                                                     {{ $branch->name }}
@@ -103,9 +226,11 @@
                                             <div class="text-danger small">{{ $message }}</div>
                                             @enderror
                                         </div>
+                                    </div>
 
+                                    <div class="row">
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.order_status') }} *</label>
+                                            <label class="form-label">{{ __('Order Status') }} *</label>
                                             <select class="form-control select2" name="status_id" required>
                                                 @foreach($orderStatuses as $status)
                                                 <option value="{{ $status->id }}" 
@@ -119,48 +244,9 @@
                                             <div class="text-danger small">{{ $message }}</div>
                                             @enderror
                                         </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.dress_type') }} *</label>
-                                            <select class="form-control select2" id="dress_type_id" name="dress_type_id" required>
-                                                <option value="">{{ __('messages.select_dress_type') }}</option>
-                                                @foreach($dressTypes as $dressType)
-                                                <option value="{{ $dressType->id }}" 
-                                                        data-price="{{ $dressType->base_price }}"
-                                                        data-days="{{ $dressType->estimated_days }}"
-                                                        {{ old('dress_type_id', $order->items->first()->dress_type_id ?? '') == $dressType->id ? 'selected' : '' }}>
-                                                    {{ $dressType->name }} - Rs {{ number_format($dressType->base_price) }}
-                                                </option>
-                                                @endforeach
-                                            </select>
-                                            @error('dress_type_id')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
 
                                         <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.delivery_date') }} *</label>
-                                            <input type="date" class="form-control" id="delivery_date" name="delivery_date" 
-                                                   value="{{ old('delivery_date', $order->delivery_date->format('Y-m-d')) }}" required>
-                                            @error('delivery_date')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.base_price') }} *</label>
-                                            <input type="number" step="0.01" class="form-control" id="base_price" 
-                                                   name="base_price" value="{{ old('base_price', $order->items->first()->price ?? 0) }}" required readonly>
-                                            @error('base_price')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.payment_status') }} *</label>
+                                            <label class="form-label">{{ __('Payment Status') }} *</label>
                                             <select class="form-control select2" name="payment_status_id" required>
                                                 @foreach($paymentStatuses as $status)
                                                 <option value="{{ $status->id }}" 
@@ -176,595 +262,155 @@
                                         </div>
                                     </div>
 
-                                    <div class="mb-3">
-                                        <label class="form-label">{{ __('messages.order_description') }}</label>
-                                        <textarea class="form-control" name="notes" rows="2" 
-                                                  placeholder="{{ __('Brief description of the order...') }}">{{ old('notes', $order->notes) }}</textarea>
-                                        @error('notes')
-                                        <div class="text-danger small">{{ $message }}</div>
-                                        @enderror
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">{{ __('Delivery Date') }} *</label>
+                                            <input type="date" class="form-control" id="delivery_date" name="delivery_date" 
+                                                   value="{{ old('delivery_date', $order->delivery_date->format('Y-m-d')) }}" required>
+                                            @error('delivery_date')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">{{ __('Order Notes') }}</label>
+                                            <textarea class="form-control" name="notes" rows="2" 
+                                                      placeholder="{{ __('General notes about the order...') }}">{{ old('notes', $order->notes) }}</textarea>
+                                            @error('notes')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Measurement Section -->
-                            @if($order->items->isNotEmpty() && $order->items->first()->measurements->isNotEmpty())
-                                @php
-                                    $measurement = $order->items->first()->measurements->first();
-                                @endphp
-                                <div class="card mb-4">
-                                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                        <h6 class="mb-0">{{ __('messages.measurements_cm') }}</h6>
-                                        <button type="button" class="btn btn-sm btn-outline-primary" id="loadTemplatesBtn">
-                                            <i class="las la-ruler mr-1"></i> {{ __('messages.use_template') }}
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            @if(in_array('height', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.height') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[height]" 
-                                                    placeholder="-- 170 --" value="{{ old('measurements.height', $measurement->height) }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('weight', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.weight') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[weight]" 
-                                                    placeholder="-- 70 --" value="{{ old('measurements.weight', $measurement->weight) }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('chest', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.chest') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[chest]" 
-                                                    placeholder="-- 42 --" value="{{ old('measurements.chest', $measurement->chest) }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('waist', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.waist') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[waist]" 
-                                                    placeholder="-- 38 --" value="{{ old('measurements.waist', $measurement->waist) }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('hips', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.hips') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[hips]" 
-                                                    placeholder="-- 44 --" value="{{ old('measurements.hips', $measurement->hips) }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('shoulder', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.shoulder') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[shoulder]" 
-                                                    placeholder="-- 18 --" value="{{ old('measurements.shoulder', $measurement->shoulder) }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('sleeve_length', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.sleeve_length') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[sleeve_length]" 
-                                                    placeholder="-- 60 --" value="{{ old('measurements.sleeve_length', $measurement->sleeve_length) }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('sleeve_width', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.sleeve_width') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[sleeve_width]" 
-                                                    placeholder="-- 18 --" value="{{ old('measurements.sleeve_width', $measurement->sleeve_width) }}">
-                                            </div>
-                                            @endif
-                                        </div>
-                                        
-                                        <div class="row">
-                                            @if(in_array('collar', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.collar') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[collar]" 
-                                                    placeholder="-- 16 --" value="{{ old('measurements.collar', $measurement->collar) }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('bicep', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.bicep') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[bicep]" 
-                                                    placeholder="-- 12 --" value="{{ old('measurements.bicep', $measurement->bicep) }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('wrist', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.wrist') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[wrist]" 
-                                                    placeholder="-- 8 --"  value="{{ old('measurements.wrist', $measurement->wrist) }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('pant_length', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.pant_length') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[pant_length]" 
-                                                    placeholder="-- 100 --" value="{{ old('measurements.pant_length', $measurement->pant_length) }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('inseam', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.inseam') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[inseam]" 
-                                                    placeholder="-- 80 --" value="{{ old('measurements.inseam', $measurement->inseam) }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('thigh', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.thigh') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[thigh]" 
-                                                    placeholder="-- 24 --" value="{{ old('measurements.thigh', $measurement->thigh) }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('knee', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.knee') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[knee]" 
-                                                    placeholder="-- 18 --" value="{{ old('measurements.knee', $measurement->knee) }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('bottom', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.bottom') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[bottom]" 
-                                                    placeholder="-- 22 --" value="{{ old('measurements.bottom', $measurement->bottom) }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('ankle', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.ankle') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[ankle]" 
-                                                    placeholder="-- 10 --" value="{{ old('measurements.ankle', $measurement->ankle) }}">
-                                            </div>
-                                            @endif
-                                        </div>
-                                        
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">{{ __('messages.fitting_preferences') }}</label>
-                                                <textarea class="form-control" name="measurements[fitting_preferences]" rows="2" 
-                                                        placeholder="{{ __('Loose, tight, or any specific preferences...') }}">{{ old('measurements.fitting_preferences', $measurement->fitting_preferences) }}</textarea>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">{{ __('messages.measurement_notes') }}</label>
-                                                <textarea class="form-control" name="measurements[notes]" rows="2" 
-                                                        placeholder="{{ __('Additional notes about measurements...') }}">{{ old('measurements.notes', $measurement->notes) }}</textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @else
-                                <!-- Show empty measurement form if no measurements exist -->
-                                <div class="card mb-4">
-                                    <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                        <h6 class="mb-0">{{ __('messages.measurements_cm') }}</h6>
-                                        <button type="button" class="btn btn-sm btn-outline-primary" id="loadTemplatesBtn">
-                                            <i class="las la-ruler mr-1"></i> {{ __('messages.use_template') }}
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="alert alert-info">
-                                            <i class="las la-info-circle"></i> {{ __('messages.no_measurements_recorded') }}
-                                        </div>
-                                        
-                                        <div class="row">
-                                            @if(in_array('height', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.height') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[height]" 
-                                                    placeholder="-- 170 --" value="{{ old('measurements.height') }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('weight', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.weight') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[weight]" 
-                                                    placeholder="-- 70 --" value="{{ old('measurements.weight') }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('chest', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.chest') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[chest]" 
-                                                    placeholder="-- 42 --" value="{{ old('measurements.chest') }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('waist', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.waist') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[waist]" 
-                                                    placeholder="-- 38 --" value="{{ old('measurements.waist') }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('hips', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.hips') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[hips]" 
-                                                    placeholder="-- 44 --" value="{{ old('measurements.hips') }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('shoulder', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.shoulder') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[shoulder]" 
-                                                    placeholder="-- 18 --" value="{{ old('measurements.shoulder') }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('sleeve_length', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.sleeve_length') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[sleeve_length]" 
-                                                    placeholder="-- 60 --" value="{{ old('measurements.sleeve_length') }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('sleeve_width', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.sleeve_width') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[sleeve_width]" 
-                                                    placeholder="-- 18 --" value="{{ old('measurements.sleeve_width') }}">
-                                            </div>
-                                            @endif
-                                        </div>
-                                        
-                                        <div class="row">
-                                            @if(in_array('collar', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.collar') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[collar]" 
-                                                    placeholder="-- 16 --" value="{{ old('measurements.collar') }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('bicep', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.bicep') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[bicep]" 
-                                                    placeholder="-- 12 --" value="{{ old('measurements.bicep') }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('wrist', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.wrist') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[wrist]" 
-                                                    placeholder="-- 8 --" value="{{ old('measurements.wrist') }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('pant_length', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.pant_length') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[pant_length]" 
-                                                    placeholder="-- 100 --" value="{{ old('measurements.pant_length') }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('inseam', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.inseam') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[inseam]" 
-                                                    placeholder="-- 80 --" value="{{ old('measurements.inseam') }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('thigh', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.thigh') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[thigh]" 
-                                                    placeholder="-- 24 --" value="{{ old('measurements.thigh') }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('knee', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.knee') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[knee]" 
-                                                    placeholder="-- 18 --" value="{{ old('measurements.knee') }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('bottom', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.bottom') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[bottom]" 
-                                                    placeholder="-- 22 --" value="{{ old('measurements.bottom') }}">
-                                            </div>
-                                            @endif
-                                            
-                                            @if(in_array('ankle', $enabledFields))
-                                            <div class="col-md-3 mb-3">
-                                                <label class="form-label">{{ __('messages.ankle') }}</label>
-                                                <input type="number" step="0.1" class="form-control" name="measurements[ankle]" 
-                                                    placeholder="-- 10 --" value="{{ old('measurements.ankle') }}">
-                                            </div>
-                                            @endif
-                                        </div>
-                                        
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">{{ __('messages.fitting_preferences') }}</label>
-                                                <textarea class="form-control" name="measurements[fitting_preferences]" rows="2" 
-                                                        placeholder="{{ __('Loose, tight, or any specific preferences...') }}">{{ old('measurements.fitting_preferences') }}</textarea>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">{{ __('messages.measurement_notes') }}</label>
-                                                <textarea class="form-control" name="measurements[notes]" rows="2" 
-                                                        placeholder="{{ __('Additional notes about measurements...') }}">{{ old('measurements.notes') }}</textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
+                            <!-- Order Items Container -->
+                            <div id="orderItemsContainer">
+                                @foreach($order->items as $index => $item)
+                                    @include('dashboard.orders.partials.edit-order-item', [
+                                        'index' => $index,
+                                        'item' => $item,
+                                        'dressTypes' => $dressTypes,
+                                        'tailors' => $tailors,
+                                        'fabrics' => $fabrics,
+                                        'enabledFields' => $enabledFields,
+                                        'measurement' => $item->measurements->first(),
+                                        'assignment' => $item->tailorAssignments->first()
+                                    ])
+                                @endforeach
+                            </div>
 
-                            <!-- Fabric Details -->
-                            @php
-                                $item = $order->items->first();
-                            @endphp
+                            <!-- Add More Items Button -->
+                            <div class="add-item-card" id="addItemBtn">
+                                <i class="las la-plus-circle"></i>
+                                <h6 class="mt-2 mb-0">{{ __('Add Another Item') }}</h6>
+                                <small class="text-muted">{{ __('Click to add more clothes to this order') }}</small>
+                            </div>
 
-                            <div class="card mb-4">
-                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0">{{ __('messages.fabric_details') }}</h6>
-
-                                    <button type="button"
-                                            class="btn btn-sm btn-outline-info"
-                                            id="selectFabricBtn">
-                                        <i class="las la-layer-group mr-1"></i> {{ __('messages.select_from_inventory') }}
-                                    </button>
+                            <!-- Order Summary & Payment -->
+                            <div class="card mb-4 mt-4">
+                                <div class="card-header bg-light">
+                                    <h6 class="mb-0">{{ __('Order Summary & Payment') }}</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="row">
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">{{ __('messages.fabric_type') }}</label>
-                                            <input type="text"
-                                                class="form-control"
-                                                name="fabric_type"
-                                                id="fabric_type"
-                                                placeholder="{{ __('e.g., Silk, Cotton') }}"
-                                                value="{{ old('fabric_type', $item->fabric_type) }}">
+                                        <div class="col-md-7">
+                                            <div class="price-summary">
+                                                <div class="price-row">
+                                                    <span>{{ __('Sub Total') }}:</span>
+                                                    <span id="subTotal">Rs {{ number_format($order->total_amount, 0) }}</span>
+                                                </div>
+                                                <div class="price-row">
+                                                    <span>{{ __('Total Fabric Cost') }}:</span>
+                                                    <span id="totalFabricCost">Rs {{ number_format($order->items->sum('fabric_cost'), 0) }}</span>
+                                                </div>
+                                                <div class="price-row">
+                                                    <span>{{ __('Total Stitching Charges') }}:</span>
+                                                    <span id="totalStitchingCharges">Rs {{ number_format($order->items->sum(function($item) { 
+                                                        return $item->tailorAssignments->sum('stitching_charge'); 
+                                                    }), 0) }}</span>
+                                                </div>
+                                                <div class="price-row">
+                                                    <span>{{ __('Total Additional Charges') }}:</span>
+                                                    <span id="totalAdditionalCharges">Rs {{ number_format($order->items->sum('additional_charges'), 0) }}</span>
+                                                </div>
+                                                <div class="price-row">
+                                                    <span>{{ __('Total Discount') }}:</span>
+                                                    <span id="totalDiscount" class="text-danger">- Rs {{ number_format($order->discount_amount, 0) }}</span>
+                                                </div>
+                                                <div class="price-row total">
+                                                    <span>{{ __('Grand Total') }}:</span>
+                                                    <span id="grandTotal" class="grand-total">Rs {{ number_format($order->final_amount, 0) }}</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">{{ __('messages.color') }}</label>
-                                            <input type="text"
-                                                class="form-control"
-                                                name="fabric_color"
-                                                id="fabric_color"
-                                                placeholder="{{ __('e.g., Navy Blue') }}"
-                                                value="{{ old('fabric_color', $item->fabric_color) }}">
-                                        </div>
-
-                                        {{-- Meter --}}
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">{{ __('messages.meter_required') }}</label>
-                                            <input type="number"
-                                                step="0.01"
-                                                class="form-control"
-                                                name="fabric_meters"
-                                                id="meter_required"
-                                                placeholder="3.5"
-                                                value="{{ old('fabric_meters', $item->fabric_meters) }}">
+                                        <div class="col-md-5">
+                                            <div class="card bg-light">
+                                                <div class="card-body">
+                                                    <h6 class="mb-3">{{ __('Payment Details') }}</h6>
+                                                    <div class="form-group mb-3">
+                                                        <label class="form-label">{{ __('Advance Paid') }} *</label>
+                                                        <input type="number" step="0.01" class="form-control" id="advance_amount" 
+                                                               name="advance_amount" value="{{ old('advance_amount', $order->advance_amount) }}" required>
+                                                        @error('advance_amount')
+                                                        <div class="text-danger small">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                    <div class="form-group mb-3">
+                                                        <label class="form-label">{{ __('Discount Amount') }}</label>
+                                                        <input type="number" step="0.01" class="form-control" id="order_discount" 
+                                                               name="discount_amount" value="{{ old('discount_amount', $order->discount_amount) }}">
+                                                    </div>
+                                                    <div class="form-group mb-3">
+                                                        <label class="form-label">{{ __('Payment Method') }}</label>
+                                                        <select class="form-control" name="payment_method_id">
+                                                            @foreach($paymentMethods as $method)
+                                                            <option value="{{ $method->id }}" {{ old('payment_method_id', 1) == $method->id ? 'selected' : '' }}>
+                                                                {{ $method->name }}
+                                                            </option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group mb-0">
+                                                        <label class="form-label">{{ __('Balance Due') }}</label>
+                                                        <input type="number" step="0.01" class="form-control font-weight-bold text-danger" 
+                                                               id="balance_due" value="{{ $order->remaining_amount }}" readonly>
+                                                        <input type="hidden" name="remaining_amount" id="remaining_amount" value="{{ $order->remaining_amount }}">
+                                                        <input type="hidden" name="final_amount" id="final_amount" value="{{ $order->final_amount }}">
+                                                        <input type="hidden" name="total_amount" id="total_amount" value="{{ $order->total_amount }}">
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.fabric_rate_m') }}</label>
-                                            <input type="number"
-                                                step="0.01"
-                                                class="form-control"
-                                                name="fabric_rate"
-                                                id="fabric_rate"
-                                                value="{{ old('fabric_rate', $item->fabric_rate) }}">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.fabric_cost') }}</label>
-                                            <input type="number"
-                                                step="0.01"
-                                                class="form-control"
-                                                name="fabric_cost"
-                                                id="fabric_cost"
-                                                value="{{ old('fabric_cost', $item->fabric_cost) }}"
-                                                readonly>
-                                        </div>
-                                    </div>
-
-                                    {{-- Inventory fabric hidden fields (future use) --}}
-                                    <input type="hidden"
-                                        name="fabric_product_id"
-                                        value="{{ old('fabric_product_id', $item->fabric_product_id) }}">
-
-                                    <input type="hidden"
-                                        name="is_inventory_fabric"
-                                        value="{{ old('is_inventory_fabric', $item->is_inventory_fabric) }}">
                                 </div>
                             </div>
 
-                            <!-- Pricing & Payment -->
+                            <!-- Internal Notes -->
                             <div class="card mb-4">
                                 <div class="card-header bg-light">
-                                    <h6 class="mb-0">{{ __('messages.pricing_payment') }}</h6>
+                                    <h6 class="mb-0">{{ __('Internal Notes') }}</h6>
                                 </div>
                                 <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.stitching_charges') }}</label>
-                                            <input type="number" step="0.01" class="form-control" id="stitching_charges" 
-                                                   name="stitching_charges" value="{{ old('stitching_charges', 0) }}">
-                                            @error('stitching_charges')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.additional_charges') }}</label>
-                                            <input type="number" step="0.01" class="form-control" id="additional_charges" 
-                                                   name="additional_charges" value="{{ old('additional_charges', 0) }}">
-                                            @error('additional_charges')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.discount') }}</label>
-                                            <input type="number" step="0.01" class="form-control" id="discount_amount" 
-                                                   name="discount_amount" value="{{ old('discount_amount', $order->discount_amount) }}" required>
-                                            @error('discount_amount')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="col-md-3 mb-3">
-                                            <label class="form-label">{{ __('messages.total_amount') }} *</label>
-                                            <input type="number" step="0.01" class="form-control font-weight-bold" 
-                                                   id="total_amount" name="total_amount" value="{{ old('total_amount', $order->total_amount) }}" required readonly style="font-size: 1.2rem;">
-                                            @error('total_amount')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">{{ __('messages.advance_paid') }} *</label>
-                                            <input type="number" step="0.01" class="form-control" id="advance_amount" 
-                                                   name="advance_amount" value="{{ old('advance_amount', $order->advance_amount) }}" required>
-                                            @error('advance_amount')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">{{ __('messages.remaining_amount') }} *</label>
-                                            <input type="number" step="0.01" class="form-control" id="remaining_amount" 
-                                                   name="remaining_amount" value="{{ old('remaining_amount', $order->remaining_amount) }}" required readonly>
-                                            @error('remaining_amount')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">{{ __('messages.final_amount') }} *</label>
-                                            <input type="number" step="0.01" class="form-control" id="final_amount" 
-                                                   name="final_amount" value="{{ old('final_amount', $order->final_amount) }}" required readonly>
-                                            @error('final_amount')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.payment_method') }}</label>
-                                            <select class="form-control" name="payment_method_id">
-                                                @foreach($paymentMethods as $method)
-                                                <option value="{{ $method->id }}" {{ old('payment_method_id', 1) == $method->id ? 'selected' : '' }}>
-                                                    {{ $method->name }}
-                                                </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label">{{ __('messages.balance_due') }}</label>
-                                            <input type="number" step="0.01" class="form-control font-weight-bold text-danger" 
-                                                   id="balance_due" value="{{ $order->remaining_amount }}" readonly>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Tailor Assignment -->
-                            @if($order->items->isNotEmpty() && $order->items->first()->tailorAssignments->isNotEmpty())
-                                @php
-                                    $assignment = $order->items->first()->tailorAssignments->first();
-                                @endphp
-                                <div class="card mb-4">
-                                    <div class="card-header bg-light">
-                                        <h6 class="mb-0">{{ __('messages.tailor_assignment') }}</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">{{ __('messages.assign_to_tailor') }}</label>
-                                                <select class="form-control select2" id="tailor_id" name="tailor_id">
-                                                    <option value="">{{ __('messages.select_tailor') }}</option>
-                                                    @foreach($tailors as $tailor)
-                                                    <option value="{{ $tailor->id }}" {{ old('tailor_id', $assignment->tailor_id ?? '') == $tailor->id ? 'selected' : '' }}>
-                                                        {{ $tailor->name }} - {{ ucfirst($tailor->employment_type) }}
-                                                        @if($tailor->specializations)
-                                                        ({{ $tailor->specializations[0] ?? 'General' }})
-                                                        @endif
-                                                    </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label">{{ __('messages.expected_completion') }}</label>
-                                                <input type="date" class="form-control" id="expected_completion" 
-                                                       value="{{ old('expected_completion', $assignment->expected_date?->format('Y-m-d') ?? date('Y-m-d', strtotime('+5 days'))) }}">
-                                            </div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label">{{ __('messages.special_instructions') }}</label>
-                                            <textarea class="form-control" rows="2" placeholder="{{ __('Any special instructions for tailor...') }}">{{ old('instructions', $assignment->instructions ?? '') }}</textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-
-                            <!-- Notes -->
-                            <div class="card mb-4">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0">{{ __('messages.additional_notes') }}</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <label class="form-label">{{ __('messages.internal_notes') }}</label>
-                                        <textarea class="form-control" name="internal_notes" rows="3" 
-                                                  placeholder="{{ __('Internal notes about this order...') }}">{{ old('internal_notes', $order->internal_notes) }}</textarea>
-                                        @error('internal_notes')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" class="form-check-input" id="urgentOrder" name="urgent_order" 
-                                               {{ old('urgent_order') ? 'checked' : '' }}>
-                                        <label class="form-check-label text-warning" for="urgentOrder">
-                                            <i class="las la-exclamation-circle"></i> {{ __('messages.mark_as_urgent') }}
-                                        </label>
-                                    </div>
+                                    <textarea class="form-control" name="internal_notes" rows="3" 
+                                              placeholder="{{ __('Internal notes about this order (not visible to customer)...') }}">{{ old('internal_notes', $order->internal_notes) }}</textarea>
+                                    @error('internal_notes')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
 
                             <!-- Form Actions -->
                             <div class="d-flex justify-content-between">
                                 <a href="{{ route('orders.show', $order) }}" class="btn btn-outline-secondary">
-                                    <i class="las la-times mr-1"></i> {{ __('messages.cancel') }}
+                                    <i class="las la-times mr-1"></i> {{ __('Cancel') }}
                                 </a>
                                 <div>
                                     <button type="button" class="btn btn-outline-danger mr-2" onclick="deleteOrder()">
-                                        <i class="las la-trash mr-1"></i> {{ __('messages.delete_order') }}
+                                        <i class="las la-trash mr-1"></i> {{ __('Delete Order') }}
                                     </button>
                                     <button type="submit" class="btn btn-primary">
-                                        <i class="las la-save mr-1"></i> {{ __('messages.update_order') }}
+                                        <i class="las la-save mr-1"></i> {{ __('Update Order') }}
                                     </button>
                                 </div>
                             </div>
@@ -780,7 +426,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">{{ __('messages.select_measurement_template') }}</h5>
+                    <h5 class="modal-title">{{ __('Select Measurement Template') }}</h5>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
@@ -788,35 +434,33 @@
                         <div class="spinner-border text-primary" role="status">
                             <span class="sr-only">{{ __('Loading...') }}</span>
                         </div>
-                        <p class="mt-2">{{ __('messages.loading_templates') }}</p>
+                        <p class="mt-2">{{ __('Loading templates...') }}</p>
                     </div>
                     <div id="templateContent" style="display: none;">
                         <div class="table-responsive">
                             <table class="table table-sm table-hover" id="templatesTable">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th>{{ __('messages.template_name') }}</th>
-                                        <th>{{ __('messages.dress_type') }}</th>
-                                        <th>{{ __('messages.height') }}</th>
-                                        <th>{{ __('messages.chest') }}</th>
-                                        <th>{{ __('messages.waist') }}</th>
-                                        <th>{{ __('messages.action') }}</th>
+                                        <th>{{ __('Template Name') }}</th>
+                                        <th>{{ __('Dress Type') }}</th>
+                                        <th>{{ __('Height') }}</th>
+                                        <th>{{ __('Chest') }}</th>
+                                        <th>{{ __('Waist') }}</th>
+                                        <th>{{ __('Action') }}</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <!-- Templates will be loaded here -->
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
                     <div id="noTemplates" class="text-center p-4" style="display: none;">
                         <i class="las la-ruler-combined fa-3x text-muted mb-3"></i>
-                        <p>{{ __('messages.no_templates_found') }}</p>
-                        <p class="text-muted small">{{ __('messages.add_measurements_manually') }}</p>
+                        <p>{{ __('No measurement templates found for this customer.') }}</p>
+                        <p class="text-muted small">{{ __('You can add measurements manually.') }}</p>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('messages.close') }}</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
                 </div>
             </div>
         </div>
@@ -827,7 +471,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">{{ __('messages.select_fabric') }}</h5>
+                    <h5 class="modal-title">{{ __('Select Fabric from Inventory') }}</h5>
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
@@ -835,12 +479,12 @@
                         <table class="table table-sm table-hover">
                             <thead class="thead-light">
                                 <tr>
-                                    <th>{{ __('messages.fabric_code') }}</th>
-                                    <th>{{ __('messages.type') }}</th>
-                                    <th>{{ __('messages.color') }}</th>
-                                    <th>{{ __('messages.available_m') }}</th>
-                                    <th>{{ __('messages.rate_m') }}</th>
-                                    <th>{{ __('messages.action') }}</th>
+                                    <th>{{ __('Fabric Code') }}</th>
+                                    <th>{{ __('Type') }}</th>
+                                    <th>{{ __('Color') }}</th>
+                                    <th>{{ __('Available (m)') }}</th>
+                                    <th>{{ __('Rate/m') }}</th>
+                                    <th>{{ __('Action') }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -854,11 +498,13 @@
                                         </span>
                                     </td>
                                     <td>{{ number_format($fabric->stock_meter, 2) }}</td>
-                                    <td>{{ number_format($fabric->selling_rate) }}</td>
+                                    <td>{{ number_format($fabric->selling_rate, 0) }}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary" 
-                                                onclick="selectFabric('{{ $fabric->type }}', '{{ $fabric->color }}', {{ $fabric->selling_rate }})">
-                                            {{ __('messages.select') }}
+                                        <button class="btn btn-sm btn-outline-primary select-fabric-btn" 
+                                                data-type="{{ $fabric->type }}"
+                                                data-color="{{ $fabric->color }}"
+                                                data-rate="{{ $fabric->selling_rate }}">
+                                            {{ __('Select') }}
                                         </button>
                                     </td>
                                 </tr>
@@ -868,101 +514,352 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('messages.close') }}</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Order Confirmation Modal -->
+    <div class="modal fade" id="deleteOrderModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">{{ __('Delete Order') }}</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center py-3">
+                        <i class="las la-exclamation-triangle fa-4x text-danger mb-3"></i>
+                        <h5>{{ __('Are you sure?') }}</h5>
+                        <p class="text-muted">
+                            {{ __('You are about to delete order :order_number. This action cannot be undone.', ['order_number' => $order->order_number]) }}
+                        </p>
+                        @if($order->payments->count() > 0)
+                        <div class="alert alert-warning">
+                            <i class="las la-exclamation-circle"></i>
+                            {{ __('This order has :count payment(s). Deleting will also remove payment records.', ['count' => $order->payments->count()]) }}
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
+                    <form action="{{ route('orders.destroy', $order) }}" method="POST" style="display: inline;">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">
+                            <i class="las la-trash"></i> {{ __('Yes, Delete Order') }}
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
     @push('js')
-
-        <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
-
-        <!-- Table Treeview JavaScript -->
-        <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
-
-        <!-- Chart Custom JavaScript -->
-        <script src="{{ asset('backend/assets/js/customizer.js') }}"></script>
-
-        <!-- Chart Custom JavaScript -->
-        <script async src="{{ asset('backend/assets/js/chart-custom.js') }}"></script>
-
-    <!-- app JavaScript -->
-        <script src="{{ asset('backend/assets/js/app.js') }}"></script>
+    <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
+    <script src="{{ asset('backend/assets/vendor/select2/js/select2.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@simonwep/pickr/dist/pickr.min.js"></script>
+    <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
+    <script src="{{ asset('backend/assets/js/customizer.js') }}"></script>
+    <script src="{{ asset('backend/assets/js/chart-custom.js') }}"></script>
+    <script src="{{ asset('backend/assets/js/app.js') }}"></script>
 
     <script>
+        let itemCount = {{ $order->items->count() }};
+        let pickrInstances = {};
+
         $(document).ready(function() {
             // Initialize Select2
             $('.select2').select2({
                 theme: 'bootstrap'
             });
 
-            // Update base price when dress type changes
-            $('#dress_type_id').change(function() {
+            // Initialize color pickers for existing items
+            initializeColorPickers();
+
+            // Add new order item
+            $('#addItemBtn').click(function() {
+                addNewOrderItem();
+            });
+
+            // Remove order item
+            $(document).on('click', '.remove-item-btn', function() {
+                const itemId = $(this).data('item-id');
+                removeOrderItem(itemId);
+            });
+
+            // Dress type change
+            $(document).on('change', '.dress-type-select', function() {
+                const itemId = $(this).data('item-id');
                 const selectedOption = $(this).find('option:selected');
                 const basePrice = selectedOption.data('price') || 0;
                 const estimatedDays = selectedOption.data('days') || 7;
                 
-                $('#base_price').val(basePrice);
-                
-                // Update delivery date based on estimated days
-                const orderDate = $('input[name="order_date"]').val();
-                if (orderDate) {
-                    const deliveryDate = new Date(orderDate);
-                    deliveryDate.setDate(deliveryDate.getDate() + parseInt(estimatedDays));
-                    const formattedDate = deliveryDate.toISOString().split('T')[0];
-                    $('#delivery_date').val(formattedDate);
-                }
-                
-                calculateTotal();
+                $(`#base_price_${itemId}`).val(basePrice.toFixed(2));
+                calculateItemTotal(itemId);
+                calculateGrandTotal();
             });
 
-            // Calculate fabric cost
-            $('#meter_required, #fabric_rate').on('input', function() {
-                const meter = parseFloat($('#meter_required').val()) || 0;
-                const rate = parseFloat($('#fabric_rate').val()) || 0;
+            // Fabric calculations
+            $(document).on('input', '.fabric-meters, .fabric-rate', function() {
+                const itemId = $(this).data('item-id');
+                const meter = parseFloat($(`#fabric_meters_${itemId}`).val()) || 0;
+                const rate = parseFloat($(`#fabric_rate_${itemId}`).val()) || 0;
                 const fabricCost = meter * rate;
-                $('#fabric_cost').val(fabricCost.toFixed(2));
-                calculateTotal();
+                $(`#fabric_cost_${itemId}`).val(fabricCost.toFixed(2));
+                calculateItemTotal(itemId);
+                calculateGrandTotal();
             });
 
-            // Calculate total amount
-            $('#stitching_charges, #additional_charges, #discount_amount, #advance_amount').on('input', calculateTotal);
-
-            // Load measurement templates when customer changes
-            $('#customer_id').change(function() {
-                const customerId = $(this).val();
-                if (customerId) {
-                    $('#loadTemplatesBtn').prop('disabled', false);
+            // Include fabric checkbox
+            $(document).on('change', '.include-fabric-checkbox', function() {
+                const itemId = $(this).data('item-id');
+                calculateItemTotal(itemId);
+                calculateGrandTotal();
+                
+                const fabricCostField = $(`#fabric_cost_${itemId}`);
+                if ($(this).is(':checked')) {
+                    fabricCostField.removeClass('bg-light text-muted').addClass('bg-success-light');
                 } else {
-                    $('#loadTemplatesBtn').prop('disabled', true);
+                    fabricCostField.removeClass('bg-success-light').addClass('bg-light text-muted');
                 }
             });
 
-            // Load templates button click
-            $('#loadTemplatesBtn').click(function() {
+            // Stitching charges, additional charges, discount
+            $(document).on('input', '.stitching-charges, .additional-charges, .item-discount', function() {
+                const itemId = $(this).data('item-id');
+                calculateItemTotal(itemId);
+                calculateGrandTotal();
+            });
+
+            // Quantity change
+            $(document).on('input', '.item-quantity', function() {
+                const itemId = $(this).data('item-id');
+                calculateItemTotal(itemId);
+                calculateGrandTotal();
+            });
+
+            // Order discount and advance amount change
+            $('#order_discount, #advance_amount').on('input', function() {
+                calculateGrandTotal();
+                calculateBalance();
+            });
+
+            // Load measurement templates
+            $(document).on('click', '.load-templates-btn', function() {
                 const customerId = $('#customer_id').val();
-                const dressTypeId = $('#dress_type_id').val();
+                const itemId = $(this).data('item-id');
                 
                 if (!customerId) {
-                    alert('{{ __("messages.please_select_customer_first") }}');
+                    alert('{{ __("Please select a customer first.") }}');
                     return;
                 }
                 
+                window.activeMeasurementItemId = itemId;
                 $('#measurementModal').modal('show');
-                loadMeasurementTemplates(customerId, dressTypeId);
+                loadMeasurementTemplates(customerId);
             });
 
-            // Select fabric button click
-            $('#selectFabricBtn').click(function() {
+            // Select fabric button
+            $(document).on('click', '.select-fabric-btn', function() {
+                const type = $(this).data('type');
+                const color = $(this).data('color');
+                const rate = $(this).data('rate');
+                const activeItemId = window.activeFabricItemId || 0;
+                
+                $(`#fabric_type_${activeItemId}`).val(type);
+                $(`#fabric_color_${activeItemId}`).val(color);
+                $(`#fabric_rate_${activeItemId}`).val(rate);
+                
+                $('#fabricModal').modal('hide');
+                
+                // Suggest meter requirement based on dress type
+                const dressTypeName = $(`#dress_type_id_${activeItemId} option:selected`).text().toLowerCase();
+                let suggestedMeters = 2.5;
+                
+                if (dressTypeName.includes('sherwani') || dressTypeName.includes('gown')) {
+                    suggestedMeters = 5.5;
+                } else if (dressTypeName.includes('suit')) {
+                    suggestedMeters = 4.0;
+                } else if (dressTypeName.includes('kurta') || dressTypeName.includes('shalwar')) {
+                    suggestedMeters = 3.5;
+                } else if (dressTypeName.includes('lehenga')) {
+                    suggestedMeters = 6.0;
+                }
+                
+                $(`#fabric_meters_${activeItemId}`).val(suggestedMeters);
+                
+                const fabricCost = suggestedMeters * rate;
+                $(`#fabric_cost_${activeItemId}`).val(fabricCost.toFixed(2));
+                calculateItemTotal(activeItemId);
+                calculateGrandTotal();
+            });
+
+            // Select fabric from inventory button
+            $(document).on('click', '.select-fabric-from-inventory', function() {
+                window.activeFabricItemId = $(this).data('item-id');
                 $('#fabricModal').modal('show');
             });
 
             // Initialize calculations
-            calculateTotal();
+            calculateGrandTotal();
         });
 
-        function loadMeasurementTemplates(customerId, dressTypeId) {
+        function addNewOrderItem() {
+            $.ajax({
+                url: '{{ route("orders.get-item-partial") }}',
+                type: 'GET',
+                data: {
+                    index: itemCount,
+                    dressTypes: @json($dressTypes),
+                    tailors: @json($tailors),
+                    enabledFields: @json($enabledFields)
+                },
+                success: function(response) {
+                    $('#orderItemsContainer').append(response.html);
+                    
+                    // Initialize Select2 for new item
+                    $(`#dress_type_id_${itemCount}`).select2({
+                        theme: 'bootstrap',
+                        dropdownParent: $(`#dress_type_id_${itemCount}`).parent()
+                    });
+                    
+                    $(`#tailor_id_${itemCount}`).select2({
+                        theme: 'bootstrap',
+                        dropdownParent: $(`#tailor_id_${itemCount}`).parent()
+                    });
+                    
+                    // Initialize color picker for new item
+                    initializeColorPickerForItem(itemCount);
+                    
+                    itemCount++;
+                    
+                    // Scroll to new item
+                    $('html, body').animate({
+                        scrollTop: $(`#order_item_${itemCount - 1}`).offset().top - 100
+                    }, 500);
+                    
+                    toastr.success('{{ __("New item added successfully.") }}');
+                },
+                error: function() {
+                    toastr.error('{{ __("Failed to add new item.") }}');
+                }
+            });
+        }
+
+        function removeOrderItem(itemId) {
+            if (itemCount === 1) {
+                toastr.warning('{{ __("Cannot remove the last item.") }}');
+                return;
+            }
+            
+            if (confirm('{{ __("Are you sure you want to remove this item?") }}')) {
+                // If it's an existing item from database, mark for deletion
+                if ($(`#order_item_${itemId}`).data('is-existing') === true) {
+                    $(`#order_item_${itemId}`).append(`<input type="hidden" name="items[${itemId}][delete]" value="1">`);
+                    $(`#order_item_${itemId}`).hide();
+                } else {
+                    $(`#order_item_${itemId}`).remove();
+                }
+                itemCount--;
+                calculateGrandTotal();
+                toastr.success('{{ __("Item removed successfully.") }}');
+            }
+        }
+
+        function calculateItemTotal(itemId) {
+            const basePrice = parseFloat($(`#base_price_${itemId}`).val()) || 0;
+            const fabricCost = parseFloat($(`#fabric_cost_${itemId}`).val()) || 0;
+            const stitching = parseFloat($(`#stitching_charges_${itemId}`).val()) || 0;
+            const additional = parseFloat($(`#additional_charges_${itemId}`).val()) || 0;
+            const discount = parseFloat($(`#item_discount_${itemId}`).val()) || 0;
+            const quantity = parseFloat($(`#quantity_${itemId}`).val()) || 1;
+            
+            const includeFabric = $(`#includeFabricInTotal_${itemId}`).is(':checked');
+            
+            let itemSubTotal = basePrice + stitching + additional - discount;
+            let itemTotal = itemSubTotal * quantity;
+            
+            if (includeFabric) {
+                itemTotal += (fabricCost * quantity);
+            }
+            
+            $(`#item_total_${itemId}`).val(itemTotal.toFixed(2));
+            $(`#item_total_display_${itemId}`).text('Rs ' + itemTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+        }
+
+        function calculateGrandTotal() {
+            let subTotal = 0;
+            let totalFabricCost = 0;
+            let totalStitching = 0;
+            let totalAdditional = 0;
+            let totalDiscount = 0;
+            let grandTotal = 0;
+            
+            $('.order-item-card').each(function() {
+                const itemId = $(this).data('item-id');
+                
+                // Skip hidden/deleted items
+                if ($(this).css('display') === 'none') return;
+                
+                const basePrice = parseFloat($(`#base_price_${itemId}`).val()) || 0;
+                const fabricCost = parseFloat($(`#fabric_cost_${itemId}`).val()) || 0;
+                const stitching = parseFloat($(`#stitching_charges_${itemId}`).val()) || 0;
+                const additional = parseFloat($(`#additional_charges_${itemId}`).val()) || 0;
+                const discount = parseFloat($(`#item_discount_${itemId}`).val()) || 0;
+                const quantity = parseFloat($(`#quantity_${itemId}`).val()) || 1;
+                const includeFabric = $(`#includeFabricInTotal_${itemId}`).is(':checked');
+                
+                const itemSubTotal = (basePrice + stitching + additional - discount) * quantity;
+                subTotal += itemSubTotal;
+                
+                totalFabricCost += includeFabric ? (fabricCost * quantity) : 0;
+                totalStitching += stitching * quantity;
+                totalAdditional += additional * quantity;
+                totalDiscount += discount * quantity;
+                
+                let itemGrandTotal = itemSubTotal;
+                if (includeFabric) {
+                    itemGrandTotal += fabricCost * quantity;
+                }
+                grandTotal += itemGrandTotal;
+            });
+            
+            // Apply order level discount
+            const orderDiscount = parseFloat($('#order_discount').val()) || 0;
+            grandTotal -= orderDiscount;
+            totalDiscount += orderDiscount;
+            
+            $('#subTotal').text('Rs ' + subTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+            $('#totalFabricCost').text('Rs ' + totalFabricCost.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+            $('#totalStitchingCharges').text('Rs ' + totalStitching.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+            $('#totalAdditionalCharges').text('Rs ' + totalAdditional.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+            $('#totalDiscount').text('- Rs ' + totalDiscount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+            $('#grandTotal').text('Rs ' + grandTotal.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','));
+            
+            $('#total_amount').val(grandTotal.toFixed(2));
+            $('#final_amount').val(grandTotal.toFixed(2));
+            
+            calculateBalance(grandTotal);
+        }
+
+        function calculateBalance(grandTotal = null) {
+            if (grandTotal === null) {
+                grandTotal = parseFloat($('#grandTotal').text().replace('Rs ', '').replace(/,/g, '')) || 0;
+            }
+            
+            const advancePaid = parseFloat($('#advance_amount').val()) || 0;
+            const balance = grandTotal - advancePaid;
+            
+            $('#balance_due').val(balance.toFixed(2));
+            $('#remaining_amount').val(balance.toFixed(2));
+        }
+
+        function loadMeasurementTemplates(customerId) {
             $('#templateLoading').show();
             $('#templateContent').hide();
             $('#noTemplates').hide();
@@ -978,38 +875,35 @@
                     tableBody.empty();
                     
                     if (templates.length > 0) {
-                        // Filter by dress type if selected
-                        let filteredTemplates = templates;
-                        if (dressTypeId) {
-                            filteredTemplates = templates.filter(template => 
-                                template.dress_type.toLowerCase().includes($('#dress_type_id option:selected').text().toLowerCase())
-                            );
-                        }
+                        templates.forEach(template => {
+                            const measurements = template.measurements;
+                            const row = `
+                                <tr>
+                                    <td>${template.template_name}</td>
+                                    <td>${template.dress_type}</td>
+                                    <td>${measurements.height || 'N/A'}</td>
+                                    <td>${measurements.chest || 'N/A'}</td>
+                                    <td>${measurements.waist || 'N/A'}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary apply-template-btn" 
+                                                data-measurements='${JSON.stringify(measurements)}'
+                                                data-item-id="${window.activeMeasurementItemId}">
+                                            {{ __("Apply") }}
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                            tableBody.append(row);
+                        });
                         
-                        if (filteredTemplates.length > 0) {
-                            filteredTemplates.forEach(template => {
-                                const measurements = template.measurements;
-                                const row = `
-                                    <tr>
-                                        <td>${template.template_name}</td>
-                                        <td>${template.dress_type}</td>
-                                        <td>${measurements.height || 'N/A'}</td>
-                                        <td>${measurements.chest || 'N/A'}</td>
-                                        <td>${measurements.waist || 'N/A'}</td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary" 
-                                                    onclick="applyTemplate(${JSON.stringify(measurements).replace(/"/g, '&quot;')})">
-                                                {{ __("messages.apply") }}
-                                            </button>
-                                        </td>
-                                    </tr>
-                                `;
-                                tableBody.append(row);
-                            });
-                            $('#templateContent').show();
-                        } else {
-                            $('#noTemplates').show();
-                        }
+                        $('#templateContent').show();
+                        
+                        // Apply template button handler
+                        $('.apply-template-btn').click(function() {
+                            const measurements = $(this).data('measurements');
+                            const itemId = $(this).data('item-id');
+                            applyTemplate(measurements, itemId);
+                        });
                     } else {
                         $('#noTemplates').show();
                     }
@@ -1021,163 +915,250 @@
             });
         }
 
-        function applyTemplate(measurements) {
-            // Apply measurements to form fields
+        function applyTemplate(measurements, itemId) {
             Object.keys(measurements).forEach(key => {
-                const input = $(`input[name="measurements[${key}]"], textarea[name="measurements[${key}]"]`);
+                const input = $(`#order_item_${itemId} input[name="items[${itemId}][measurements][${key}]"], 
+                               #order_item_${itemId} textarea[name="items[${itemId}][measurements][${key}]"]`);
                 if (input.length) {
                     input.val(measurements[key]);
                 }
             });
             
             $('#measurementModal').modal('hide');
-            alert('{{ __("messages.measurement_template_applied") }}');
+            toastr.success('{{ __("Measurement template applied successfully.") }}');
         }
 
-        function selectFabric(type, color, rate) {
-            $('#fabric_type').val(type);
-            $('#fabric_color').val(color);
-            $('#fabric_rate').val(rate);
-            $('#fabricModal').modal('hide');
-
-            // Suggest meter requirement based on dress type
-            const dressTypeName = $('#dress_type_id option:selected').text().toLowerCase();
-            let suggestedMeters = 0;
-
-            if (dressTypeName.includes('sherwani') || dressTypeName.includes('gown')) {
-                suggestedMeters = 5.5;
-            } else if (dressTypeName.includes('suit')) {
-                suggestedMeters = 4.0;
-            } else if (dressTypeName.includes('kurta') || dressTypeName.includes('shalwar')) {
-                suggestedMeters = 3.5;
-            } else if (dressTypeName.includes('lehenga')) {
-                suggestedMeters = 6.0;
-            } else {
-                suggestedMeters = 2.5;
-            }
-
-            $('#meter_required').val(suggestedMeters);
-
-            // Calculate fabric cost
-            const fabricCost = suggestedMeters * rate;
-            $('#fabric_cost').val(fabricCost.toFixed(2));
-            calculateTotal();
-
-            alert(`{{ __("messages.fabric_selected") }}`.replace(':type', type).replace(':color', color));
+        function initializeColorPickers() {
+            $('.color-picker-btn').each(function() {
+                const itemId = $(this).data('item-id');
+                initializeColorPickerForItem(itemId);
+            });
         }
 
-        function calculateTotal() {
-            const basePrice = parseFloat($('#base_price').val()) || 0;
-            const fabricCost = parseFloat($('#fabric_cost').val()) || 0;
-            const stitching = parseFloat($('#stitching_charges').val()) || 0;
-            const additional = parseFloat($('#additional_charges').val()) || 0;
-            const discount = parseFloat($('#discount_amount').val()) || 0;
-
-            const total = basePrice + fabricCost + stitching + additional - discount;
-            $('#total_amount').val(total.toFixed(2));
+        function initializeColorPickerForItem(itemId) {
+            const btnId = `#colorPickerBtn_${itemId}`;
+            const containerId = `#colorPickerContainer_${itemId}`;
             
-            // Calculate balance
-            const advancePaid = parseFloat($('#advance_amount').val()) || 0;
-            const balance = total - advancePaid;
-            $('#balance_due').val(balance.toFixed(2));
-            $('#remaining_amount').val(balance.toFixed(2));
-            $('#final_amount').val(total.toFixed(2));
+            $(btnId).click(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (pickrInstances[itemId]) {
+                    pickrInstances[itemId].show();
+                    return;
+                }
+                
+                pickrInstances[itemId] = Pickr.create({
+                    el: containerId,
+                    theme: 'nano',
+                    default: $(`#fabric_color_${itemId}`).val() || '#1D4ED8',
+                    swatches: [
+                        '#000000', '#FFFFFF', '#1D4ED8', '#EF4444', '#10B981',
+                        '#F59E0B', '#8B5CF6', '#EC4899', '#6B7280', '#92400E'
+                    ],
+                    components: {
+                        preview: true,
+                        opacity: true,
+                        hue: true,
+                        interaction: {
+                            hex: true,
+                            rgba: true,
+                            hsla: true,
+                            hsva: true,
+                            cmyk: true,
+                            input: true,
+                            clear: true,
+                            save: true
+                        }
+                    }
+                });
+                
+                $(containerId).show();
+                pickrInstances[itemId].show();
+                
+                pickrInstances[itemId].on('save', (color, instance) => {
+                    const hexColor = color.toHEXA().toString();
+                    $(`#fabric_color_${itemId}`).val(hexColor);
+                    $(containerId).hide();
+                    instance.hide();
+                });
+                
+                pickrInstances[itemId].on('clear', (instance) => {
+                    $(`#fabric_color_${itemId}`).val('');
+                    $(containerId).hide();
+                    instance.hide();
+                });
+            });
         }
+
+        $(document).click(function(e) {
+            if (!$(e.target).closest('[id^="colorPickerContainer"]').length && 
+                !$(e.target).closest('[id^="colorPickerBtn"]').length && 
+                !$(e.target).closest('.pcr-button').length) {
+                
+                Object.keys(pickrInstances).forEach(itemId => {
+                    $(`#colorPickerContainer_${itemId}`).hide();
+                    if (pickrInstances[itemId]) {
+                        pickrInstances[itemId].hide();
+                    }
+                });
+            }
+        });
 
         function deleteOrder() {
-            if (confirm('{{ __("messages.are_you_sure_delete") }}')) {
-                window.location.href = '{{ route("orders.destroy", $order) }}';
-            }
+            $('#deleteOrderModal').modal('show');
         }
 
-        // Helper function to get color code
-        function getColorCode(colorName) {
-            const colors = {
-                'navy blue': '#1D4ED8',
-                'white': '#FFFFFF',
-                'black': '#000000',
-                'red': '#EF4444',
-                'blue': '#3B82F6',
-                'green': '#10B981',
-                'yellow': '#F59E0B',
-                'pink': '#EC4899',
-                'purple': '#8B5CF6',
-                'gray': '#6B7280',
-                'brown': '#92400E',
-                'beige': '#FDE68A',
-                'maroon': '#991B1B',
-                'orange': '#F97316',
-                'gold': '#FBBF24',
-                'silver': '#D1D5DB',
-            };
-            return colors[colorName.toLowerCase()] || '#6B7280';
-        }
+        $('#orderForm').submit(function(e) {
+            const requiredFields = $(this).find('[required]');
+            let valid = true;
+            
+            requiredFields.each(function() {
+                if (!$(this).val().trim()) {
+                    valid = false;
+                    $(this).addClass('is-invalid');
+                } else {
+                    $(this).removeClass('is-invalid');
+                }
+            });
+            
+            if (!valid) {
+                e.preventDefault();
+                toastr.error('{{ __("Please fill all required fields.") }}');
+                return;
+            }
+            
+            const grandTotal = parseFloat($('#grandTotal').text().replace('Rs ', '').replace(/,/g, '')) || 0;
+            if (grandTotal <= 0) {
+                e.preventDefault();
+                toastr.error('{{ __("Order total must be greater than zero.") }}');
+                return;
+            }
+            
+            calculateBalance(grandTotal);
+        });
+
+        // Toastr configuration
+        toastr.options = {
+            closeButton: true,
+            progressBar: true,
+            positionClass: "toast-top-right",
+            timeOut: 3000
+        };
     </script>
 
     <style>
-        .card {
-            border-radius: 0.5rem;
-        }
-
-        .card-header.bg-light {
-            background-color: #f8f9fa !important;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .btn {
-            border-radius: 0.375rem;
-        }
-
-        .form-control {
-            border-radius: 0.375rem;
-        }
-
-        .modal-content {
-            border-radius: 0.5rem;
-            border: none;
-        }
-
-        .close {
-            font-size: 1.5rem;
-            font-weight: 300;
-        }
-
-        .table th {
-            border-top: none;
-            font-weight: 600;
-            color: #6c757d;
-        }
-
-        .badge {
-            font-size: 0.75em;
-            font-weight: 500;
-            padding: 0.35em 0.65em;
-        }
-
-        #total_amount, #final_amount {
-            background-color: #f8f9fa;
-            font-weight: bold;
-            color: #28a745;
-        }
-
-        #balance_due {
-            background-color: #f8f9fa;
-            font-weight: bold;
-            color: #dc3545;
-        }
-
-        .form-check-input:checked {
-            background-color: #ffc107;
-            border-color: #ffc107;
-        }
-
-        .select2-container--bootstrap .select2-selection {
-            border-radius: 0.375rem;
+        .timeline {
+            position: relative;
+            padding-left: 30px;
         }
         
-        .spinner-border {
-            width: 3rem;
-            height: 3rem;
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #e9ecef;
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: -30px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 3px #e9ecef;
+        }
+        
+        .timeline-content {
+            padding-left: 10px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: bold;
+        }
+        
+        .avatar-sm {
+            width: 30px;
+            height: 30px;
+            font-size: 12px;
+        }
+        
+        .border-left-primary {
+            border-left: 0.25rem solid #4e73df !important;
+        }
+        
+        .border-left-success {
+            border-left: 0.25rem solid #1cc88a !important;
+        }
+        
+        .border-left-danger {
+            border-left: 0.25rem solid #e74a3b !important;
+        }
+        
+        .border-left-warning {
+            border-left: 0.25rem solid #f6c23e !important;
+        }
+        
+        .border-left-info {
+            border-left: 0.25rem solid #36b9cc !important;
+        }
+        
+        .bg-gradient-primary {
+            background: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
+        }
+        
+        .badge-pill {
+            padding: 0.5rem 1rem;
+        }
+        
+        .list-group-item {
+            border: none;
+            border-bottom: 1px solid rgba(0,0,0,.125);
+        }
+        
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+        
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .bg-warning-light {
+            background-color: #fff3cd;
+        }
+        
+        .bg-info-light {
+            background-color: #d1ecf1;
+        }
+        
+        .progress {
+            background-color: #eaecf4;
+            border-radius: 0.25rem;
+        }
+        
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+        
+        .invalid-feedback {
+            display: block;
         }
     </style>
     @endpush
