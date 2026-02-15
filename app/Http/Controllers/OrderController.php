@@ -376,8 +376,8 @@ class OrderController extends Controller
                 $totalAdditionalCharges += $itemAdditionalCharges;
                 $totalDiscountAmount += $itemDiscountAmount;
 
-                // For grand total, include fabric cost
-                $totalAmount += $itemTotal + $itemFabricCost;
+                // Grand total = SubTotal + Fabric + Stitching + Additional - Discount
+                $totalAmount += $itemSubTotal + $itemFabricCost + $itemStitchingCharges + $itemAdditionalCharges - $itemDiscountAmount;
             }
 
             // Calculate remaining amount
@@ -700,16 +700,26 @@ class OrderController extends Controller
             $oldStatusId = $order->status_id;
 
             // Calculate order totals from items (excluding items marked for deletion)
-            $totals = $this->calculateOrderTotals($request->items);
+            $activeItems = array_filter($request->items, function ($item) {
+                return !isset($item['delete']) || $item['delete'] != 1;
+            });
 
-            $totalAmount = $totals['totalAmount'];
+            $totals = $this->calculateOrderTotals($activeItems);
+
+            $subTotal = $totals['subTotal'];
             $totalFabricCost = $totals['totalFabricCost'];
             $totalStitchingCharges = $totals['totalStitchingCharges'];
             $totalAdditionalCharges = $totals['totalAdditionalCharges'];
-            $totalDiscountAmount = $totals['totalDiscountAmount'] + ($validated['discount_amount'] ?? 0);
+            $totalItemDiscount = $totals['totalDiscountAmount'];
 
-            // Apply order-level discount
-            $finalAmount = $totalAmount - ($validated['discount_amount'] ?? 0);
+            // Total discount = item discounts + order-level discount
+            $totalDiscountAmount = $totalItemDiscount + ($validated['discount_amount'] ?? 0);
+
+            // Grand total = subTotal + fabric + stitching + additional - total discount
+            $totalAmount = $subTotal + $totalFabricCost + $totalStitchingCharges + $totalAdditionalCharges - $totalDiscountAmount;
+
+            // Apply order-level discount (already included in totalAmount calculation above)
+            $finalAmount = $totalAmount;
             $remainingAmount = $finalAmount - ($validated['advance_amount'] ?? 0);
 
             // Determine payment status based on advance payment
@@ -824,15 +834,16 @@ class OrderController extends Controller
     }
 
     /**
-     * Calculate order totals from items
+     * Calculate order totals from items based on frontend calculation logic
      */
     private function calculateOrderTotals($items)
     {
-        $totalAmount = 0;
-        $totalFabricCost = 0;
+        $subTotal = 0;          // Base Price × Quantity for all items
+        $totalFabricCost = 0;   // Sum of fabric costs
         $totalStitchingCharges = 0;
         $totalAdditionalCharges = 0;
         $totalDiscountAmount = 0;
+        $totalAmount = 0;       // Grand total including all components
 
         foreach ($items as $item) {
             // Skip items marked for deletion
@@ -842,31 +853,42 @@ class OrderController extends Controller
 
             $quantity = $item['quantity'] ?? 1;
 
-            $itemSubTotal = ($item['base_price'] ?? 0) +
-                ($item['stitching_charges'] ?? 0) +
-                ($item['additional_charges'] ?? 0) -
-                ($item['discount_amount'] ?? 0);
+            // 1. SubTotal = Base Price × Quantity
+            $itemSubTotal = ($item['base_price'] ?? 0) * $quantity;
+            $subTotal += $itemSubTotal;
 
-            $itemTotal = $itemSubTotal * $quantity;
+            // 2. Stitching Charges = per item stitching × quantity
+            $itemStitching = ($item['stitching_charges'] ?? 0) * $quantity;
+            $totalStitchingCharges += $itemStitching;
 
-            // Add fabric cost if exists
-            if (isset($item['fabric_cost']) && $item['fabric_cost'] > 0) {
-                $itemTotal += $item['fabric_cost'] * $quantity;
-                $totalFabricCost += $item['fabric_cost'] * $quantity;
-            }
+            // 3. Additional Charges = per item additional × quantity
+            $itemAdditional = ($item['additional_charges'] ?? 0) * $quantity;
+            $totalAdditionalCharges += $itemAdditional;
 
-            $totalAmount += $itemTotal;
-            $totalStitchingCharges += ($item['stitching_charges'] ?? 0) * $quantity;
-            $totalAdditionalCharges += ($item['additional_charges'] ?? 0) * $quantity;
-            $totalDiscountAmount += ($item['discount_amount'] ?? 0) * $quantity;
+            // 4. Discount = per item discount × quantity
+            $itemDiscount = ($item['discount_amount'] ?? 0) * $quantity;
+            $totalDiscountAmount += $itemDiscount;
+
+            // 5. Fabric Cost = fabric_cost (already total, not per item)
+            // In your form, fabric_cost is stored as total cost (cost × quantity)
+            $itemFabricCost = $item['fabric_cost'] ?? 0;
+            $totalFabricCost += $itemFabricCost;
+
+            // 6. Calculate item total for storage (without fabric)
+            $itemTotalWithoutFabric = $itemSubTotal + $itemStitching + $itemAdditional - $itemDiscount;
+
+            // 7. Grand Total = SubTotal + Fabric + Stitching + Additional - Discount
+            $itemGrandTotal = $itemSubTotal + $itemFabricCost + $itemStitching + $itemAdditional - $itemDiscount;
+            $totalAmount += $itemGrandTotal;
         }
 
         return [
-            'totalAmount' => $totalAmount,
+            'subTotal' => $subTotal,
             'totalFabricCost' => $totalFabricCost,
             'totalStitchingCharges' => $totalStitchingCharges,
             'totalAdditionalCharges' => $totalAdditionalCharges,
             'totalDiscountAmount' => $totalDiscountAmount,
+            'totalAmount' => $totalAmount,
         ];
     }
 

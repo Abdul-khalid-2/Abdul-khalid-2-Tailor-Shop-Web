@@ -32,6 +32,52 @@
             </div>
         </div>
 
+        @php
+            // Calculate totals properly from items
+            $subTotal = 0; // Base Price × Quantity
+            $totalFabricCost = 0;
+            $totalStitchingCharges = 0;
+            $totalAdditionalCharges = 0;
+            $totalItemDiscount = 0;
+
+            foreach($order->items as $item) {
+                $quantity = $item->quantity ?? 1;
+
+                // Base subtotal (price * qty)
+                $subTotal += (($item->price ?? 0) * $quantity);
+
+                // Fabric cost: assume stored as total for the item (if per-item stored, adapt as needed)
+                $itemFabric = $item->fabric_cost ?? 0;
+                $totalFabricCost += $itemFabric;
+
+                // Stitching: prefer explicit column on order_items, otherwise sum tailor assignments' stitching_charge
+                $perItemStitching = $item->stitching_charges ?? ($item->tailorAssignments->first()->stitching_charge ?? 0);
+                $totalStitchingCharges += ($perItemStitching * $quantity);
+
+                // Additional charges: treat as per-item amount stored on order_items
+                $perItemAdditional = $item->additional_charges ?? 0;
+                $totalAdditionalCharges += ($perItemAdditional * $quantity);
+
+                // Discount: order_items.discount_amount may be stored as per-item or already multiplied. Handle both:
+                $rawDiscount = $item->discount_amount ?? 0;
+                if ($rawDiscount > 0) {
+                    // If discount looks like a per-item value (<= price), multiply by qty, otherwise assume total
+                    if ($rawDiscount <= ($item->price ?? 0)) {
+                        $itemDiscountTotal = $rawDiscount * $quantity;
+                    } else {
+                        $itemDiscountTotal = $rawDiscount;
+                    }
+                } else {
+                    $itemDiscountTotal = 0;
+                }
+
+                $totalItemDiscount += $itemDiscountTotal;
+            }
+
+            $totalDiscount = $totalItemDiscount + ($order->discount_amount ?? 0);
+            $grandTotal = $subTotal + $totalFabricCost + $totalStitchingCharges + $totalAdditionalCharges - $totalDiscount;
+        @endphp
+
         <!-- Order Summary -->
         <div class="row mb-4">
             <div class="col-lg-8">
@@ -45,22 +91,26 @@
                                             {{ __('Order Status') }}
                                         </div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            <span class="badge badge-pill" style="background-color: {{ $order->status->color }}; color: white; font-size: 1rem;">
-                                                {{ $order->status->name }}
+                                            <span class="badge badge-pill" style="background-color: {{ $order->status->color ?? '#6b7280' }}; color: white; font-size: 1rem;">
+                                                {{ $order->status->name ?? 'Pending' }}
                                             </span>
                                         </div>
                                         <div class="mt-2 mb-0 text-muted text-xs">
-                                            @if($order->delivery_date->isFuture())
-                                            {{ __(':days days remaining', ['days' => $order->delivery_date->diffInDays(now())]) }}
-                                            @elseif($order->delivery_date->isPast() && $order->status->slug != 'delivered')
-                                            <span class="text-danger">{{ __('Overdue by :days days', ['days' => now()->diffInDays($order->delivery_date)]) }}</span>
+                                            @if($order->delivery_date)
+                                                @if($order->delivery_date->isFuture())
+                                                {{ __(':days days remaining', ['days' => $order->delivery_date->diffInDays(now())]) }}
+                                                @elseif($order->delivery_date->isPast() && ($order->status->slug ?? '') != 'delivered')
+                                                <span class="text-danger">{{ __('Overdue by :days days', ['days' => now()->diffInDays($order->delivery_date)]) }}</span>
+                                                @else
+                                                {{ $order->delivery_date->diffForHumans() }}
+                                                @endif
                                             @else
-                                            {{ $order->delivery_date->diffForHumans() }}
+                                                {{ __('Delivery date not set') }}
                                             @endif
                                         </div>
                                     </div>
                                     <div class="col-auto">
-                                        <i class="las la-{{ $order->status->slug == 'pending' ? 'clock' : ($order->status->slug == 'in-progress' ? 'tasks' : ($order->status->slug == 'delivered' ? 'check-circle' : 'circle')) }} fa-2x text-primary"></i>
+                                        <i class="las la-{{ ($order->status->slug ?? 'pending') == 'pending' ? 'clock' : (($order->status->slug ?? '') == 'in-progress' ? 'tasks' : (($order->status->slug ?? '') == 'delivered' ? 'check-circle' : 'circle')) }} fa-2x text-primary"></i>
                                     </div>
                                 </div>
                             </div>
@@ -76,14 +126,14 @@
                                             {{ __('Payment Status') }}
                                         </div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            <span class="badge badge-pill" style="background-color: {{ $order->paymentStatus->color }}; color: white; font-size: 1rem;">
-                                                {{ $order->paymentStatus->name }}
+                                            <span class="badge badge-pill" style="background-color: {{ $order->paymentStatus->color ?? '#6b7280' }}; color: white; font-size: 1rem;">
+                                                {{ $order->paymentStatus->name ?? 'Pending' }}
                                             </span>
                                         </div>
                                         <div class="mt-2 mb-0 text-muted text-xs">
-                                            @if($order->paymentStatus->slug == 'partial')
+                                            @if(($order->paymentStatus->slug ?? '') == 'partial')
                                             {{ __('Rs :amount remaining', ['amount' => number_format($order->remaining_amount, 0)]) }}
-                                            @elseif($order->paymentStatus->slug == 'paid')
+                                            @elseif(($order->paymentStatus->slug ?? '') == 'paid')
                                             {{ __('Fully paid') }}
                                             @else
                                             {{ __('Pending') }}
@@ -103,24 +153,24 @@
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">{{ __('messages.customer_order_info') }}</h6>
-                        <span class="badge badge-light">{{ __('Order Date') }}: {{ $order->order_date->format('d M, Y') }}</span>
+                        <span class="badge badge-light">{{ __('Order Date') }}: {{ $order->order_date ? $order->order_date->format('d M, Y') : 'N/A' }}</span>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="d-flex align-items-center mb-3">
                                     <div class="avatar bg-primary text-white rounded-circle mr-3">
-                                        <span class="avatar-title">{{ substr($order->customer->name, 0, 1) }}</span>
+                                        <span class="avatar-title">{{ $order->customer ? substr($order->customer->name, 0, 1) : '?' }}</span>
                                     </div>
                                     <div>
-                                        <h6 class="mb-0 font-weight-bold">{{ $order->customer->name }}</h6>
-                                        <small class="text-muted">{{ __('Customer ID') }}: #{{ $order->customer->id }}</small>
+                                        <h6 class="mb-0 font-weight-bold">{{ $order->customer->name ?? 'N/A' }}</h6>
+                                        <small class="text-muted">{{ __('Customer ID') }}: #{{ $order->customer->id ?? 'N/A' }}</small>
                                     </div>
                                 </div>
                                 <table class="table table-sm">
                                     <tr>
                                         <th width="40%">{{ __('messages.phone') }}:</th>
-                                        <td>{{ $order->customer->phone }}</td>
+                                        <td>{{ $order->customer->phone ?? 'N/A' }}</td>
                                     </tr>
                                     <tr>
                                         <th>{{ __('messages.address') }}:</th>
@@ -129,8 +179,8 @@
                                     <tr>
                                         <th>{{ __('Customer Type') }}:</th>
                                         <td>
-                                            <span class="badge badge-{{ $order->customer->customer_type == 'regular' ? 'primary' : ($order->customer->customer_type == 'vip' ? 'success' : 'secondary') }}">
-                                                {{ ucfirst($order->customer->customer_type) }}
+                                            <span class="badge badge-{{ ($order->customer->customer_type ?? 'regular') == 'regular' ? 'primary' : (($order->customer->customer_type ?? '') == 'vip' ? 'success' : 'secondary') }}">
+                                                {{ ucfirst($order->customer->customer_type ?? 'regular') }}
                                             </span>
                                         </td>
                                     </tr>
@@ -145,21 +195,21 @@
                                     <tr>
                                         <th>{{ __('messages.delivery_date') }}:</th>
                                         <td>
-                                            {{ $order->delivery_date->format('d M, Y') }}
-                                            @if($order->delivery_date->isToday())
+                                            {{ $order->delivery_date ? $order->delivery_date->format('d M, Y') : 'N/A' }}
+                                            @if($order->delivery_date && $order->delivery_date->isToday())
                                             <span class="badge badge-warning ml-2">{{ __('Today') }}</span>
                                             @endif
                                         </td>
                                     </tr>
                                     <tr>
                                         <th>{{ __('messages.branch') }}:</th>
-                                        <td>{{ $order->branch->name }}</td>
+                                        <td>{{ $order->branch->name ?? 'N/A' }}</td>
                                     </tr>
                                     <tr>
                                         <th>{{ __('Order Type') }}:</th>
                                         <td>
                                             <span class="badge badge-{{ $order->order_type == 'tailoring' ? 'info' : 'secondary' }}">
-                                                {{ ucfirst($order->order_type) }}
+                                                {{ ucfirst($order->order_type ?? 'tailoring') }}
                                             </span>
                                         </td>
                                     </tr>
@@ -189,9 +239,6 @@
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex justify-content-between align-items-center">
                         <h6 class="m-0 font-weight-bold text-primary">{{ __('messages.order_items') }}</h6>
-                        <button class="btn btn-sm btn-outline-primary" onclick="addItem({{ $order->id }})">
-                            <i class="las la-plus"></i> {{ __('Add Item') }}
-                        </button>
                     </div>
                     <div class="card-body p-0">
                         <div class="list-group list-group-flush">
@@ -201,9 +248,9 @@
                                 <div class="d-flex justify-content-between align-items-start mb-3">
                                     <div>
                                         <h6 class="mb-1 font-weight-bold">
-                                            {{ $item->dressType->name ?? 'N/A' }}
+                                            {{ $item->dressType->name ?? $item->item_name ?? 'N/A' }}
                                             <span class="badge badge-pill badge-{{ $item->item_status == 'pending' ? 'warning' : ($item->item_status == 'cutting' ? 'info' : ($item->item_status == 'stitching' ? 'primary' : ($item->item_status == 'ready' ? 'success' : 'secondary'))) }} ml-2">
-                                                {{ ucfirst(str_replace('_', ' ', $item->item_status)) }}
+                                                {{ ucfirst(str_replace('_', ' ', $item->item_status ?? 'pending')) }}
                                             </span>
                                         </h6>
                                         <small class="text-muted">
@@ -212,31 +259,59 @@
                                     </div>
                                     <div class="text-right">
                                         <div class="h6 mb-1 font-weight-bold text-success">
-                                            Rs {{ number_format($item->total, 0) }}
+                                            Rs {{ number_format($item->price * $item->quantity, 0) }}
                                         </div>
-                                        <small class="text-muted d-block">{{ __('Item Total') }}</small>
+                                        <small class="text-muted d-block">{{ __('Base Total') }}</small>
                                     </div>
                                 </div>
 
-                                <!-- Item Pricing Details -->
+                                <!-- Item Pricing Details with better missing value handling -->
                                 <div class="row mb-3">
                                     <div class="col-md-3">
                                         <small class="text-muted d-block font-weight-bold">{{ __('messages.quantity') }}</small>
-                                        <span class="h6">{{ $item->quantity }}</span>
+                                        <span class="h6">{{ $item->quantity ?? 1 }}</span>
                                     </div>
                                     <div class="col-md-3">
                                         <small class="text-muted d-block font-weight-bold">{{ __('messages.base_price') }}</small>
-                                        <span class="h6">Rs {{ number_format($item->price, 0) }}</span>
+                                        <span class="h6">Rs {{ number_format($item->price ?? 0, 0) }}</span>
                                     </div>
                                     <div class="col-md-3">
                                         <small class="text-muted d-block font-weight-bold">{{ __('messages.stitching_charges') }}</small>
-                                        <span class="h6">Rs {{ number_format($item->stitching_charge ?? 0, 0) }}</span>
+                                        @if(isset($item->stitching_charges) && $item->stitching_charges > 0)
+                                            <span class="h6 text-success">Rs {{ number_format($item->stitching_charges, 0) }}</span>
+                                        @else
+                                            <span class="badge badge-warning">Not set</span>
+                                        @endif
                                     </div>
                                     <div class="col-md-3">
                                         <small class="text-muted d-block font-weight-bold">{{ __('messages.additional_charges') }}</small>
-                                        <span class="h6">Rs {{ number_format($item->additional_charges ?? 0, 0) }}</span>
+                                        @if(isset($item->additional_charges) && $item->additional_charges > 0)
+                                            <span class="h6 text-info">Rs {{ number_format($item->additional_charges, 0) }}</span>
+                                        @else
+                                            <span class="badge badge-warning">Not set</span>
+                                        @endif
                                     </div>
                                 </div>
+
+                                <!-- Show fabric cost if available -->
+                                @if(isset($item->fabric_cost) && $item->fabric_cost > 0)
+                                <div class="row mb-2">
+                                    <div class="col-md-3">
+                                        <small class="text-muted d-block font-weight-bold">{{ __('messages.fabric_cost') }}</small>
+                                        <span class="h6 text-danger">Rs {{ number_format($item->fabric_cost, 0) }}</span>
+                                    </div>
+                                </div>
+                                @endif
+
+                                <!-- Show discount if available -->
+                                @if(isset($item->discount_amount) && $item->discount_amount > 0)
+                                <div class="row mb-2">
+                                    <div class="col-md-3">
+                                        <small class="text-muted d-block font-weight-bold">{{ __('messages.discount') }}</small>
+                                        <span class="h6 text-danger">- Rs {{ number_format($item->discount_amount, 0) }}</span>
+                                    </div>
+                                </div>
+                                @endif
 
                                 <!-- Fabric Details Section -->
                                 @if($item->fabric_type || $item->fabric_color || $item->fabric_meters)
@@ -284,7 +359,7 @@
                                 @endif
 
                                 <!-- Measurements Section -->
-                                @if($item->measurements->count() > 0)
+                                @if($item->measurements && $item->measurements->count() > 0)
                                 <div class="mt-3 pt-3 border-top">
                                     <div class="d-flex align-items-center mb-2">
                                         <i class="las la-ruler text-primary mr-2 fa-lg"></i>
@@ -294,10 +369,11 @@
                                         @php
                                         $measurement = $item->measurements->first();
                                         $displayedFields = 0;
+                                        $enabledFields = $enabledFields ?? ['height', 'chest', 'waist', 'shoulder', 'sleeve_length'];
                                         @endphp
 
                                         @foreach($enabledFields as $field)
-                                        @if($measurement->$field !== null)
+                                        @if($measurement && $measurement->$field !== null)
                                         <div class="col-md-3 col-6 mb-2">
                                             <div class="bg-light p-2 rounded small">
                                                 <small class="text-muted d-block text-capitalize">{{ str_replace('_', ' ', $field) }}</small>
@@ -315,7 +391,7 @@
                                         @endif
                                     </div>
 
-                                    @if($measurement->fitting_preferences || $measurement->notes)
+                                    @if($measurement && ($measurement->fitting_preferences || $measurement->notes))
                                     <div class="mt-2">
                                         @if($measurement->fitting_preferences)
                                         <div class="bg-warning-light p-2 rounded small mb-2">
@@ -337,14 +413,14 @@
 
                                 <!-- Discount & Special Instructions -->
                                 <div class="row mt-3 pt-3 border-top">
-                                    @if($item->discount)
+                                    @if(($item->discount_amount ?? 0) > 0)
                                     <div class="col-md-6">
                                         <small class="text-muted d-block font-weight-bold">{{ __('messages.discount') }}</small>
-                                        <span class="h6 text-danger">- Rs {{ number_format($item->discount, 0) }}</span>
+                                        <span class="h6 text-danger">- Rs {{ number_format($item->discount_amount, 0) }}</span>
                                     </div>
                                     @endif
                                     @if($item->instructions)
-                                    <div class="col-md-{{ $item->discount ? '6' : '12' }}">
+                                    <div class="col-md-{{ ($item->discount_amount ?? 0) > 0 ? '6' : '12' }}">
                                         <small class="text-muted d-block font-weight-bold">{{ __('messages.special_instructions') }}</small>
                                         <p class="small mb-0">{{ $item->instructions }}</p>
                                     </div>
@@ -352,7 +428,7 @@
                                 </div>
 
                                 <!-- Tailor Assignment -->
-                                @if($item->tailorAssignments->count() > 0)
+                                @if($item->tailorAssignments && $item->tailorAssignments->count() > 0)
                                 <div class="mt-3 pt-3 border-top">
                                     <div class="row align-items-center">
                                         <div class="col-md-6">
@@ -360,47 +436,23 @@
                                             <small class="text-muted d-block font-weight-bold">{{ __('Tailor Assignment') }}</small>
                                             <div class="d-flex align-items-center mt-2">
                                                 <div class="avatar avatar-sm bg-info text-white rounded-circle mr-2">
-                                                    <span class="avatar-title">{{ substr($assignment->tailor->name, 0, 1) }}</span>
+                                                    <span class="avatar-title">{{ $assignment->tailor ? substr($assignment->tailor->name, 0, 1) : '?' }}</span>
                                                 </div>
                                                 <div>
-                                                    <strong>{{ $assignment->tailor->name }}</strong>
+                                                    <strong>{{ $assignment->tailor->name ?? 'N/A' }}</strong>
                                                     <small class="d-block text-muted">
-                                                        <span class="badge" style="background-color: {{ $assignment->status->color }}; color: white;">
-                                                            {{ $assignment->status->name }}
+                                                        <span class="badge" style="background-color: {{ $assignment->status->color ?? '#6b7280' }}; color: white;">
+                                                            {{ $assignment->status->name ?? 'Assigned' }}
                                                         </span>
                                                     </small>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-6">
-                                            <small class="text-muted d-block font-weight-bold">{{ __('Progress') }}</small>
-                                            <div class="d-flex align-items-center mt-2">
-                                                <div class="progress flex-grow-1 mr-2" style="height: 6px;">
-                                                    <div class="progress-bar" role="progressbar"
-                                                        style="width: {{ $assignment->progress_percentage }}%; background-color: {{ $assignment->status->color }};">
-                                                    </div>
-                                                </div>
-                                                <span class="small font-weight-bold">{{ $assignment->progress_percentage }}%</span>
-                                            </div>
-                                        </div>
+                                        
                                     </div>
                                 </div>
                                 @endif
 
-                                <!-- Item Actions -->
-                                <div class="mt-3 pt-3 border-top text-right">
-                                    <button class="btn btn-xs btn-outline-info" onclick="updateItemStatus({{ $item->id }}, '{{ $item->item_status }}')">
-                                        <i class="las la-sync"></i> {{ __('Update Status') }}
-                                    </button>
-                                    <button class="btn btn-xs btn-outline-primary" onclick="editItem({{ $item->id }})">
-                                        <i class="las la-edit"></i> {{ __('messages.edit') }}
-                                    </button>
-                                    @if($item->tailorAssignments->count() == 0)
-                                    <button class="btn btn-xs btn-outline-warning" onclick="assignTailorToItem({{ $item->id }})">
-                                        <i class="las la-user-tie"></i> {{ __('Assign Tailor') }}
-                                    </button>
-                                    @endif
-                                </div>
                             </div>
                             @endforeach
                         </div>
@@ -414,57 +466,140 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-7">
+                            <div class="col-md-12">
                                 <div class="card bg-light">
                                     <div class="card-body">
-                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                                            <span>{{ __('messages.sub_total') }}:</span>
-                                            <span class="font-weight-bold">Rs {{ number_format($order->total_amount ?? 0, 0) }}</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                                            <span>{{ __('messages.total_fabric_cost') }}:</span>
-                                            <span class="font-weight-bold">Rs {{ number_format($order->items->sum('fabric_cost') ?? 0, 0) }}</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                                            <span>{{ __('messages.total_stitching_charges') }}:</span>
-                                            <span class="font-weight-bold">Rs {{ number_format($order->items->sum('stitching_charge') ?? 0, 0) }}</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                                            <span>{{ __('messages.total_additional_charges') }}:</span>
-                                            <span class="font-weight-bold">Rs {{ number_format($order->items->sum('additional_charges') ?? 0, 0) }}</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-3">
-                                            <span>{{ __('messages.total_discount') }}:</span>
-                                            <span class="font-weight-bold text-danger">- Rs {{ number_format($order->discount_amount ?? 0, 0) }}</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between pt-2">
-                                            <strong class="h6 mb-0">{{ __('messages.grand_total') }}:</strong>
-                                            <strong class="h6 mb-0 text-success">Rs {{ number_format($order->final_amount, 0) }}</strong>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-5">
-                                <div class="card bg-primary text-white">
-                                    <div class="card-body">
-                                        <h6 class="card-title text-white mb-3">{{ __('messages.payment_details') }}</h6>
-                                        
-                                        <div class="mb-3">
-                                            <small>{{ __('messages.advance_paid') }}</small>
-                                            <div class="h6 text-white mb-0">Rs {{ number_format($order->advance_amount, 0) }}</div>
+                                        <!-- Item-wise Breakdown -->
+                                        <div class="mb-4 pb-3" style="border-bottom: 2px solid #dee2e6;">
+                                            <h6 class="mb-3 font-weight-bold">{{ __('Item-wise Breakdown') }}</h6>
+                                            @foreach($order->items as $index => $item)
+                                            <div class="mb-3 pb-2" style="border-bottom: 1px dashed #dee2e6;">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <strong class="text-primary">
+                                                        {{ $item->dressType->name ?? $item->item_name ?? 'Item' }} #{{ $index + 1 }}
+                                                    </strong>
+                                                    <strong class="text-success">
+                                                        Rs {{ number_format($item->price * $item->quantity, 0) }} 
+                                                        ({{ $item->quantity }} {{ $item->quantity > 1 ? 'items' : 'item' }})
+                                                    </strong>
+                                                </div>
+                                                
+                                                                    @php
+                                                                    $qty = $item->quantity ?? 1;
+                                                                    $perItemStitching = $item->stitching_charges ?? ($item->tailorAssignments->first()->stitching_charge ?? 0);
+                                                                    $totalStitchingForItem = $perItemStitching * $qty;
+                                                                    @endphp
+                                                                    @if($perItemStitching > 0)
+                                                                    <div class="d-flex justify-content-between small text-muted pl-3">
+                                                                        <span>Stitching charges (Rs {{ number_format($perItemStitching, 0) }} × {{ $qty }})</span>
+                                                                        <span class="text-dark">+ Rs {{ number_format($totalStitchingForItem, 0) }}</span>
+                                                                    </div>
+                                                                    @endif
+                                                
+                                                @php
+                                                $perItemAdditional = $item->additional_charges ?? 0;
+                                                $totalAdditionalForItem = $perItemAdditional * ($item->quantity ?? 1);
+                                                @endphp
+                                                @if($perItemAdditional > 0)
+                                                <div class="d-flex justify-content-between small text-muted pl-3">
+                                                    <span>Additional charges (Rs {{ number_format($perItemAdditional, 0) }} × {{ $item->quantity ?? 1 }})</span>
+                                                    <span class="text-dark">+ Rs {{ number_format($totalAdditionalForItem, 0) }}</span>
+                                                </div>
+                                                @endif
+                                                
+                                                @php
+                                                $perItemFabric = $item->fabric_cost ?? 0;
+                                                // If fabric cost was stored per-item, multiply by qty. Otherwise treat as total stored value.
+                                                $totalFabricForItem = $perItemFabric;
+                                                @endphp
+                                                @if($perItemFabric > 0)
+                                                <div class="d-flex justify-content-between small text-muted pl-3">
+                                                    <span>Fabric cost (Rs {{ number_format(($perItemFabric / ($item->quantity ?? 1)), 0) }} × {{ $item->quantity ?? 1 }})</span>
+                                                    <span class="text-dark">+ Rs {{ number_format($totalFabricForItem, 0) }}</span>
+                                                </div>
+                                                @endif
+                                                
+                                                @php
+                                                $rawDiscount = $item->discount_amount ?? 0;
+                                                if ($rawDiscount > 0) {
+                                                    if ($rawDiscount <= ($item->price ?? 0)) {
+                                                        $perItemDiscount = $rawDiscount;
+                                                        $totalDiscountForItem = $perItemDiscount * ($item->quantity ?? 1);
+                                                    } else {
+                                                        $perItemDiscount = $rawDiscount / ($item->quantity ?? 1);
+                                                        $totalDiscountForItem = $rawDiscount;
+                                                    }
+                                                } else {
+                                                    $perItemDiscount = 0;
+                                                    $totalDiscountForItem = 0;
+                                                }
+                                                @endphp
+                                                @if($totalDiscountForItem > 0)
+                                                <div class="d-flex justify-content-between small text-danger pl-3">
+                                                    <span>Discount (Rs {{ number_format($perItemDiscount, 0) }} × {{ $item->quantity ?? 1 }})</span>
+                                                    <span>- Rs {{ number_format($totalDiscountForItem, 0) }}</span>
+                                                </div>
+                                                @endif
+                                            </div>
+                                            @endforeach
                                         </div>
 
-                                        @if($order->payment_method)
-                                        <div class="mb-3">
-                                            <small>{{ __('messages.payment_method') }}</small>
-                                            <div class="h6 text-white mb-0">{{ $order->paymentMethod->name ?? 'N/A' }}</div>
+                                        <!-- Totals with better missing value handling -->
+                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                                            <span>{{ __('messages.sub_total') }} (Base Price × Quantity):</span>
+                                            <span class="font-weight-bold">Rs {{ number_format($subTotal, 0) }}</span>
+                                        </div>
+
+                                        @if($totalFabricCost > 0)
+                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                                            <span>{{ __('messages.total_fabric_cost') }}:</span>
+                                            <span class="font-weight-bold">Rs {{ number_format($totalFabricCost, 0) }}</span>
+                                        </div>
+                                        @else
+                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2 text-muted">
+                                            <span>{{ __('messages.total_fabric_cost') }}:</span>
+                                            <span class="font-italic">Not applicable</span>
                                         </div>
                                         @endif
 
-                                        <div class="border-top pt-3">
-                                            <small>{{ __('messages.balance_due') }}</small>
-                                            <div class="h5 text-white font-weight-bold">Rs {{ number_format($order->remaining_amount, 0) }}</div>
+                                        @if($totalStitchingCharges > 0)
+                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                                            <span>{{ __('messages.total_stitching_charges') }}:</span>
+                                            <span class="font-weight-bold">Rs {{ number_format($totalStitchingCharges, 0) }}</span>
                                         </div>
+                                        @else
+                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2 text-muted">
+                                            <span>{{ __('messages.total_stitching_charges') }}:</span>
+                                            <span class="font-italic">Not included</span>
+                                        </div>
+                                        @endif
+
+                                        @if($totalAdditionalCharges > 0)
+                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                                            <span>{{ __('messages.total_additional_charges') }}:</span>
+                                            <span class="font-weight-bold">Rs {{ number_format($totalAdditionalCharges, 0) }}</span>
+                                        </div>
+                                        @else
+                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2 text-muted">
+                                            <span>{{ __('messages.total_additional_charges') }}:</span>
+                                            <span class="font-italic">None</span>
+                                        </div>
+                                        @endif
+
+                                        @if($totalDiscount > 0)
+                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-3">
+                                            <span>{{ __('messages.total_discount') }}:</span>
+                                            <span class="font-weight-bold text-danger">- Rs {{ number_format($totalDiscount, 0) }}</span>
+                                        </div>
+                                        @endif
+
+                                        <div class="d-flex justify-content-between pt-2">
+                                            <strong class="h6 mb-0">{{ __('messages.grand_total') }}:</strong>
+                                            <strong class="h5 mb-0 text-success">Rs {{ number_format($grandTotal, 0) }}</strong>
+                                        </div>
+                                        <small class="text-muted d-block mt-2 text-right">
+                                            Grand Total = SubTotal + Fabric + Stitching + Additional - Discount
+                                        </small>
                                     </div>
                                 </div>
                             </div>
@@ -481,7 +616,7 @@
                         </button>
                     </div>
                     <div class="card-body">
-                        @if($order->payments->count() > 0)
+                        @if($order->payments && $order->payments->count() > 0)
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead class="thead-light">
@@ -498,7 +633,7 @@
                                 <tbody>
                                     @foreach($order->payments as $payment)
                                     <tr>
-                                        <td>{{ $payment->payment_date->format('d M, Y') }}</td>
+                                        <td>{{ $payment->payment_date ? $payment->payment_date->format('d M, Y') : 'N/A' }}</td>
                                         <td class="font-weight-bold">{{ $payment->receipt_number ?? 'N/A' }}</td>
                                         <td>{{ $payment->paymentMethod->name ?? 'N/A' }}</td>
                                         <td class="text-right text-success font-weight-bold">Rs {{ number_format($payment->amount, 0) }}</td>
@@ -525,7 +660,7 @@
                                             {{ __('messages.total_amount') }}
                                         </div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            Rs {{ number_format($order->final_amount, 0) }}
+                                            Rs {{ number_format($grandTotal, 0) }}
                                         </div>
                                     </div>
                                 </div>
@@ -574,10 +709,10 @@
                                 <div class="timeline-content">
                                     <div class="d-flex justify-content-between">
                                         <div class="font-weight-bold">{{ $log->newStatus->name ?? 'Status Updated' }}</div>
-                                        <small class="text-muted">{{ $log->changed_at->format('h:i A') }}</small>
+                                        <small class="text-muted">{{ $log->changed_at ? $log->changed_at->format('h:i A') : '' }}</small>
                                     </div>
                                     <small class="text-muted d-block">
-                                        {{ $log->changed_at->format('d M, Y') }}
+                                        {{ $log->changed_at ? $log->changed_at->format('d M, Y') : '' }}
                                     </small>
                                     @if($log->notes)
                                     <div class="mt-1 p-2 bg-light rounded small">
@@ -687,37 +822,6 @@
                     </div>
                 </div>
 
-                <!-- Additional Notes -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">{{ __('messages.additional_notes') }}</h6>
-                    </div>
-                    <div class="card-body">
-                        @if($order->notes)
-                        <div class="mb-3">
-                            <div class="d-flex align-items-center mb-2">
-                                <i class="las la-sticky-note text-info mr-2"></i>
-                                <strong>{{ __('Customer Notes') }}</strong>
-                            </div>
-                            <div class="bg-light p-3 rounded">
-                                {{ $order->notes }}
-                            </div>
-                        </div>
-                        @endif
-                        {{-- {{ route('orders.notes.store', $order) }} --}}
-                        <form id="addNoteForm" method="POST" action="">
-                            @csrf
-                            <div class="form-group">
-                                <label for="note" class="font-weight-bold">{{ __('Add New Internal Note') }}</label>
-                                <textarea class="form-control" id="note" name="notes" rows="3" placeholder="{{ __('Add internal note (not visible to customer)...') }}"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block">
-                                <i class="las la-save"></i> {{ __('Save Note') }}
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
                 <!-- Order Summary Card -->
                 <div class="card shadow bg-gradient-primary text-white">
                     <div class="card-body">
@@ -727,20 +831,37 @@
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>{{ __('Subtotal') }}:</span>
-                            <span class="font-weight-bold">Rs {{ number_format($order->total_amount, 0) }}</span>
+                            <span class="font-weight-bold">Rs {{ number_format($subTotal, 0) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>{{ __('Fabric Cost') }}:</span>
+                            <span class="font-weight-bold">Rs {{ number_format($totalFabricCost, 0) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>{{ __('Stitching') }}:</span>
+                            <span class="font-weight-bold">Rs {{ number_format($totalStitchingCharges, 0) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>{{ __('Additional') }}:</span>
+                            <span class="font-weight-bold">Rs {{ number_format($totalAdditionalCharges, 0) }}</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>{{ __('Discount') }}:</span>
-                            <span class="font-weight-bold">- Rs {{ number_format($order->discount_amount, 0) }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>{{ __('Advance Paid') }}:</span>
-                            <span class="font-weight-bold">Rs {{ number_format($order->advance_amount, 0) }}</span>
+                            <span class="font-weight-bold">- Rs {{ number_format($totalDiscount, 0) }}</span>
                         </div>
                         <hr class="bg-white">
                         <div class="d-flex justify-content-between">
+                            <span class="h6 mb-0">{{ __('Grand Total') }}:</span>
+                            <span class="h5 mb-0 font-weight-bold">Rs {{ number_format($grandTotal, 0) }}</span>
+                        </div>
+                        <hr class="bg-white">
+                        <div class="d-flex justify-content-between">
+                            <span class="h6 mb-0">{{ __('Advance Paid') }}:</span>
+                            <span class="h6 mb-0 font-weight-bold">Rs {{ number_format($order->advance_amount, 0) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
                             <span class="h6 mb-0">{{ __('Balance Due') }}:</span>
-                            <span class="h5 mb-0 font-weight-bold">Rs {{ number_format($order->remaining_amount, 0) }}</span>
+                            <span class="h5 mb-0 font-weight-bold text-warning">Rs {{ number_format($order->remaining_amount, 0) }}</span>
                         </div>
                     </div>
                 </div>
@@ -766,7 +887,7 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <strong>{{ __('Order Total') }}:</strong><br>
-                                    <h5 class="mt-1 text-dark">Rs {{ number_format($order->final_amount) }}</h5>
+                                    <h5 class="mt-1 text-dark">Rs {{ number_format($grandTotal) }}</h5>
                                 </div>
                                 <div class="col-md-4">
                                     <strong>{{ __('Already Paid') }}:</strong><br>
@@ -806,7 +927,7 @@
                                 <label class="form-label">{{ __('messages.payment_method') }} *</label>
                                 <select class="form-control select2" name="payment_method_id" required>
                                     <option value="">{{ __('messages.select') }} {{ __('messages.payment_method') }}</option>
-                                    @foreach($paymentMethods as $method)
+                                    @foreach($paymentMethods ?? [] as $method)
                                     <option value="{{ $method->id }}" {{ old('payment_method_id') == $method->id ? 'selected' : '' }}>
                                         {{ $method->name }}
                                     </option>
@@ -899,8 +1020,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                {{-- {{ route('orders.status.update', $order) }} --}}
-                <form id="updateStatusForm" method="POST" action="">
+                <form id="updateStatusForm" method="POST" action="#">
                     @csrf
                     @method('PUT')
                     <div class="modal-body">
@@ -948,7 +1068,7 @@
                         <p class="text-muted">
                             {{ __('You are about to delete order :order_number. This action cannot be undone.', ['order_number' => $order->order_number]) }}
                         </p>
-                        @if($order->payments->count() > 0)
+                        @if($order->payments && $order->payments->count() > 0)
                         <div class="alert alert-warning">
                             <i class="las la-exclamation-circle"></i>
                             {{ __('This order has :count payment(s). Deleting will also remove payment records.', ['count' => $order->payments->count()]) }}
@@ -1093,33 +1213,33 @@
             });
 
             // Add Note Form Submission
-            $('#addNoteForm').submit(function(e) {
-                e.preventDefault();
+            // $('#addNoteForm').submit(function(e) {
+            //     e.preventDefault();
 
-                const note = $('#note').val();
-                if (!note.trim()) {
-                    toastr.warning('Please enter a note');
-                    return;
-                }
+            //     const note = $('#note').val();
+            //     if (!note.trim()) {
+            //         toastr.warning('Please enter a note');
+            //         return;
+            //     }
 
-                $.ajax({
-                    url: $(this).attr('action'),
-                    type: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        if (response.success) {
-                            toastr.success('Note added successfully');
-                            $('#note').val('');
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1500);
-                        }
-                    },
-                    error: function(xhr) {
-                        toastr.error('Error adding note');
-                    }
-                });
-            });
+            //     $.ajax({
+            //         url: $(this).attr('action'),
+            //         type: 'POST',
+            //         data: $(this).serialize(),
+            //         success: function(response) {
+            //             if (response.success) {
+            //                 toastr.success('Note added successfully');
+            //                 $('#note').val('');
+            //                 setTimeout(() => {
+            //                     location.reload();
+            //                 }, 1500);
+            //             }
+            //         },
+            //         error: function(xhr) {
+            //             toastr.error('Error adding note');
+            //         }
+            //     });
+            // });
         });
 
         // Reset modal when closed
