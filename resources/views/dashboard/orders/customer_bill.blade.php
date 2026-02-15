@@ -111,8 +111,7 @@
                             {{ $settings->currency_symbol ?? 'Rs' }} {{ number_format($item->dressType->base_price ?? 0) }}
                         </td>
                         <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #333338;;">
-                            dkdkdk
-                            {{-- {{ $settings->currency_symbol ?? 'Rs' }} {{ number_format($item->total + $assignment->stitching_charge)  }} --}}
+                            {{ $settings->currency_symbol ?? 'Rs' }} {{ number_format($item->total + $assignment->stitching_charge)  }}
                         </td>
                     </tr>
                     @endforeach
