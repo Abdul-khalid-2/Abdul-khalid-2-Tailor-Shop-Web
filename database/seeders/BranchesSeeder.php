@@ -17,7 +17,7 @@ class BranchesSeeder extends Seeder
     {
         $branches = [
             [
-                'name' => 'Main Store - Lahore',
+                'name' => 'Main Store',
                 'code' => 'BR-LHR-001',
                 'phone' => '+92 42 1234567',
                 'email' => 'info@tailormaster.lahore.com',

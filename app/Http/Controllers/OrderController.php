@@ -245,23 +245,23 @@ class OrderController extends Controller
 
             // Measurements validation
             'items.*.measurements' => 'nullable|array',
-            'items.*.measurements.height' => 'nullable|numeric|min:0|max:300',
-            'items.*.measurements.weight' => 'nullable|numeric|min:0|max:300',
-            'items.*.measurements.chest' => 'nullable|numeric|min:0|max:200',
-            'items.*.measurements.waist' => 'nullable|numeric|min:0|max:200',
-            'items.*.measurements.hips' => 'nullable|numeric|min:0|max:200',
-            'items.*.measurements.shoulder' => 'nullable|numeric|min:0|max:100',
-            'items.*.measurements.sleeve_length' => 'nullable|numeric|min:0|max:150',
-            'items.*.measurements.sleeve_width' => 'nullable|numeric|min:0|max:100',
-            'items.*.measurements.collar' => 'nullable|numeric|min:0|max:100',
-            'items.*.measurements.bicep' => 'nullable|numeric|min:0|max:100',
-            'items.*.measurements.wrist' => 'nullable|numeric|min:0|max:50',
-            'items.*.measurements.pant_length' => 'nullable|numeric|min:0|max:200',
-            'items.*.measurements.inseam' => 'nullable|numeric|min:0|max:150',
-            'items.*.measurements.thigh' => 'nullable|numeric|min:0|max:150',
-            'items.*.measurements.knee' => 'nullable|numeric|min:0|max:100',
-            'items.*.measurements.bottom' => 'nullable|numeric|min:0|max:100',
-            'items.*.measurements.ankle' => 'nullable|numeric|min:0|max:80',
+            'items.*.measurements.height' => 'nullable|numeric',
+            'items.*.measurements.weight' => 'nullable|numeric',
+            'items.*.measurements.chest' => 'nullable|numeric',
+            'items.*.measurements.waist' => 'nullable|numeric',
+            'items.*.measurements.hips' => 'nullable|numeric',
+            'items.*.measurements.shoulder' => 'nullable|numeric',
+            'items.*.measurements.sleeve_length' => 'nullable|numeric',
+            'items.*.measurements.sleeve_width' => 'nullable|numeric',
+            'items.*.measurements.collar' => 'nullable|numeric',
+            'items.*.measurements.bicep' => 'nullable|numeric',
+            'items.*.measurements.wrist' => 'nullable|numeric|min:0|max:150',
+            'items.*.measurements.pant_length' => 'nullable|numeric',
+            'items.*.measurements.inseam' => 'nullable|numeric',
+            'items.*.measurements.thigh' => 'nullable|numeric',
+            'items.*.measurements.knee' => 'nullable|numeric',
+            'items.*.measurements.bottom' => 'nullable|numeric',
+            'items.*.measurements.ankle' => 'nullable|numeric|min:0|max:180',
             'items.*.measurements.fitting_preferences' => 'nullable|string|max:500',
             'items.*.measurements.notes' => 'nullable|string|max:500',
         ]);
@@ -277,45 +277,24 @@ class OrderController extends Controller
             $totalDiscountAmount = 0;
             $totalAmount = 0;
 
-            foreach ($request->items as $item) {
-                $quantity = $item['quantity'] ?? 1;
-                $itemSubTotal = ($item['base_price'] ?? 0) +
-                    ($item['stitching_charges'] ?? 0) +
-                    ($item['additional_charges'] ?? 0) -
-                    ($item['discount_amount'] ?? 0);
+            // Get which items include fabric in total
+            $includeFabricItems = $request->input('include_fabric_in_total', []);
 
-                $itemTotal = $itemSubTotal * $quantity;
-
-                // Add fabric cost if fabric is included (check box will determine this in form)
-                // For now, we'll assume fabric is always included in total
-                if (isset($item['fabric_cost'])) {
-                    $itemTotal += $item['fabric_cost'] * $quantity;
-                    $totalFabricCost += $item['fabric_cost'] * $quantity;
-                }
-
-                $subTotal += $itemSubTotal * $quantity;
-                $totalStitchingCharges += ($item['stitching_charges'] ?? 0) * $quantity;
-                $totalAdditionalCharges += ($item['additional_charges'] ?? 0) * $quantity;
-                $totalDiscountAmount += ($item['discount_amount'] ?? 0) * $quantity;
-                $totalAmount += $itemTotal;
-            }
-
-            $remainingAmount = $totalAmount - ($validated['advance_amount'] ?? 0);
-
-            // Create order
+            // Create order first
             $order = Order::create([
                 'order_number' => $validated['order_number'],
                 'customer_id' => $validated['customer_id'],
                 'branch_id' => $validated['branch_id'],
                 'status_id' => 1, // Pending
-                'payment_status_id' => ($validated['advance_amount'] ?? 0) >= $totalAmount ? 3 : ($validated['advance_amount'] > 0 ? 2 : 1), // Paid, Partial, or Pending
+                'payment_status_id' => 1, // Will update after calculations
                 'order_date' => $validated['order_date'],
-                'delivery_date' => now()->addDays(7), // Calculate based on max estimated days from items
-                'total_amount' => $totalAmount,
+                'delivery_date' => null, // Calculate based on max estimated days
+                'estimated_date' => now()->addDays(7), // Temporary, will update
+                'total_amount' => 0, // Will update after calculations
                 'advance_amount' => $validated['advance_amount'] ?? 0,
-                'remaining_amount' => max(0, $remainingAmount),
-                'discount_amount' => $totalDiscountAmount,
-                'final_amount' => $totalAmount,
+                'remaining_amount' => 0, // Will update after calculations
+                'discount_amount' => 0, // Will update after calculations
+                'final_amount' => 0, // Will update after calculations
                 'notes' => $validated['notes'] ?? null,
                 'internal_notes' => $validated['internal_notes'] ?? null,
                 'order_type' => 'tailoring',
@@ -323,27 +302,46 @@ class OrderController extends Controller
                 'updated_by' => auth()->id(),
             ]);
 
-            // Create order items
+            // Create order items and calculate totals
             foreach ($request->items as $index => $itemData) {
                 $dressType = DressType::find($itemData['dress_type_id']);
+                $quantity = $itemData['quantity'] ?? 1;
 
+                // Calculate item components
+                $itemSubTotal = ($itemData['base_price'] ?? 0) * $quantity;
+                $itemStitchingCharges = ($itemData['stitching_charges'] ?? 0) * $quantity;
+                $itemAdditionalCharges = ($itemData['additional_charges'] ?? 0) * $quantity;
+                $itemDiscountAmount = ($itemData['discount_amount'] ?? 0) * $quantity;
+
+                // Fabric cost calculation (only if included in total)
+                $itemFabricCost = 0;
+                if (isset($includeFabricItems[$index]) && isset($itemData['fabric_cost'])) {
+                    $itemFabricCost = ($itemData['fabric_cost'] ?? 0) * $quantity;
+                }
+
+                // Calculate item total for order_item record
+                // Note: In order_items table, 'total' column typically stores item total without fabric
+                // We'll store fabric_cost separately and calculate total_amount in orders table correctly
+                $itemTotal = $itemSubTotal + $itemStitchingCharges + $itemAdditionalCharges - $itemDiscountAmount;
+
+                // Create order item
                 $orderItem = OrderItem::create([
                     'order_id' => $order->id,
                     'dress_type_id' => $itemData['dress_type_id'],
                     'item_name' => $dressType->name,
-                    'quantity' => $itemData['quantity'] ?? 1,
+                    'quantity' => $quantity,
                     'price' => $itemData['base_price'],
-                    'total' => $itemData['item_total'] ?? 0,
+                    'total' => $itemTotal, // This is without fabric cost
                     'item_status' => 'pending',
                     'item_type' => 'tailoring',
-                    'is_inventory_fabric' => false, // Set based on your logic
+                    'instructions' => $itemData['instructions'] ?? null,
+                    'is_inventory_fabric' => false,
                     'fabric_type' => $itemData['fabric_type'] ?? null,
                     'fabric_color' => $itemData['fabric_color'] ?? null,
                     'fabric_meters' => $itemData['fabric_meters'] ?? null,
                     'fabric_rate' => $itemData['fabric_rate'] ?? null,
-                    'fabric_cost' => $itemData['fabric_cost'] ?? null,
-                    'additional_charges' => $itemData['additional_charges'] ?? null,
-                    'instructions' => $itemData['instructions'] ?? null,
+                    'fabric_cost' => $itemFabricCost, // Store the total fabric cost for this item
+                    'additional_charges' => $itemData['additional_charges'] ?? 0,
                 ]);
 
                 // Add measurements if provided
@@ -368,11 +366,40 @@ class OrderController extends Controller
                         'assigned_by' => auth()->id(),
                         'created_by' => auth()->id(),
                         'updated_by' => auth()->id(),
-                        'created_at' => now(),
-                        'updated_at' => now(),
                     ]);
                 }
+
+                // Accumulate totals for order
+                $subTotal += $itemSubTotal;
+                $totalFabricCost += $itemFabricCost;
+                $totalStitchingCharges += $itemStitchingCharges;
+                $totalAdditionalCharges += $itemAdditionalCharges;
+                $totalDiscountAmount += $itemDiscountAmount;
+
+                // For grand total, include fabric cost
+                $totalAmount += $itemTotal + $itemFabricCost;
             }
+
+            // Calculate remaining amount
+            $remainingAmount = $totalAmount - ($validated['advance_amount'] ?? 0);
+
+            // Determine payment status
+            $paymentStatus = 1; // Pending
+            if ($validated['advance_amount'] >= $totalAmount) {
+                $paymentStatus = 3; // Paid
+            } elseif ($validated['advance_amount'] > 0) {
+                $paymentStatus = 2; // Partial
+            }
+
+            // Update order with calculated values
+            $order->update([
+                'payment_status_id' => $paymentStatus,
+                'estimated_date' => now()->addDays(7), // Calculate based on max estimated days from items
+                'total_amount' => $totalAmount,
+                'remaining_amount' => max(0, $remainingAmount),
+                'discount_amount' => $totalDiscountAmount,
+                'final_amount' => $totalAmount,
+            ]);
 
             // Record payment if advance paid
             if (($validated['advance_amount'] ?? 0) > 0) {
@@ -397,11 +424,10 @@ class OrderController extends Controller
             // Record order status change
             DB::table('order_status_logs')->insert([
                 'order_id' => $order->id,
+                'old_status_id' => null,
                 'new_status_id' => 1, // Pending
                 'changed_by' => auth()->id(),
                 'changed_at' => now(),
-                'created_at' => now(),
-                'updated_at' => now(),
                 'notes' => 'Order created with ' . count($request->items) . ' item(s)',
             ]);
 
@@ -461,11 +487,8 @@ class OrderController extends Controller
             'notes' => $measurements['notes'] ?? null,
             'version' => 1,
             'is_current' => true,
-            'created_by' => auth()->id(),
-            'updated_by' => auth()->id(),
         ];
     }
-
 
     /**
      * Display the specified resource.
@@ -647,23 +670,23 @@ class OrderController extends Controller
             // Measurements validation
             'items.*.measurements' => 'nullable|array',
             'items.*.measurements.id' => 'nullable|exists:measurements,id',
-            'items.*.measurements.height' => 'nullable|numeric|min:0|max:300',
-            'items.*.measurements.weight' => 'nullable|numeric|min:0|max:300',
-            'items.*.measurements.chest' => 'nullable|numeric|min:0|max:200',
-            'items.*.measurements.waist' => 'nullable|numeric|min:0|max:200',
-            'items.*.measurements.hips' => 'nullable|numeric|min:0|max:200',
-            'items.*.measurements.shoulder' => 'nullable|numeric|min:0|max:100',
-            'items.*.measurements.sleeve_length' => 'nullable|numeric|min:0|max:150',
-            'items.*.measurements.sleeve_width' => 'nullable|numeric|min:0|max:100',
-            'items.*.measurements.collar' => 'nullable|numeric|min:0|max:100',
-            'items.*.measurements.bicep' => 'nullable|numeric|min:0|max:100',
-            'items.*.measurements.wrist' => 'nullable|numeric|min:0|max:50',
-            'items.*.measurements.pant_length' => 'nullable|numeric|min:0|max:200',
-            'items.*.measurements.inseam' => 'nullable|numeric|min:0|max:150',
-            'items.*.measurements.thigh' => 'nullable|numeric|min:0|max:150',
-            'items.*.measurements.knee' => 'nullable|numeric|min:0|max:100',
-            'items.*.measurements.bottom' => 'nullable|numeric|min:0|max:100',
-            'items.*.measurements.ankle' => 'nullable|numeric|min:0|max:80',
+            'items.*.measurements.height' => 'nullable|numeric',
+            'items.*.measurements.weight' => 'nullable|numeric',
+            'items.*.measurements.chest' => 'nullable|numeric',
+            'items.*.measurements.waist' => 'nullable|numeric',
+            'items.*.measurements.hips' => 'nullable|numeric',
+            'items.*.measurements.shoulder' => 'nullable|numeric',
+            'items.*.measurements.sleeve_length' => 'nullable|numeric',
+            'items.*.measurements.sleeve_width' => 'nullable|numeric',
+            'items.*.measurements.collar' => 'nullable|numeric',
+            'items.*.measurements.bicep' => 'nullable|numeric',
+            'items.*.measurements.wrist' => 'nullable|numeric|min:0|max:150',
+            'items.*.measurements.pant_length' => 'nullable|numeric',
+            'items.*.measurements.inseam' => 'nullable|numeric',
+            'items.*.measurements.thigh' => 'nullable|numeric',
+            'items.*.measurements.knee' => 'nullable|numeric',
+            'items.*.measurements.bottom' => 'nullable|numeric',
+            'items.*.measurements.ankle' => 'nullable|numeric|min:0|max:180',
             'items.*.measurements.fitting_preferences' => 'nullable|string|max:500',
             'items.*.measurements.notes' => 'nullable|string|max:500',
             'items.*.measurements.version' => 'nullable|integer',
