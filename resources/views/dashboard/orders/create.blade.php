@@ -160,6 +160,20 @@
             font-size: 0.875rem;
             color: #dc3545;
         }
+        
+        .bg-info-light {
+            background-color: #d1ecf1 !important;
+            border-color: #bee5eb !important;
+        }
+
+        .item-breakdown {
+            transition: all 0.3s ease;
+        }
+
+        .item-breakdown:hover {
+            background-color: #f8f9fa;
+            padding-left: 5px;
+        }
     </style>
     @endpush
 
@@ -680,54 +694,94 @@
                     $(this).siblings('.invalid-feedback').remove();
                 }
                 
-                // Calculate item total immediately
-                setTimeout(function() {
-                    calculateItemTotal(itemId);
-                    calculateGrandTotal();
-                }, 50);
+                // Calculate item total and update everything
+                calculateItemTotal(itemId);
+                calculateGrandTotal();
+                updateOrderBreakdown();
             });
 
-            // Fabric calculations
+            // Update fabric cost calculation
             $(document).on('input', '.fabric-meters, .fabric-rate', function() {
                 const itemId = $(this).data('item-id');
                 const meter = parseFloat($(`#fabric_meters_${itemId}`).val()) || 0;
                 const rate = parseFloat($(`#fabric_rate_${itemId}`).val()) || 0;
                 const fabricCost = meter * rate;
                 $(`#fabric_cost_${itemId}`).val(fabricCost.toFixed(2));
-                calculateItemTotal(itemId);
+                
+                // Update fabric cost field styling
+                const fabricCostField = $(`#fabric_cost_${itemId}`);
+                if (fabricCost > 0) {
+                    fabricCostField.removeClass('bg-light').addClass('bg-info-light');
+                } else {
+                    fabricCostField.removeClass('bg-info-light').addClass('bg-light');
+                }
+                
                 calculateGrandTotal();
+                updateOrderBreakdown();
             });
 
-            // Include fabric checkbox
+            // Update when include fabric checkbox changes
             $(document).on('change', '.include-fabric-checkbox', function() {
                 const itemId = $(this).data('item-id');
-                calculateItemTotal(itemId);
                 calculateGrandTotal();
+                updateOrderBreakdown();
                 
                 const fabricCostField = $(`#fabric_cost_${itemId}`);
                 if ($(this).is(':checked')) {
-                    fabricCostField.removeClass('bg-light text-muted').addClass('bg-success-light');
+                    fabricCostField.removeClass('bg-light').addClass('bg-info-light');
                 } else {
-                    fabricCostField.removeClass('bg-success-light').addClass('bg-light text-muted');
+                    fabricCostField.removeClass('bg-info-light').addClass('bg-light');
                 }
             });
 
-            // Stitching charges, additional charges, discount
-            $(document).on('input', '.stitching-charges, .additional-charges, .item-discount', function() {
+            // Update when stitching charges change
+            $(document).on('input', '.stitching-charges', function() {
                 const itemId = $(this).data('item-id');
-// Clear validation error for dress type
+                const value = parseFloat($(this).val()) || 0;
+                
+                // Clear validation error
                 $(this).removeClass('is-invalid');
-                $(this).siblings('.select2-container').removeClass('is-invalid');
                 $(this).siblings('.invalid-feedback').remove();
                 
-                calculateItemTotal(itemId);
                 calculateGrandTotal();
+                updateOrderBreakdown();
             });
 
-            // Quantity change
+            // Update when additional charges change
+            $(document).on('input', '.additional-charges', function() {
+                const itemId = $(this).data('item-id');
+                const value = parseFloat($(this).val()) || 0;
+                
+                // Clear validation error
+                $(this).removeClass('is-invalid');
+                $(this).siblings('.invalid-feedback').remove();
+                
+                calculateGrandTotal();
+                updateOrderBreakdown();
+            });
+
+            // Update when discount changes
+            $(document).on('input', '.item-discount', function() {
+                const itemId = $(this).data('item-id');
+                const value = parseFloat($(this).val()) || 0;
+                
+                // Clear validation error
+                $(this).removeClass('is-invalid');
+                $(this).siblings('.invalid-feedback').remove();
+                
+                calculateGrandTotal();
+                updateOrderBreakdown();
+            });
+
+            // Update when quantity changes
             $(document).on('input', '.item-quantity', function() {
                 const itemId = $(this).data('item-id');
-                const quantity = parseFloat($(this).val()) || 0;
+                const quantity = parseFloat($(this).val()) || 1;
+                
+                // Ensure minimum quantity is 1
+                if (quantity < 1) {
+                    $(this).val(1);
+                }
                 
                 // Clear validation error if value is now valid
                 if (quantity > 0) {
@@ -737,6 +791,7 @@
                 
                 calculateItemTotal(itemId);
                 calculateGrandTotal();
+                updateOrderBreakdown();
             });
 
             // Real-time validation clearing for text/date/number inputs
@@ -846,8 +901,11 @@
                 }
             });
 
-            // Initialize calculations
-            calculateGrandTotal();
+            // Initial calculation
+            setTimeout(function() {
+                calculateGrandTotal();
+                updateOrderBreakdown();
+            }, 100);
         });
 
         function addNewOrderItem() {
@@ -881,15 +939,16 @@
                     const fabricCostField = $(`#fabric_cost_${itemCount}`);
                     const checkbox = $(`#includeFabricInTotal_${itemCount}`);
                     if (checkbox.is(':checked')) {
-                        fabricCostField.removeClass('bg-light text-muted').addClass('bg-success-light');
+                        fabricCostField.removeClass('bg-light').addClass('bg-info-light');
                     } else {
-                        fabricCostField.removeClass('bg-success-light').addClass('bg-light text-muted');
+                        fabricCostField.removeClass('bg-info-light').addClass('bg-light');
                     }
                     
                     itemCount++;
                     
-                    // Initialize grand total calculation
+                    // Update calculations
                     calculateGrandTotal();
+                    updateOrderBreakdown();
                     
                     // Scroll to new item
                     $('html, body').animate({
@@ -914,37 +973,25 @@
                 $(`#order_item_${itemId}`).remove();
                 itemCount--;
                 calculateGrandTotal();
+                updateOrderBreakdown();
                 toastr.success('{{ __("messages.item_removed") }}');
             }
         }
 
         function calculateItemTotal(itemId) {
             const basePrice = parseFloat($(`#base_price_${itemId}`).val()) || 0;
-            const fabricCost = parseFloat($(`#fabric_cost_${itemId}`).val()) || 0;
-            const stitching = parseFloat($(`#stitching_charges_${itemId}`).val()) || 0;
-            const additional = parseFloat($(`#additional_charges_${itemId}`).val()) || 0;
-            const discount = parseFloat($(`#item_discount_${itemId}`).val()) || 0;
             const quantity = parseFloat($(`#quantity_${itemId}`).val()) || 1;
             
-            const includeFabric = $(`#includeFabricInTotal_${itemId}`).is(':checked');
-            
-            // Calculate base item subtotal (without fabric)
-            let itemSubTotal = (basePrice + stitching + additional - discount);
-            
-            // Apply quantity
-            itemSubTotal = itemSubTotal * quantity;
-            
-            // Calculate total with fabric if included
-            let itemTotal = itemSubTotal;
-            if (includeFabric) {
-                itemTotal += (fabricCost * quantity);
-            }
+            // Item Total = Base Price × Quantity
+            const itemTotal = basePrice * quantity;
             
             // Update hidden input and display elements
-            const displayValue = 'Rs ' + itemTotal.toFixed(2);
             $(`#item_total_${itemId}`).val(itemTotal.toFixed(2));
-            $(`#item_total_display_${itemId}`).text(displayValue);
-            $(`#item_total_header_${itemId}`).text(displayValue);
+            $(`#item_total_display_${itemId}`).text('Rs ' + itemTotal.toFixed(2));
+            $(`#item_total_header_${itemId}`).text('Rs ' + itemTotal.toFixed(2));
+            
+            // Update the breakdown display in order summary
+            updateOrderBreakdown();
         }
 
         function calculateGrandTotal() {
@@ -954,45 +1001,37 @@
             let totalAdditional = 0;
             let totalDiscount = 0;
             let grandTotal = 0;
-            let itemsBreakdownHTML = '';
             
             $('.order-item-card').each(function() {
                 const itemId = $(this).data('item-id');
                 
                 const basePrice = parseFloat($(`#base_price_${itemId}`).val()) || 0;
                 const fabricCost = parseFloat($(`#fabric_cost_${itemId}`).val()) || 0;
-                const stitching = parseFloat($(`#stitching_charges_${itemId}`).val()) || 0;
-                const additional = parseFloat($(`#additional_charges_${itemId}`).val()) || 0;
-                const discount = parseFloat($(`#item_discount_${itemId}`).val()) || 0;
+                const stitchingPerItem = parseFloat($(`#stitching_charges_${itemId}`).val()) || 0;
+                const additionalPerItem = parseFloat($(`#additional_charges_${itemId}`).val()) || 0;
+                const discountPerItem = parseFloat($(`#item_discount_${itemId}`).val()) || 0;
                 const quantity = parseFloat($(`#quantity_${itemId}`).val()) || 1;
                 const includeFabric = $(`#includeFabricInTotal_${itemId}`).is(':checked');
                 
-                const itemSubTotal = (basePrice + stitching + additional - discount) * quantity;
+                // Calculate totals with quantity
+                const itemSubTotal = basePrice * quantity;
+                const itemStitchingTotal = stitchingPerItem * quantity;
+                const itemAdditionalTotal = additionalPerItem * quantity;
+                const itemDiscountTotal = discountPerItem * quantity;
+                const itemFabricTotal = includeFabric ? (fabricCost * quantity) : 0;
+                
+                // Accumulate totals
                 subTotal += itemSubTotal;
+                totalStitching += itemStitchingTotal;
+                totalAdditional += itemAdditionalTotal;
+                totalDiscount += itemDiscountTotal;
+                totalFabricCost += itemFabricTotal;
                 
-                totalFabricCost += includeFabric ? (fabricCost * quantity) : 0;
-                totalStitching += stitching * quantity;
-                totalAdditional += additional * quantity;
-                totalDiscount += discount * quantity;
-                
-                let itemGrandTotal = itemSubTotal;
-                if (includeFabric) {
-                    itemGrandTotal += fabricCost * quantity;
-                }
-                grandTotal += itemGrandTotal;
-                
-                // Build items breakdown
-                itemsBreakdownHTML += `
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>Item #${itemId + 1}:</span>
-                        <strong class="text-primary">Rs ${itemGrandTotal.toFixed(2)}</strong>
-                    </div>
-                `;
+                // Grand Total = SubTotal + FabricCost + Stitching + Additional - Discount
+                grandTotal += itemSubTotal + itemFabricTotal + itemStitchingTotal + itemAdditionalTotal - itemDiscountTotal;
             });
             
-            // Update items breakdown
-            $('#itemsBreakdown').html(itemsBreakdownHTML || '<p class="text-muted mb-0">No items added</p>');
-            
+            // Update summary displays
             $('#subTotal').text('Rs ' + subTotal.toFixed(2));
             $('#totalFabricCost').text('Rs ' + totalFabricCost.toFixed(2));
             $('#totalStitchingCharges').text('Rs ' + totalStitching.toFixed(2));
@@ -1001,6 +1040,83 @@
             $('#grandTotal').text('Rs ' + grandTotal.toFixed(2));
             
             calculateBalance(grandTotal);
+        }
+
+        function updateOrderBreakdown() {
+            let breakdownHTML = '';
+            
+            $('.order-item-card').each(function() {
+                const itemId = $(this).data('item-id');
+                
+                // Get values
+                const basePrice = parseFloat($(`#base_price_${itemId}`).val()) || 0;
+                const quantity = parseFloat($(`#quantity_${itemId}`).val()) || 1;
+                const stitchingPerItem = parseFloat($(`#stitching_charges_${itemId}`).val()) || 0;
+                const additionalPerItem = parseFloat($(`#additional_charges_${itemId}`).val()) || 0;
+                const discountPerItem = parseFloat($(`#item_discount_${itemId}`).val()) || 0;
+                const fabricCost = parseFloat($(`#fabric_cost_${itemId}`).val()) || 0;
+                const includeFabric = $(`#includeFabricInTotal_${itemId}`).is(':checked');
+                
+                // Calculate totals
+                const itemTotal = basePrice * quantity;
+                const stitchingTotal = stitchingPerItem * quantity;
+                const additionalTotal = additionalPerItem * quantity;
+                const discountTotal = discountPerItem * quantity;
+                const fabricTotal = includeFabric ? (fabricCost * quantity) : 0;
+                
+                // Get dress type name for display
+                const dressTypeSelect = $(`#dress_type_id_${itemId}`);
+                const dressTypeName = dressTypeSelect.find('option:selected').text().split(' -')[0] || 'Item';
+                
+                // Build breakdown HTML
+                breakdownHTML += `
+                    <div class="item-breakdown mb-3 pb-2" style="border-bottom: 1px dashed #dee2e6;">
+                        <div class="d-flex justify-content-between mb-1">
+                            <strong>${dressTypeName} #${itemId + 1}</strong>
+                            <strong class="text-primary">Rs ${itemTotal.toFixed(2)} (${quantity} ${quantity > 1 ? 'items' : 'item'})</strong>
+                        </div>
+                `;
+                
+                // if (stitchingTotal > 0) {
+                //     breakdownHTML += `
+                //         <div class="d-flex justify-content-between small text-muted pl-3">
+                //             <span>Stitching charges (Rs ${stitchingPerItem.toFixed(2)} × ${quantity})</span>
+                //             <span>+ Rs ${stitchingTotal.toFixed(2)}</span>
+                //         </div>
+                //     `;
+                // }
+                
+                // if (additionalTotal > 0) {
+                //     breakdownHTML += `
+                //         <div class="d-flex justify-content-between small text-muted pl-3">
+                //             <span>Additional charges (Rs ${additionalPerItem.toFixed(2)} × ${quantity})</span>
+                //             <span>+ Rs ${additionalTotal.toFixed(2)}</span>
+                //         </div>
+                //     `;
+                // }
+                
+                if (fabricTotal > 0) {
+                    breakdownHTML += `
+                        <div class="d-flex justify-content-between small text-muted pl-3">
+                            <span>Fabric cost (Rs ${fabricCost.toFixed(2)} × ${quantity})</span>
+                            <span>+ Rs ${fabricTotal.toFixed(2)}</span>
+                        </div>
+                    `;
+                }
+                
+                if (discountTotal > 0) {
+                    breakdownHTML += `
+                        <div class="d-flex justify-content-between small text-danger pl-3">
+                            <span>Discount (Rs ${discountPerItem.toFixed(2)} × ${quantity})</span>
+                            <span>- Rs ${discountTotal.toFixed(2)}</span>
+                        </div>
+                    `;
+                }
+                
+                breakdownHTML += `</div>`;
+            });
+            
+            $('#itemsBreakdown').html(breakdownHTML || '<p class="text-muted mb-0">No items added</p>');
         }
 
         function calculateBalance(grandTotal = null) {
