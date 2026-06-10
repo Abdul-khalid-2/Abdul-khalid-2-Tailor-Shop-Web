@@ -26,6 +26,6 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['message' => 'You do not have permission to access this area.'], 403);
             }
 
-            return redirect('/')->with('error', 'You do not have permission to access that area.');
+            return redirect('/')->with('error', 'You do not have permission to access.');
         });
     })->create();
