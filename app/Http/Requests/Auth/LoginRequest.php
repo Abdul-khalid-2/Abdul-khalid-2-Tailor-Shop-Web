@@ -50,6 +50,18 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        // Credentials are valid — but only approved (active) accounts may sign in.
+        $user = Auth::user();
+
+        if ($user && $user->status !== 'active') {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Your account is pending approval and has not been activated yet. '
+                    .'Please wait for an administrator to approve your account.',
+            ]);
+        }
     }
 
     /**

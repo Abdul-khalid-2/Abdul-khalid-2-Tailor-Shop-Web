@@ -30,8 +30,6 @@ class Setting extends Model
         'sms_notifications',
         'email_notifications',
         'reminder_days_before',
-        'created_by',
-        'updated_by'
     ];
 
     protected $casts = [
@@ -48,15 +46,5 @@ class Setting extends Model
     public function branch()
     {
         return $this->belongsTo(Branch::class);
-    }
-
-    public function createdBy()
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
-    public function updatedBy()
-    {
-        return $this->belongsTo(User::class, 'updated_by');
     }
 }

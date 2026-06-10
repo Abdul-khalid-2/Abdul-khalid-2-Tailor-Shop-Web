@@ -1,71 +1,41 @@
 @php
     $isEdit = $user !== null;
-    $currentRole = old('role', $isEdit ? ($user->roles->first()?->name ?? 'admin') : 'admin');
+    $currentRole = $isEdit ? ($user->roles->first()?->name ?? 'admin') : 'admin';
 @endphp
 
 <form action="{{ $isEdit ? route('settings.users.update', $user) : route('settings.users.store') }}" method="POST">
     @csrf
     @if($isEdit) @method('PUT') @endif
 
-    <div class="form-group">
-        <label for="name">Name <span class="text-danger">*</span></label>
-        <input type="text" name="name" id="name" class="form-control" value="{{ old('name', $user?->name) }}" required>
-    </div>
-
-    <div class="form-group">
-        <label for="email">Email <span class="text-danger">*</span></label>
-        <input type="email" name="email" id="email" class="form-control" value="{{ old('email', $user?->email) }}" required>
-    </div>
-
-    <div class="form-group">
-        <label for="phone">Phone</label>
-        <input type="text" name="phone" id="phone" class="form-control" value="{{ old('phone', $user?->phone) }}">
-    </div>
+    <x-ui.form.input name="name" label="Name" :value="$user?->name" required />
+    <x-ui.form.input type="email" name="email" label="Email" :value="$user?->email" required />
+    <x-ui.form.input name="phone" label="Phone" :value="$user?->phone" />
 
     <div class="row">
-        <div class="col-md-6 form-group">
-            <label for="password">Password @if(!$isEdit)<span class="text-danger">*</span>@endif</label>
-            <input type="password" name="password" id="password" class="form-control" {{ $isEdit ? '' : 'required' }}>
-            @if($isEdit)<small class="text-muted">Leave blank to keep current password</small>@endif
+        <div class="col-md-6">
+            <x-ui.form.input type="password" name="password" label="Password" :required="!$isEdit"
+                :help="$isEdit ? 'Leave blank to keep current password' : null" />
         </div>
-        <div class="col-md-6 form-group">
-            <label for="password_confirmation">Confirm Password</label>
-            <input type="password" name="password_confirmation" id="password_confirmation" class="form-control">
+        <div class="col-md-6">
+            <x-ui.form.input type="password" name="password_confirmation" label="Confirm Password" />
         </div>
     </div>
 
     <div class="row">
-        <div class="col-md-6 form-group">
-            <label for="role">Role <span class="text-danger">*</span></label>
-            <select name="role" id="role" class="form-control" required>
-                <option value="superadmin" @selected($currentRole === 'superadmin')>Super Admin</option>
-                <option value="admin" @selected($currentRole === 'admin')>Branch Admin</option>
-            </select>
+        <div class="col-md-6">
+            <x-ui.form.select name="role" label="Role"
+                :options="['superadmin' => 'Super Admin', 'admin' => 'Branch Admin']"
+                :selected="$currentRole" required />
         </div>
-        <div class="col-md-6 form-group">
-            <label for="status">Status <span class="text-danger">*</span></label>
-            <select name="status" id="status" class="form-control" required>
-                @foreach(['active', 'inactive', 'suspended'] as $s)
-                    <option value="{{ $s }}" @selected(old('status', $user?->status ?? 'active') === $s)>{{ ucfirst($s) }}</option>
-                @endforeach
-            </select>
+        <div class="col-md-6">
+            <x-ui.form.select name="status" label="Status"
+                :options="['active' => 'Active', 'inactive' => 'Inactive', 'suspended' => 'Suspended']"
+                :selected="$user?->status ?? 'active'" required />
         </div>
     </div>
 
-    <div class="form-group">
-        <label for="branch_id">Branch</label>
-        <select name="branch_id" id="branch_id" class="form-control">
-            <option value="">— None (Super Admin) —</option>
-            @foreach($branches as $branch)
-                <option value="{{ $branch->id }}" @selected(old('branch_id', $user?->branch_id) == $branch->id)>
-                    {{ $branch->name }}
-                </option>
-            @endforeach
-        </select>
-        <small class="text-muted">Required for Branch Admin accounts</small>
-    </div>
+    <x-ui.form.select name="branch_id" label="Branch" :options="$branches" :selected="$user?->branch_id"
+        placeholder="— None (Super Admin) —" help="Required for Branch Admin accounts" />
 
-    <button type="submit" class="btn btn-primary">
-        <i class="las la-save mr-1"></i> {{ $isEdit ? 'Update User' : 'Create User' }}
-    </button>
+    <x-ui.button type="submit" icon="las la-save">{{ $isEdit ? 'Update User' : 'Create User' }}</x-ui.button>
 </form>

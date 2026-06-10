@@ -1,95 +1,29 @@
 <x-app-layout>
-        @push('css')
-    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css')}}">
-    @endpush
-
+    <x-ui.assets />
+    <x-ui.styles />
 
     <div class="container-fluid">
-        <!-- Page Header -->
-        <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
-            <div>
-                <h4 class="mb-3">Branches Management</h4>
-                <p class="mb-0">Manage all your tailor shop branches</p>
-            </div>
-            <div>
-                <a href="{{ route('branches.create') }}" class="btn btn-primary">
-                    <i class="las la-plus mr-1"></i> Add Branch
-                </a>
-            </div>
-        </div>
+        <x-ui.page-header title="Branches Management" subtitle="Manage all your tailor shop branches">
+            <x-slot:actions>
+                <x-ui.button :href="route('branches.create')" icon="las la-plus">Add Branch</x-ui.button>
+            </x-slot:actions>
+        </x-ui.page-header>
+
+        <x-ui.session-alerts />
 
         <!-- Branch Stats -->
         <div class="row mb-4">
             <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-primary shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                    Total Branches</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['total'] }}</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="las la-store fa-2x text-primary"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <x-ui.stat-card label="Total Branches" :value="$stats['total']" icon="las la-store" color="primary" />
             </div>
-
             <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-success shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                    Active Branches</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['active'] }}</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="las la-check-circle fa-2x text-success"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <x-ui.stat-card label="Active Branches" :value="$stats['active']" icon="las la-check-circle" color="success" />
             </div>
-
             <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-info shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                    Total Users</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['total_users'] }}</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="las la-users fa-2x text-info"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <x-ui.stat-card label="Total Users" :value="$stats['total_users']" icon="las la-users" color="info" />
             </div>
-
             <div class="col-xl-3 col-md-6 mb-4">
-                <div class="card border-left-warning shadow h-100 py-2">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                    Total Customers</div>
-                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $stats['total_customers'] }}</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="las la-user-friends fa-2x text-warning"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <x-ui.stat-card label="Total Customers" :value="$stats['total_customers']" icon="las la-user-friends" color="warning" />
             </div>
         </div>
 
@@ -256,7 +190,7 @@
                                 <tbody>
                                     @foreach($branches->where('is_active', true)->take(3) as $branch)
                                     @php
-                                        $revenue = $branch->orders()->sum('final_amount');
+                                        $revenue = $branch->orders()->sum('total_amount');
                                         $growth = rand(5, 20);
                                     @endphp
                                     <tr>
@@ -327,21 +261,6 @@
     </div>
     
     @push('js')
-     <!-- Backend Bundle JavaScript -->
-    <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
-
-    <!-- Table Treeview JavaScript -->
-    <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
-
-    <!-- Chart Custom JavaScript -->
-    <script src="{{ asset('backend/assets/js/customizer.js') }}"></script>
-
-    <!-- Chart Custom JavaScript -->
-    <script async src="{{ asset('backend/assets/js/chart-custom.js') }}"></script>
-
-    <!-- app JavaScript -->
-    <script src="{{ asset('backend/assets/js/app.js') }}"></script>
-    
     <script>
         $(document).ready(function() {
             // Initialize DataTable

@@ -24,16 +24,12 @@ class Branch extends Model
         'working_days',
         'is_active',
         'opening_date',
-        'created_by',
-        'updated_by'
     ];
 
     protected $casts = [
         'working_days' => 'array',
-        'opening_time' => 'datetime',
-        'closing_time' => 'datetime',
         'is_active' => 'boolean',
-        'opening_date' => 'date'
+        'opening_date' => 'date',
     ];
 
     // Branch has many users
@@ -54,45 +50,15 @@ class Branch extends Model
         return $this->hasMany(Tailor::class);
     }
 
-    // Branch has many fabrics
-    public function fabrics()
-    {
-        return $this->hasMany(Fabric::class);
-    }
-
     // Branch has many orders
     public function orders()
     {
         return $this->hasMany(Order::class);
     }
 
-    // Branch has many products
-    public function products()
-    {
-        return $this->hasMany(Product::class);
-    }
-
-    // Branch has many expenses
-    public function expenses()
-    {
-        return $this->hasMany(Expense::class);
-    }
-
     // Branch has one setting
     public function setting()
     {
         return $this->hasOne(Setting::class);
-    }
-
-    // Created by user
-    public function createdBy()
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
-    // Updated by user
-    public function updatedBy()
-    {
-        return $this->belongsTo(User::class, 'updated_by');
     }
 }

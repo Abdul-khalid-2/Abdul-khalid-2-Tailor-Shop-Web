@@ -10,10 +10,18 @@ use Illuminate\Validation\Rule;
 
 class BranchController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $this->authorizeSuperAdmin();
+
+            return $next($request);
+        });
+    }
+
     public function index()
     {
-        $branches = Branch::with(['createdBy', 'updatedBy'])
-            ->withCount(['users', 'customers', 'orders', 'tailors'])
+        $branches = Branch::withCount(['users', 'customers', 'orders', 'tailors'])
             ->latest()
             ->paginate(10);
 
@@ -64,7 +72,6 @@ class BranchController extends Controller
                 'working_days' => $request->working_days,
                 'opening_date' => $request->opening_date,
                 'is_active' => $request->has('is_active'),
-                'created_by' => auth()->id(),
             ]);
 
             // Create default settings for this branch
@@ -83,7 +90,6 @@ class BranchController extends Controller
                 'sms_notifications' => true,
                 'email_notifications' => true,
                 'reminder_days_before' => 1,
-                'created_by' => auth()->id(),
             ]);
         });
 
@@ -93,8 +99,8 @@ class BranchController extends Controller
 
     public function show(Branch $branch)
     {
-        $branch->load(['createdBy', 'updatedBy', 'setting']);
-        $branch->loadCount(['users', 'customers', 'orders', 'tailors', 'fabrics']);
+        $branch->load('setting');
+        $branch->loadCount(['users', 'customers', 'orders', 'tailors']);
 
         // Get recent activities
         $recentOrders = $branch->orders()->latest()->limit(5)->get();
@@ -144,7 +150,6 @@ class BranchController extends Controller
             'working_days' => $request->working_days,
             'opening_date' => $request->opening_date,
             'is_active' => $request->has('is_active'),
-            'updated_by' => auth()->id(),
         ]);
 
         return redirect()->route('branches.show', $branch)
@@ -177,7 +182,6 @@ class BranchController extends Controller
     {
         $branch->update([
             'is_active' => !$branch->is_active,
-            'updated_by' => auth()->id(),
         ]);
 
         $status = $branch->is_active ? 'activated' : 'deactivated';

@@ -1,28 +1,16 @@
 <x-app-layout>
-    @push('css')
-    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css')}}">
-    @endpush
+    <x-ui.assets />
+    <x-ui.styles />
 
     <div class="container-fluid">
-        <!-- Page Header -->
-        <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
-            <div>
-                <h4 class="mb-3">Branch Details</h4>
-                <p class="mb-0">{{ $branch->name }} - {{ $branch->code }}</p>
-            </div>
-            <div>
-                <a href="{{ route('branches.index') }}" class="btn btn-outline-secondary mr-2">
-                    <i class="las la-arrow-left mr-1"></i> Back to Branches
-                </a>
-                <a href="{{ route('branches.edit', $branch) }}" class="btn btn-primary">
-                    <i class="las la-edit mr-1"></i> Edit Branch
-                </a>
-            </div>
-        </div>
+        <x-ui.page-header title="Branch Details" :subtitle="$branch->name . ' - ' . $branch->code">
+            <x-slot:actions>
+                <x-ui.button :href="route('branches.index')" variant="outline-secondary" icon="las la-arrow-left" class="mr-2">Back to Branches</x-ui.button>
+                <x-ui.button :href="route('branches.edit', $branch)" icon="las la-edit">Edit Branch</x-ui.button>
+            </x-slot:actions>
+        </x-ui.page-header>
+
+        <x-ui.session-alerts />
 
         <!-- Branch Information -->
         <div class="row">
@@ -175,12 +163,6 @@
                                 <span><i class="las la-user-tie text-warning mr-2"></i> Total Tailors</span>
                                 <span class="badge badge-warning">{{ $branch->tailors_count }}</span>
                             </div>
-                            @if($branch->fabrics_count)
-                            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                <span><i class="las la-cut text-danger mr-2"></i> Total Fabrics</span>
-                                <span class="badge badge-danger">{{ $branch->fabrics_count }}</span>
-                            </div>
-                            @endif
                         </div>
                     </div>
                 </div>
@@ -195,7 +177,7 @@
                             <a href="{{ route('settings.branch', $branch) }}" class="btn btn-outline-primary btn-block text-left">
                                 <i class="las la-cog mr-2"></i> Branch Settings
                             </a>
-                            <a href="{{ route('users.index') }}?branch={{ $branch->id }}" class="btn btn-outline-success btn-block text-left">
+                            <a href="{{ route('settings.users.index') }}?branch={{ $branch->id }}" class="btn btn-outline-success btn-block text-left">
                                 <i class="las la-users mr-2"></i> View Users
                             </a>
                             <a href="{{ route('customers.index') }}?branch_id={{ $branch->id }}" class="btn btn-outline-info btn-block text-left">
@@ -223,23 +205,13 @@
                     <div class="card-body">
                         <div class="small">
                             <div class="mb-2">
-                                <label class="text-muted">Created By:</label>
-                                <div>{{ $branch->createdBy->name ?? 'System' }}</div>
-                            </div>
-                            <div class="mb-2">
                                 <label class="text-muted">Created At:</label>
                                 <div>{{ $branch->created_at->format('d M, Y h:i A') }}</div>
-                            </div>
-                            @if($branch->updatedBy)
-                            <div class="mb-2">
-                                <label class="text-muted">Last Updated By:</label>
-                                <div>{{ $branch->updatedBy->name }}</div>
                             </div>
                             <div>
                                 <label class="text-muted">Last Updated At:</label>
                                 <div>{{ $branch->updated_at->format('d M, Y h:i A') }}</div>
                             </div>
-                            @endif
                         </div>
                     </div>
                 </div>
@@ -276,7 +248,7 @@
                                             <a href="{{ route('orders.show', $order) }}">{{ $order->order_number }}</a>
                                         </td>
                                         <td>{{ $order->customer->name }}</td>
-                                        <td class="text-success">Rs {{ number_format($order->final_amount) }}</td>
+                                        <td class="text-success">Rs {{ number_format($order->total_amount) }}</td>
                                         <td>
                                             <span class="badge" style="background-color: {{ $order->status->color ?? '#6b7280' }}">
                                                 {{ $order->status->name ?? 'Pending' }}
@@ -389,19 +361,6 @@
     </div>
     
     @push('js')
-    <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
-
-    <!-- Table Treeview JavaScript -->
-    <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
-
-    <!-- Chart Custom JavaScript -->
-    <script src="{{ asset('backend/assets/js/customizer.js') }}"></script>
-
-    <!-- Chart Custom JavaScript -->
-    <script async src="{{ asset('backend/assets/js/chart-custom.js') }}"></script>
-
-    <!-- app JavaScript -->
-    <script src="{{ asset('backend/assets/js/app.js') }}"></script>
     <script>
         function confirmDelete() {
             return confirm('Are you sure you want to delete this branch? This action cannot be undone.');

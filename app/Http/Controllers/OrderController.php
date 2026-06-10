@@ -310,8 +310,8 @@ class OrderController extends Controller
     private function validateOrder(Request $request): array
     {
         return $request->validate([
-            'customer_id'               => 'required|exists:customers,id',
-            'tailor_id'                 => 'nullable|exists:tailors,id',
+            'customer_id'               => ['required', $this->branchScopedExists('customers')],
+            'tailor_id'                 => ['nullable', $this->branchScopedExists('tailors')],
             'branch_id'                 => 'nullable|exists:branches,id',
             'order_date'                => 'required|date',
             'delivery_date'             => 'nullable|date|after_or_equal:order_date',
@@ -367,6 +367,10 @@ class OrderController extends Controller
 
     private function resolveBranchId(array $validated, ?Order $order = null): int
     {
+        if ($branchId = $this->scopedBranchId()) {
+            return $branchId;
+        }
+
         if (! empty($validated['branch_id'])) {
             return (int) $validated['branch_id'];
         }
@@ -376,7 +380,6 @@ class OrderController extends Controller
         }
 
         return (int) (Customer::find($validated['customer_id'])?->branch_id
-            ?? auth()->user()?->branch_id
             ?? Branch::value('id'));
     }
 

@@ -1,26 +1,15 @@
 <x-app-layout>
-        @push('css')
-    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css')}}">
-    @endpush
-
+    <x-ui.assets />
+    <x-ui.styles />
 
     <div class="container-fluid">
-        <!-- Page Header -->
-        <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
-            <div>
-                <h4 class="mb-3">Add New Branch</h4>
-                <p class="mb-0">Create a new branch for your tailor shop</p>
-            </div>
-            <div>
-                <a href="{{ route('branches.index') }}" class="btn btn-outline-secondary">
-                    <i class="las la-arrow-left mr-1"></i> Back to Branches
-                </a>
-            </div>
-        </div>
+        <x-ui.page-header title="Add New Branch" subtitle="Create a new branch for your tailor shop">
+            <x-slot:actions>
+                <x-ui.button :href="route('branches.index')" variant="outline-secondary" icon="las la-arrow-left">Back to Branches</x-ui.button>
+            </x-slot:actions>
+        </x-ui.page-header>
+
+        <x-ui.session-alerts />
 
         <!-- Branch Form -->
         <div class="row">
@@ -269,20 +258,6 @@
     </div>
     
     @push('js')
-     <!-- Backend Bundle JavaScript -->
-    <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
-
-    <!-- Table Treeview JavaScript -->
-    <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
-
-    <!-- Chart Custom JavaScript -->
-    <script src="{{ asset('backend/assets/js/customizer.js') }}"></script>
-
-    <!-- Chart Custom JavaScript -->
-    <script async src="{{ asset('backend/assets/js/chart-custom.js') }}"></script>
-
-    <!-- app JavaScript -->
-    <script src="{{ asset('backend/assets/js/app.js') }}"></script>
     <script>
         $(document).ready(function() {
             // Initialize timepicker

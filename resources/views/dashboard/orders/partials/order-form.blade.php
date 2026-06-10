@@ -28,20 +28,36 @@
         'trouser_length' => 'Trouser Length', 'trouser_waist' => 'Trouser Waist',
         'thigh' => 'Thigh', 'bottom_opening' => 'Bottom Opening',
     ];
+    $newCustomerBranches = \App\Models\Branch::where('is_active', true)->orderBy('name')->get();
 @endphp
 
-<div class="row" x-data="orderForm(@js($initialSuits), {{ (float) old('advance_paid', $isEdit ? $order->advance_paid : 0) }})">
-    <div class="col-lg-8">
+<style>
+    /* Suit rows: hide number spinners so values are fully visible in narrow columns */
+    .suits-table input[type=number] { -moz-appearance: textfield; text-align: center; }
+    .suits-table input[type=number]::-webkit-outer-spin-button,
+    .suits-table input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .suits-table .form-control-sm { min-width: 60px; }
+    .suit-color-swatch {
+        display: inline-block; width: 16px; height: 16px;
+        border-radius: 3px; border: 1px solid #ccc; vertical-align: middle;
+    }
+    .suits-table .input-group-text { background-color: #fff; }
+</style>
+
+<div class="row g-4" x-data="orderForm(@js($initialSuits), {{ (float) old('advance_paid', $isEdit ? $order->advance_paid : 0) }})">
+    {{-- Mobile / tablet summary (shown above form) --}}
+    <div class="col-12 d-xl-none">
+        @include('dashboard.orders.partials.order-summary')
+    </div>
+
+    <div class="col-xl-8">
         {{-- Section 1: Order Info --}}
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Order Information</h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="customer_input">Customer <span class="text-danger">*</span></label>
+        <x-ui.card title="Order Information" class="mb-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="customer_input">Customer <span class="text-danger">*</span></label>
+                        <div class="input-group">
                             <input type="text"
                                    id="customer_input"
                                    class="form-control {{ isset($errors) && $errors->has('customer_id') ? 'is-invalid' : '' }}"
@@ -50,93 +66,66 @@
                                    placeholder="Search by name or phone"
                                    autocomplete="off"
                                    required>
-                            <datalist id="customers-list">
-                                @foreach($customers as $c)
-                                    <option value="{{ $c->name }} - {{ $c->phone }}" data-id="{{ $c->id }}"></option>
-                                @endforeach
-                            </datalist>
-                            <input type="hidden" name="customer_id" id="customer_id" value="{{ $customerId }}">
-                            @if(isset($errors) && $errors->has('customer_id'))
-                                <div class="invalid-feedback d-block">{{ $errors->first('customer_id') }}</div>
-                            @endif
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-primary" title="Add new customer"
+                                        data-toggle="modal" data-target="#addCustomerModal">
+                                    <i class="las la-plus"></i>
+                                </button>
+                            </div>
                         </div>
-
-                        <div class="form-group">
-                            <label for="order_label">Order Label</label>
-                            <input type="text" name="order_label" id="order_label" class="form-control"
-                                   value="{{ old('order_label', $isEdit ? $order->order_label : '') }}"
-                                   placeholder="For Self / For Bilal / For Wife">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="order_date">Order Date <span class="text-danger">*</span></label>
-                            <input type="date" name="order_date" id="order_date" class="form-control {{ isset($errors) && $errors->has('order_date') ? 'is-invalid' : '' }}"
-                                   value="{{ $orderDateValue }}" required>
-                            @if(isset($errors) && $errors->has('order_date'))
-                                <div class="invalid-feedback">{{ $errors->first('order_date') }}</div>
-                            @endif
-                        </div>
-
-                        <div class="form-group">
-                            <label for="delivery_date">Delivery Date</label>
-                            <input type="date" name="delivery_date" id="delivery_date" class="form-control {{ isset($errors) && $errors->has('delivery_date') ? 'is-invalid' : '' }}"
-                                   value="{{ $deliveryDateValue }}">
-                            @if(isset($errors) && $errors->has('delivery_date'))
-                                <div class="invalid-feedback">{{ $errors->first('delivery_date') }}</div>
-                            @endif
-                        </div>
+                        <datalist id="customers-list">
+                            @foreach($customers as $c)
+                                <option value="{{ $c->name }} - {{ $c->phone }}" data-id="{{ $c->id }}"></option>
+                            @endforeach
+                        </datalist>
+                        <input type="hidden" name="customer_id" id="customer_id" value="{{ $customerId }}">
+                        @if(isset($errors) && $errors->has('customer_id'))
+                            <div class="invalid-feedback d-block">{{ $errors->first('customer_id') }}</div>
+                        @endif
                     </div>
 
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="tailor_id">Assign Tailor</label>
-                            <select name="tailor_id" id="tailor_id" class="form-control">
-                                <option value="">— Select tailor —</option>
-                                @foreach($tailors as $tailor)
-                                    <option value="{{ $tailor->id }}" @selected(old('tailor_id', $isEdit ? $order->tailor_id : '') == $tailor->id)>
-                                        {{ $tailor->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+                    <x-ui.form.input name="order_label" label="Order Label"
+                        :value="$isEdit ? $order->order_label : ''"
+                        placeholder="For Self / For Bilal / For Wife" />
 
-                        <div class="form-group">
-                            <label for="tailor_fee_total">Tailor Fee</label>
-                            <input type="number" name="tailor_fee_total" id="tailor_fee_total" class="form-control" min="0" step="0.01"
-                                   value="{{ old('tailor_fee_total', $isEdit ? $order->tailor_fee_total : 0) }}">
-                        </div>
+                    <x-ui.form.input type="date" name="order_date" label="Order Date"
+                        :value="$isEdit ? $order->order_date->format('Y-m-d') : $orderDate" required />
 
-                        <div class="form-group">
-                            <label for="advance_paid">Advance Paid</label>
-                            <input type="number" name="advance_paid" id="advance_paid" class="form-control" min="0" step="0.01"
-                                   x-model.number="advancePaid"
-                                   value="{{ old('advance_paid', $isEdit ? $order->advance_paid : 0) }}">
-                        </div>
+                    <x-ui.form.input type="date" name="delivery_date" label="Delivery Date"
+                        :value="$isEdit && $order->delivery_date ? $order->delivery_date->format('Y-m-d') : ''" />
+                </div>
 
-                        <div class="form-group">
-                            <label for="notes">Notes</label>
-                            <textarea name="notes" id="notes" class="form-control" rows="3">{{ old('notes', $isEdit ? $order->notes : '') }}</textarea>
-                        </div>
-                    </div>
+                <div class="col-md-6">
+                    <x-ui.form.select name="tailor_id" label="Assign Tailor"
+                        :options="$tailors" :selected="$isEdit ? $order->tailor_id : ''"
+                        placeholder="— Select tailor —" />
+
+                    <x-ui.form.input type="number" name="tailor_fee_total" label="Tailor Fee"
+                        :value="$isEdit ? $order->tailor_fee_total : 0" min="0" step="0.01" />
+
+                    <x-ui.form.input type="number" name="advance_paid" label="Advance Paid"
+                        :value="$isEdit ? $order->advance_paid : 0" min="0" step="0.01"
+                        x-model.number="advancePaid" />
+
+                    <x-ui.form.textarea name="notes" label="Notes"
+                        :value="$isEdit ? $order->notes : ''" />
                 </div>
             </div>
-        </div>
+        </x-ui.card>
 
         {{-- Section 2: Suits --}}
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <x-ui.card class="mb-4" :noPadding="true">
+            <x-slot:header>
                 <h6 class="m-0 font-weight-bold text-primary">Suits</h6>
-                <button type="button" class="btn btn-sm btn-outline-primary" @click="addSuit()">
-                    <i class="las la-plus"></i> Add Suit
-                </button>
-            </div>
-            <div class="card-body p-0">
+                <x-ui.button type="button" variant="outline-primary" size="sm" icon="las la-plus" @click="addSuit()">Add Suit</x-ui.button>
+            </x-slot:header>
+
                 <div class="table-responsive">
-                    <table class="table table-bordered mb-0">
+                    <table class="table table-bordered mb-0 suits-table">
                         <thead class="thead-light">
                             <tr>
                                 <th>Color</th>
-                                <th width="70">Qty</th>
+                                <th width="80">Qty</th>
                                 <th width="100">Stitching</th>
                                 <th width="100">Buttons</th>
                                 <th width="100">Other</th>
@@ -149,8 +138,16 @@
                             <template x-for="(suit, index) in suits" :key="index">
                                 <tr>
                                     <td>
-                                        <input type="text" class="form-control form-control-sm" x-model="suit.color"
-                                               :name="'suits[' + index + '][color]'" required placeholder="e.g. Green">
+                                        <div class="input-group input-group-sm flex-nowrap">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text px-2">
+                                                    <span class="suit-color-swatch" :style="{ backgroundColor: hexFor(suit.color) }"></span>
+                                                </span>
+                                            </div>
+                                            <input type="text" class="form-control form-control-sm" x-model="suit.color"
+                                                   :name="'suits[' + index + '][color]'" list="suit-colors"
+                                                   required placeholder="Pick or type a color">
+                                        </div>
                                     </td>
                                     <td>
                                         <input type="number" class="form-control form-control-sm" x-model.number="suit.quantity" min="1"
@@ -184,24 +181,34 @@
                         </tbody>
                     </table>
                 </div>
+                {{-- Shared color suggestions: pick one of the 7 or type a new name --}}
+                <datalist id="suit-colors">
+                    <option value="Black"></option>
+                    <option value="White"></option>
+                    <option value="Navy Blue"></option>
+                    <option value="Grey"></option>
+                    <option value="Maroon"></option>
+                    <option value="Beige"></option>
+                    <option value="Olive Green"></option>
+                </datalist>
                 @if(isset($errors) && $errors->has('suits'))
                     <div class="text-danger small px-3 py-2">{{ $errors->first('suits') }}</div>
                 @endif
                 @if(isset($errors) && $errors->has('suits.*'))
                     <div class="text-danger small px-3 py-2">Please check suit row details.</div>
                 @endif
-            </div>
-        </div>
+        </x-ui.card>
 
         {{-- Section 3: Measurements --}}
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
+        <x-ui.card class="mb-4">
+            <x-slot:header>
                 <button type="button" class="btn btn-link p-0 font-weight-bold text-primary text-decoration-none"
                         @click="measurementsOpen = !measurementsOpen">
                     <span x-text="measurementsOpen ? 'Hide Measurements ▲' : 'Add Measurements ▼'"></span>
                 </button>
-            </div>
-            <div class="card-body" x-show="measurementsOpen" x-cloak>
+            </x-slot:header>
+
+            <div x-show="measurementsOpen" x-cloak>
                 <div class="row">
                     @foreach($measurementFields as $field)
                         <div class="col-md-4 mb-3">
@@ -218,41 +225,57 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </x-ui.card>
 
         <div class="mb-4">
-            <button type="submit" class="btn btn-primary btn-lg">
-                <i class="las la-save mr-1"></i> {{ $isEdit ? 'Update Order' : 'Create Order' }}
-            </button>
-            <a href="{{ $isEdit ? route('orders.show', $order) : route('orders.index') }}" class="btn btn-outline-secondary btn-lg ml-2">Cancel</a>
+            <x-ui.button type="submit" size="lg" icon="las la-save">{{ $isEdit ? 'Update Order' : 'Create Order' }}</x-ui.button>
+            <x-ui.button :href="$isEdit ? route('orders.show', $order) : route('orders.index')" variant="outline-secondary" size="lg" class="ml-2">Cancel</x-ui.button>
         </div>
     </div>
 
-    {{-- Summary Bar --}}
-    <div class="col-lg-4">
-        <div class="card shadow border-left-primary sticky-top" style="top: 1rem;">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Order Summary</h6>
-            </div>
-            <div class="card-body">
-                <div class="d-flex justify-content-between mb-3">
-                    <span class="text-muted">Total Amount</span>
-                    <span class="font-weight-bold h5 mb-0" x-text="'Rs ' + totalAmount.toFixed(2)"></span>
-                </div>
-                <div class="d-flex justify-content-between mb-3">
-                    <span class="text-muted">Advance Paid</span>
-                    <span class="font-weight-bold" x-text="'Rs ' + (parseFloat(advancePaid) || 0).toFixed(2)"></span>
-                </div>
-                <hr>
-                <div class="d-flex justify-content-between">
-                    <span class="font-weight-bold">Balance Due</span>
-                    <span class="font-weight-bold h5 mb-0" :class="balanceDue > 0 ? 'text-warning' : 'text-success'"
-                          x-text="'Rs ' + balanceDue.toFixed(2)"></span>
-                </div>
-            </div>
+    {{-- Desktop summary sidebar --}}
+    <div class="col-xl-4 d-none d-xl-block">
+        <div class="order-summary-sticky">
+            @include('dashboard.orders.partials.order-summary')
         </div>
     </div>
 </div>
+
+{{-- Add New Customer modal (AJAX — no page reload) --}}
+<x-ui.modal id="addCustomerModal" title="Add New Customer">
+    <div id="ncErrors" class="alert alert-danger d-none"></div>
+
+    <div class="form-group">
+        <label for="nc_name">Name <span class="text-danger">*</span></label>
+        <input type="text" id="nc_name" class="form-control" autocomplete="off">
+    </div>
+    <div class="form-group">
+        <label for="nc_phone">Phone <span class="text-danger">*</span></label>
+        <input type="text" id="nc_phone" class="form-control" autocomplete="off">
+    </div>
+    <div class="form-group">
+        <label for="nc_address">Address</label>
+        <textarea id="nc_address" class="form-control" rows="2"></textarea>
+    </div>
+    <div class="form-group">
+        <label for="nc_branch_id">Branch</label>
+        <select id="nc_branch_id" class="form-control">
+            <option value="">— Select branch —</option>
+            @foreach($newCustomerBranches as $b)
+                <option value="{{ $b->id }}">{{ $b->name }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="form-group mb-0">
+        <label for="nc_notes">Notes</label>
+        <textarea id="nc_notes" class="form-control" rows="2"></textarea>
+    </div>
+
+    <x-slot:footer>
+        <x-ui.button variant="secondary" data-dismiss="modal">Cancel</x-ui.button>
+        <x-ui.button type="button" id="ncSaveBtn" icon="las la-save">Save Customer</x-ui.button>
+    </x-slot:footer>
+</x-ui.modal>
 
 @push('js')
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.15.4/dist/cdn.min.js"></script>
@@ -262,6 +285,20 @@
             suits: initialSuits,
             advancePaid: initialAdvance,
             measurementsOpen: {{ ($isEdit && $measurement) ? 'true' : 'false' }},
+
+            colorMap: {
+                'Black': '#000000', 'White': '#FFFFFF', 'Navy Blue': '#1F3A5F',
+                'Grey': '#808080', 'Maroon': '#800000', 'Beige': '#F5F5DC',
+                'Olive Green': '#556B2F'
+            },
+
+            hexFor(name) {
+                if (!name) return 'transparent';
+                const key = name.trim();
+                // Known names map to a precise hex; otherwise let the browser
+                // try the raw value (CSS names like "red"/"green" still work).
+                return this.colorMap[key] || key;
+            },
 
             rowTotal(suit) {
                 const qty = parseFloat(suit.quantity) || 0;
@@ -298,12 +335,12 @@
     document.addEventListener('DOMContentLoaded', function () {
         const customerInput = document.getElementById('customer_input');
         const customerIdInput = document.getElementById('customer_id');
-        const options = document.querySelectorAll('#customers-list option');
+        const customersList = document.getElementById('customers-list');
 
         function resolveCustomerId() {
             const value = customerInput.value.trim();
             let found = '';
-            options.forEach(function (opt) {
+            customersList.querySelectorAll('option').forEach(function (opt) {
                 if (opt.value === value) {
                     found = opt.dataset.id || '';
                 }
@@ -313,6 +350,81 @@
 
         customerInput.addEventListener('change', resolveCustomerId);
         customerInput.addEventListener('blur', resolveCustomerId);
+
+        /* ── Add new customer via AJAX ── */
+        const CSRF = '{{ csrf_token() }}';
+        const STORE_URL = '{{ route('customers.store') }}';
+        const ncSaveBtn = document.getElementById('ncSaveBtn');
+        const ncErrors = document.getElementById('ncErrors');
+
+        function ncShowError(msg) {
+            ncErrors.innerHTML = msg;
+            ncErrors.classList.remove('d-none');
+        }
+
+        if (ncSaveBtn) {
+            ncSaveBtn.addEventListener('click', function () {
+                ncErrors.classList.add('d-none');
+                ncErrors.innerHTML = '';
+                ncSaveBtn.disabled = true;
+
+                const payload = {
+                    name:      document.getElementById('nc_name').value,
+                    phone:     document.getElementById('nc_phone').value,
+                    address:   document.getElementById('nc_address').value,
+                    branch_id: document.getElementById('nc_branch_id').value,
+                    notes:     document.getElementById('nc_notes').value,
+                };
+
+                fetch(STORE_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': CSRF
+                    },
+                    body: JSON.stringify(payload)
+                }).then(async function (res) {
+                    let data = {};
+                    try { data = await res.json(); } catch (e) {}
+
+                    if (res.ok && data.customer) {
+                        const c = data.customer;
+                        const label = c.name + ' - ' + c.phone;
+
+                        // Add to datalist and select it immediately
+                        const opt = document.createElement('option');
+                        opt.value = label;
+                        opt.dataset.id = c.id;
+                        customersList.appendChild(opt);
+
+                        customerInput.value = label;
+                        customerIdInput.value = c.id;
+                        customerInput.classList.remove('is-invalid');
+
+                        // Reset modal fields
+                        ['nc_name', 'nc_phone', 'nc_address', 'nc_notes'].forEach(function (id) {
+                            document.getElementById(id).value = '';
+                        });
+                        document.getElementById('nc_branch_id').value = '';
+
+                        if (window.jQuery) {
+                            jQuery('#addCustomerModal').modal('hide');
+                        }
+                    } else if (res.status === 422 && data.errors) {
+                        ncShowError(Object.values(data.errors).flat()
+                            .map(function (e) { return '• ' + e; }).join('<br>'));
+                    } else {
+                        ncShowError(data.message || 'Something went wrong. Please try again.');
+                    }
+                }).catch(function () {
+                    ncShowError('Network error. Please try again.');
+                }).finally(function () {
+                    ncSaveBtn.disabled = false;
+                });
+            });
+        }
     });
 </script>
 @endpush

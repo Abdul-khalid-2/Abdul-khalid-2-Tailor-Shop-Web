@@ -1,37 +1,16 @@
 <x-app-layout>
-    @push('css')
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css')}}">
-    @endpush
+    <x-ui.assets />
+    <x-ui.styles />
 
     <div class="container-fluid">
-        <!-- Page Header -->
-        <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
-            <div>
-                <h4 class="mb-3">Branch Settings - {{ $branch->name }}</h4>
-                <p class="mb-0">Configure settings for {{ $branch->name }} branch</p>
-            </div>
-            <div>
-                <a href="{{ route('branches.show', $branch) }}" class="btn btn-outline-secondary mr-2">
-                    <i class="las la-arrow-left mr-1"></i> Back to Branch
-                </a>
-                <a href="{{ route('settings.index') }}" class="btn btn-outline-secondary">
-                    <i class="las la-cog mr-1"></i> All Settings
-                </a>
-            </div>
-        </div>
+        <x-ui.page-header :title="'Branch Settings - ' . $branch->name" :subtitle="'Configure settings for ' . $branch->name . ' branch'">
+            <x-slot:actions>
+                <x-ui.button :href="route('branches.show', $branch)" variant="outline-secondary" icon="las la-arrow-left" class="mr-2">Back to Branch</x-ui.button>
+                <x-ui.button :href="route('settings.index')" variant="outline-secondary" icon="las la-cog">All Settings</x-ui.button>
+            </x-slot:actions>
+        </x-ui.page-header>
 
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="las la-check-circle mr-2"></i> {{ session('success') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        @endif
+        <x-ui.session-alerts />
 
         <!-- Settings Form -->
         <form action="{{ route('settings.update.branch', $branch) }}" method="POST" id="branchSettingsForm" enctype="multipart/form-data">
@@ -310,7 +289,7 @@
                                 </div>
                                 <div class="mb-2">
                                     <label class="text-muted">Hours:</label>
-                                    <div>{{ $branch->opening_time->format('h:i A') }} - {{ $branch->closing_time->format('h:i A') }}</div>
+                                    <div>{{ \Carbon\Carbon::parse($branch->opening_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($branch->closing_time)->format('h:i A') }}</div>
                                 </div>
                                 <div class="mb-2">
                                     <label class="text-muted">Manager:</label>
@@ -387,21 +366,6 @@
     </div>
     
     @push('js')
-    <!-- Backend Bundle JavaScript -->
-    <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
-
-    <!-- Table Treeview JavaScript -->
-    <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
-
-    <!-- Chart Custom JavaScript -->
-    <script src="{{ asset('backend/assets/js/customizer.js') }}"></script>
-
-    <!-- Chart Custom JavaScript -->
-    <script async src="{{ asset('backend/assets/js/chart-custom.js') }}"></script>
-
-    <!-- app JavaScript -->
-    <script src="{{ asset('backend/assets/js/app.js') }}"></script>
-    
     <script>
         $(document).ready(function() {
             // Initialize Select2

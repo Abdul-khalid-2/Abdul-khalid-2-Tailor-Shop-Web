@@ -1,97 +1,42 @@
 <x-app-layout>
-    @push('css')
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
-    @endpush
+    <x-ui.assets />
+    <x-ui.styles />
 
     <div class="container-fluid">
-        <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
-            <div>
-                <h4 class="mb-1">Add Customer</h4>
-                <p class="mb-0 text-muted">Create a new customer profile</p>
-            </div>
-            <div>
-                <a href="{{ route('customers.index') }}" class="btn btn-outline-secondary">
-                    <i class="las la-arrow-left mr-1"></i> Back to Customers
-                </a>
-            </div>
-        </div>
+        <x-ui.page-header title="Add Customer" subtitle="Create a new customer profile">
+            <x-slot:actions>
+                <x-ui.button :href="route('customers.index')" variant="outline-secondary" icon="las la-arrow-left">Back to Customers</x-ui.button>
+            </x-slot:actions>
+        </x-ui.page-header>
 
-        @if(isset($errors) && $errors->any())
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+        <x-ui.session-alerts />
 
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <div class="card shadow">
-                    <div class="card-body">
-                        <form action="{{ route('customers.store') }}" method="POST">
-                            @csrf
+                <x-ui.card>
+                    <form action="{{ route('customers.store') }}" method="POST">
+                        @csrf
 
-                            <div class="form-group">
-                                <label for="name">Name <span class="text-danger">*</span></label>
-                                <input type="text" name="name" id="name" class="form-control {{ isset($errors) && $errors->has('name') ? 'is-invalid' : '' }}"
-                                       value="{{ old('name') }}" required>
-                                @if(isset($errors) && $errors->has('name'))
-                                    <div class="invalid-feedback">{{ $errors->first('name') }}</div>
-                                @endif
-                            </div>
+                        <x-ui.form.input name="name" label="Name" required />
+                        <x-ui.form.input name="phone" label="Phone" required />
+                        <x-ui.form.textarea name="address" label="Address" />
+                        @if($branches->isNotEmpty())
+                            <x-ui.form.select
+                                name="branch_id"
+                                label="Branch"
+                                :options="$branches"
+                                placeholder="— Select branch —"
+                            />
+                        @endif
+                        <x-ui.form.textarea name="notes" label="Notes" />
 
-                            <div class="form-group">
-                                <label for="phone">Phone <span class="text-danger">*</span></label>
-                                <input type="text" name="phone" id="phone" class="form-control {{ isset($errors) && $errors->has('phone') ? 'is-invalid' : '' }}"
-                                       value="{{ old('phone') }}" required>
-                                @if(isset($errors) && $errors->has('phone'))
-                                    <div class="invalid-feedback">{{ $errors->first('phone') }}</div>
-                                @endif
-                            </div>
-
-                            <div class="form-group">
-                                <label for="address">Address</label>
-                                <textarea name="address" id="address" class="form-control" rows="3">{{ old('address') }}</textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="branch_id">Branch</label>
-                                <select name="branch_id" id="branch_id" class="form-control">
-                                    <option value="">— Select branch —</option>
-                                    @foreach($branches as $branch)
-                                        <option value="{{ $branch->id }}" @selected(old('branch_id') == $branch->id)>
-                                            {{ $branch->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="notes">Notes</label>
-                                <textarea name="notes" id="notes" class="form-control" rows="3">{{ old('notes') }}</textarea>
-                            </div>
-
-                            <div class="d-flex">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="las la-save mr-1"></i> Save Customer
-                                </button>
-                                <a href="{{ route('customers.index') }}" class="btn btn-outline-secondary ml-2">Cancel</a>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+                        <div class="d-flex">
+                            <x-ui.button type="submit" icon="las la-save">Save Customer</x-ui.button>
+                            <x-ui.button :href="route('customers.index')" variant="outline-secondary" class="ml-2">Cancel</x-ui.button>
+                        </div>
+                    </form>
+                </x-ui.card>
             </div>
         </div>
     </div>
-
-    @push('js')
-        <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
-        <script src="{{ asset('backend/assets/js/app.js') }}"></script>
-    @endpush
 </x-app-layout>

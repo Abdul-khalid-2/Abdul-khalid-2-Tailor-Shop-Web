@@ -29,7 +29,9 @@ class TailorController extends Controller
 
     public function create()
     {
-        $branches = Branch::where('is_active', true)->get();
+        $branches = $this->isSuperAdmin()
+            ? Branch::where('is_active', true)->orderBy('name')->get()
+            : collect();
 
         return view('dashboard.tailors.create', compact('branches'));
     }
@@ -38,7 +40,7 @@ class TailorController extends Controller
     {
         $validated = $request->validate([
             'name'         => 'required|string|max:150',
-            'phone'        => 'required|string|max:20|unique:tailors,phone',
+            'phone'        => ['required', 'string', 'max:20', $this->branchScopedUnique('tailors', 'phone')],
             'cnic'         => 'nullable|string|max:20',
             'address'      => 'nullable|string',
             'joining_date' => 'nullable|date',
@@ -48,6 +50,7 @@ class TailorController extends Controller
             'notes'        => 'nullable|string',
         ]);
 
+        $validated = $this->enforceBranchId($validated);
         $validated['status'] = $validated['status'] ?? 'active';
         $validated['specialty'] = $validated['specialty'] ?? 'all';
 
@@ -69,7 +72,9 @@ class TailorController extends Controller
 
     public function edit(Tailor $tailor)
     {
-        $branches = Branch::where('is_active', true)->get();
+        $branches = $this->isSuperAdmin()
+            ? Branch::where('is_active', true)->orderBy('name')->get()
+            : collect();
 
         return view('dashboard.tailors.edit', compact('tailor', 'branches'));
     }
@@ -78,7 +83,7 @@ class TailorController extends Controller
     {
         $validated = $request->validate([
             'name'         => 'required|string|max:150',
-            'phone'        => 'required|string|max:20|unique:tailors,phone,' . $tailor->id,
+            'phone'        => ['required', 'string', 'max:20', $this->branchScopedUnique('tailors', 'phone', $tailor->id)],
             'cnic'         => 'nullable|string|max:20',
             'address'      => 'nullable|string',
             'joining_date' => 'nullable|date',
@@ -87,6 +92,8 @@ class TailorController extends Controller
             'branch_id'    => 'nullable|exists:branches,id',
             'notes'        => 'nullable|string',
         ]);
+
+        $validated = $this->enforceBranchId($validated);
 
         $tailor->update($validated);
 

@@ -6,4 +6,9 @@
     .border-left-danger   { border-left: 0.25rem solid #e74a3b !important; }
     .border-left-secondary{ border-left: 0.25rem solid #858796 !important; }
     [x-cloak] { display: none !important; }
+    .order-summary-sticky {
+        position: sticky;
+        top: 5.5rem;
+        z-index: 5;
+    }
 </style>

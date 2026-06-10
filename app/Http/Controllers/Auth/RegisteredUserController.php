@@ -39,12 +39,19 @@ class RegisteredUserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            // Pending approval — a Super Admin assigns branch/role and activates the account.
+            'status' => 'inactive',
         ]);
+
+        // Give every self-registered account the basic "user" role for now.
+        $user->assignRole('user');
 
         event(new Registered($user));
 
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+        // Do NOT log the user in. Send them to the home page with a notice;
+        // they can only sign in once a Super Admin approves the account.
+        return redirect('/')->with('success',
+            'Thank you for registering! Your account is pending approval. '
+            .'An administrator will review and activate it shortly.');
     }
 }

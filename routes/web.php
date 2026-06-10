@@ -45,7 +45,7 @@ Route::group([
     | Application routes (auth + verified)
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['auth', 'verified'])->group(function () {
+    Route::middleware(['auth', 'verified', 'role:superadmin|admin'])->group(function () {
 
         // Dashboard
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -96,7 +96,7 @@ Route::group([
         });
 
         // Branches (Super Admin — via Settings menu)
-        Route::prefix('dashboard/branches')->name('branches.')->group(function () {
+        Route::prefix('dashboard/branches')->name('branches.')->middleware('role:superadmin')->group(function () {
             Route::get('/', [BranchController::class, 'index'])->name('index');
             Route::get('/create', [BranchController::class, 'create'])->name('create');
             Route::post('/', [BranchController::class, 'store'])->name('store');
@@ -121,7 +121,7 @@ Route::group([
             Route::post('/branch/{branch}/reset', [SettingController::class, 'resetToGeneral'])->name('reset.to.general');
 
             // Users (Super Admin only)
-            Route::prefix('users')->name('users.')->group(function () {
+            Route::prefix('users')->name('users.')->middleware('role:superadmin')->group(function () {
                 Route::get('/', [SettingController::class, 'usersIndex'])->name('index');
                 Route::get('/create', [SettingController::class, 'usersCreate'])->name('create');
                 Route::post('/', [SettingController::class, 'usersStore'])->name('store');
@@ -131,8 +131,10 @@ Route::group([
             });
 
             // Order statuses (Super Admin only)
-            Route::get('/order-statuses', [SettingController::class, 'orderStatusesIndex'])->name('order-statuses.index');
-            Route::put('/order-statuses/{orderStatus}', [SettingController::class, 'orderStatusUpdate'])->name('order-statuses.update');
+            Route::middleware('role:superadmin')->group(function () {
+                Route::get('/order-statuses', [SettingController::class, 'orderStatusesIndex'])->name('order-statuses.index');
+                Route::put('/order-statuses/{orderStatus}', [SettingController::class, 'orderStatusUpdate'])->name('order-statuses.update');
+            });
         });
     });
 });

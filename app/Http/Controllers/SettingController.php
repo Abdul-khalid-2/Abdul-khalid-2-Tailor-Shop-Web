@@ -342,11 +342,6 @@ class SettingController extends Controller
     | Authorization helpers
     |--------------------------------------------------------------------------
     */
-    private function isSuperAdmin(): bool
-    {
-        return auth()->user()->hasRole('superadmin');
-    }
-
     private function isBranchAdmin(): bool
     {
         return auth()->user()->hasRole('admin');
@@ -356,13 +351,6 @@ class SettingController extends Controller
     {
         if (! $this->isSuperAdmin() && ! $this->isBranchAdmin()) {
             abort(403, 'You do not have access to settings.');
-        }
-    }
-
-    private function authorizeSuperAdmin(): void
-    {
-        if (! $this->isSuperAdmin()) {
-            abort(403, 'Super Admin access required.');
         }
     }
 

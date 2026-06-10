@@ -19,5 +19,13 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // When a signed-in user without the required role hits a guarded route,
+        // send them home with a clear message instead of a bare 403 page.
+        $exceptions->render(function (\Spatie\Permission\Exceptions\UnauthorizedException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['message' => 'You do not have permission to access this area.'], 403);
+            }
+
+            return redirect('/')->with('error', 'You do not have permission to access that area.');
+        });
     })->create();

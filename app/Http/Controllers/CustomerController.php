@@ -26,7 +26,9 @@ class CustomerController extends Controller
 
     public function create()
     {
-        $branches = Branch::where('is_active', true)->get();
+        $branches = $this->isSuperAdmin()
+            ? Branch::where('is_active', true)->orderBy('name')->get()
+            : collect();
 
         return view('dashboard.customers.create', compact('branches'));
     }
@@ -35,15 +37,26 @@ class CustomerController extends Controller
     {
         $validated = $request->validate([
             'name'      => 'required|string|max:150',
-            'phone'     => 'required|string|max:20|unique:customers,phone',
+            'phone'     => ['required', 'string', 'max:20', $this->branchScopedUnique('customers', 'phone')],
             'address'   => 'nullable|string',
             'notes'     => 'nullable|string',
             'branch_id' => 'nullable|exists:branches,id',
         ]);
 
+        $validated = $this->enforceBranchId($validated);
         $validated['created_by'] = auth()->id();
 
         $customer = Customer::create($validated);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'customer' => [
+                    'id'    => $customer->id,
+                    'name'  => $customer->name,
+                    'phone' => $customer->phone,
+                ],
+            ], 201);
+        }
 
         return redirect()->route('customers.show', $customer)
             ->with('success', 'Customer created successfully.');
@@ -64,7 +77,9 @@ class CustomerController extends Controller
 
     public function edit(Customer $customer)
     {
-        $branches = Branch::where('is_active', true)->get();
+        $branches = $this->isSuperAdmin()
+            ? Branch::where('is_active', true)->orderBy('name')->get()
+            : collect();
 
         return view('dashboard.customers.edit', compact('customer', 'branches'));
     }
@@ -73,12 +88,13 @@ class CustomerController extends Controller
     {
         $validated = $request->validate([
             'name'      => 'required|string|max:150',
-            'phone'     => 'required|string|max:20|unique:customers,phone,' . $customer->id,
+            'phone'     => ['required', 'string', 'max:20', $this->branchScopedUnique('customers', 'phone', $customer->id)],
             'address'   => 'nullable|string',
             'notes'     => 'nullable|string',
             'branch_id' => 'nullable|exists:branches,id',
         ]);
 
+        $validated = $this->enforceBranchId($validated);
         $validated['updated_by'] = auth()->id();
 
         $customer->update($validated);

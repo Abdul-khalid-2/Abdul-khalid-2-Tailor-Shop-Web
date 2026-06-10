@@ -1,21 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JaansFabrics.com | Luxury Fabrics Collection</title>
-    <!-- CSRF Token for Laravel -->
+    <title>Royal Stitch | Premium Tailoring & Bespoke Suits</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- Bootstrap 5 CSS -->
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome for icons -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Styles -->
     <style>
         :root {
             --primary-black: #121212;
@@ -30,1266 +27,682 @@
             --text-gray: #888888;
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            color: var(--primary-black);
-            background-color: var(--primary-white);
-            overflow-x: hidden;
-        }
+        body { font-family: 'Inter', sans-serif; color: var(--primary-black); background-color: var(--primary-white); overflow-x: hidden; }
+        h1, h2, h3, h4, h5, h6 { font-family: 'Playfair Display', serif; font-weight: 600; }
 
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-            font-family: 'Playfair Display', serif;
-            font-weight: 600;
-        }
+        /* ── Navbar ── */
+        .navbar { background-color: var(--primary-white); box-shadow: 0 4px 12px rgba(0,0,0,.05); padding: 1rem 0; transition: all .3s ease; }
+        .navbar-brand { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--primary-black) !important; }
+        .navbar-brand span { background: var(--primary-gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .nav-link { color: var(--primary-black) !important; font-weight: 500; margin: 0 .5rem; transition: color .3s; position: relative; }
+        .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: 0; left: 0; background: var(--primary-gold); transition: width .3s ease; }
+        .nav-link:hover::after { width: 100%; }
+        .navbar-toggler { border: none; } .navbar-toggler:focus { box-shadow: none; }
 
-        /* Header Styles */
-        .navbar {
-            background-color: var(--primary-white);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            padding: 1rem 0;
-            transition: all 0.3s ease;
-        }
-
-        .navbar-brand {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary-black) !important;
-        }
-
-        .navbar-brand span {
-            background: var(--primary-gold);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-link {
-            color: var(--primary-black) !important;
-            font-weight: 500;
-            margin: 0 0.5rem;
-            transition: color 0.3s;
-            position: relative;
-        }
-
-        .nav-link:hover {
-            color: var(--primary-black) !important;
-        }
-
-        .nav-link:after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: 0;
-            left: 0;
-            background: var(--primary-gold);
-            transition: width 0.3s ease;
-        }
-
-        .nav-link:hover:after {
-            width: 100%;
-        }
-
-        /* Product Card */
-        .product-card {
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 2rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            background-color: var(--primary-white);
-            position: relative;
-            border: 1px solid var(--light-gray);
-        }
-
-        .product-card:hover {
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            transform: translateY(-5px);
-            border-color: transparent;
-        }
-
-        .product-badge {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: var(--primary-gold);
-            color: var(--primary-black);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            z-index: 2;
-            box-shadow: 0 4px 10px rgba(140, 111, 28, 0.3);
-        }
-
-        /* Footer */
-        .footer {
-            background-color: var(--primary-black);
-            color: var(--primary-white);
-            padding: 4rem 0 2rem;
-            margin-top: 4rem;
-            position: relative;
-        }
-
-        .footer:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--primary-gold);
-        }
-
-        .footer-title {
-            font-size: 1.5rem;
-            margin-bottom: 1.5rem;
-            color: var(--primary-white);
-        }
-
-        .footer-title span {
-            background: var(--primary-gold);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .footer-links {
-            list-style: none;
-            padding: 0;
-        }
-
-        .footer-links li {
-            margin-bottom: 0.8rem;
-            position: relative;
-            padding-left: 0;
-            transition: padding-left 0.3s ease;
-        }
-
-        .footer-links li:hover {
-            padding-left: 10px;
-        }
-
-        .footer-links li:before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 0;
-            height: 2px;
-            background: var(--primary-gold);
-            transition: width 0.3s ease;
-        }
-
-        .footer-links li:hover:before {
-            width: 6px;
-        }
-
-        .footer-links a {
-            color: var(--text-gray);
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .footer-links a:hover {
-            color: var(--light-gold);
-        }
-
-        .social-icons {
-            display: flex;
-            margin-top: 1.5rem;
-        }
-
-        .social-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--secondary-black);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 10px;
-            color: var(--primary-white);
-            text-decoration: none;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .social-icon:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--primary-gold);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .social-icon:hover {
-            transform: translateY(-5px);
-        }
-
-        .social-icon:hover:before {
-            opacity: 1;
-        }
-
-        .social-icon i {
-            position: relative;
-            z-index: 1;
-        }
-
-        .copyright {
-            border-top: 1px solid var(--secondary-black);
-            padding-top: 2rem;
-            margin-top: 3rem;
-            text-align: center;
-            color: var(--text-gray);
-        }
-
-        /* Buttons with Gold Gradient */
-        .btn-gold {
-            background: var(--primary-gold);
-            color: var(--primary-black);
-            font-weight: 600;
-            border: none;
-            padding: 0.8rem 2rem;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-gold:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(140, 111, 28, 0.3);
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--off-white);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary-gold);
-            border-radius: 4px;
-        }
-
-        /* Add more styles as needed from your template */
-    </style>
-
-    <style>
-        .navbar-toggler {
-            border: none;
-            color: var(--primary-black);
-        }
-
-        .navbar-toggler:focus {
-            box-shadow: none;
-        }
-
-        /* Hero Section */
+        /* ── Hero ── */
         .hero-section {
-            background: linear-gradient(rgba(18, 18, 18, 0.85), rgba(18, 18, 18, 0.9)), url('https://images.unsplash.com/photo-1523380744952-b7e00e6e2ffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');
-            background-size: cover;
-            background-position: center;
-            color: var(--primary-white);
-            padding: 8rem 0 6rem;
-            position: relative;
-        }
-
-        .hero-title {
-            font-size: 3.5rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            line-height: 1.2;
-        }
-
-        .hero-subtitle {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            max-width: 600px;
-            color: var(--light-gray);
-        }
-
-        .hero-highlight {
-            background: var(--primary-gold);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Category Section */
-        .section-title {
-            font-size: 2.5rem;
-            margin-bottom: 3rem;
-            position: relative;
-            display: inline-block;
-        }
-
-        .section-title:after {
-            content: '';
-            position: absolute;
-            width: 60%;
-            height: 4px;
-            background: var(--primary-gold);
-            bottom: -10px;
-            left: 0;
-            border-radius: 2px;
-        }
-
-        /* Products Header */
-        .products-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .filter-toggle-btn {
-            background: var(--primary-gold);
-            color: var(--primary-black);
-            border: none;
-            padding: 0.6rem 1.5rem;
-            border-radius: 4px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .filter-toggle-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(140, 111, 28, 0.3);
-        }
-
-        .sort-dropdown .btn {
-            background-color: var(--primary-white);
-            border: 1px solid var(--light-gray);
-            color: var(--primary-black);
-            padding: 0.6rem 1.2rem;
-            min-width: 180px;
-            text-align: left;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .sort-dropdown .btn:hover,
-        .sort-dropdown .btn:focus {
-            border-color: var(--primary-gold-solid);
-            box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.1);
-        }
-
-        .sort-dropdown .btn:after {
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        /* Offcanvas Styles */
-        .offcanvas-filter {
-            background-color: var(--off-white);
-        }
-
-        .offcanvas-filter .offcanvas-header {
-            background: var(--primary-gold);
-            color: var(--primary-black);
-            border-bottom: 1px solid var(--light-gray);
-        }
-
-        .offcanvas-filter .offcanvas-title {
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
-
-        .offcanvas-filter .btn-close {
-            background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23121212'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
-            opacity: 1;
-        }
-
-        .filter-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            position: relative;
-            display: inline-block;
-        }
-
-        .filter-title:after {
-            content: '';
-            position: absolute;
-            width: 40px;
-            height: 3px;
-            background: var(--primary-gold);
-            bottom: 0;
-            left: 0;
-            border-radius: 2px;
-        }
-
-        .form-check-input:checked {
-            background-color: var(--primary-gold-solid);
-            border-color: var(--primary-gold-solid);
-        }
-
-        .form-check-input:focus {
-            box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
-        }
-
-        .btn-apply-filters {
-            background: var(--primary-gold);
-            color: var(--primary-black);
-            font-weight: 600;
-            border: none;
-            padding: 0.75rem;
-            border-radius: 4px;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-
-        .btn-apply-filters:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(140, 111, 28, 0.3);
-        }
-
-        /* Category Card */
-        .category-card {
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 2rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            background-color: var(--primary-white);
-            border: 1px solid var(--light-gray);
-        }
-
-        .category-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-            border-color: transparent;
-        }
-
-        .category-card:hover:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--primary-gold);
-            z-index: 2;
-        }
-
-        .category-img {
-            height: 250px;
-            width: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-
-        .category-card:hover .category-img {
-            transform: scale(1.05);
-        }
-
-        .category-name {
-            font-size: 1.4rem;
-            font-weight: 600;
-            padding: 1.5rem 1rem 0.5rem;
-            margin: 0;
-        }
-
-        .category-count {
-            color: var(--text-gray);
-            padding: 0 1rem 1.5rem;
-            font-size: 0.9rem;
-        }
-
-        /* Product Card */
-        .product-card {
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 2rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            background-color: var(--primary-white);
-            position: relative;
-            border: 1px solid var(--light-gray);
-        }
-
-        .product-card:hover {
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            transform: translateY(-5px);
-            border-color: transparent;
-        }
-
-        .product-card:hover:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--primary-gold);
-            z-index: 2;
-        }
-
-        .product-image-container {
-            position: relative;
-            overflow: hidden;
-            height: 280px;
-        }
-
-        .product-front-img,
-        .product-back-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: opacity 0.5s ease, transform 0.5s ease;
-        }
-
-        .product-back-img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            transform: scale(1.1);
-        }
-
-        .product-image-container:hover .product-front-img {
-            opacity: 0;
-            transform: scale(1.1);
-        }
-
-        .product-image-container:hover .product-back-img {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .product-badge {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            background: var(--primary-gold);
-            color: var(--primary-black);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            z-index: 2;
-            box-shadow: 0 4px 10px rgba(140, 111, 28, 0.3);
-        }
-
-        .product-info {
-            padding: 1.5rem;
-        }
-
-        .product-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--primary-black);
-        }
-
-        .product-price {
-            font-size: 1.3rem;
-            font-weight: 700;
-            background: linear-gradient(to right, #BF953F, #be9343, #B38728, #FBF5B7, #AA771C);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.5rem;
-        }
-
-        .product-colors {
-            display: flex;
-            margin-bottom: 0.5rem;
-        }
-
-        .color-dot {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-right: 8px;
-            border: 2px solid var(--light-gray);
-            transition: transform 0.3s ease, border-color 0.3s ease;
-            cursor: pointer;
-        }
-
-        .color-dot:hover {
-            transform: scale(1.2);
-            border-color: var(--primary-gold-solid);
-        }
-
-        /* Filters */
-        .filter-sidebar {
-            background-color: var(--off-white);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            border: 1px solid var(--light-gray);
-            position: relative;
-        }
-
-        .filter-sidebar:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: var(--primary-gold);
-            border-radius: 8px 8px 0 0;
-        }
-
-        .filter-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            position: relative;
-            display: inline-block;
-        }
-
-        .filter-title:after {
-            content: '';
-            position: absolute;
-            width: 40px;
-            height: 3px;
-            background: var(--primary-gold);
-            bottom: 0;
-            left: 0;
-            border-radius: 2px;
-        }
-
-        .form-check-input:checked {
-            background-color: var(--primary-gold-solid);
-            border-color: var(--primary-gold-solid);
-        }
-
-        .form-check-input:focus {
-            box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
-        }
-
-        .dropdown-filter {
-            margin-bottom: 2rem;
-        }
-
-        .dropdown-filter .btn {
-            background-color: var(--primary-white);
-            border: 1px solid var(--light-gray);
-            color: var(--primary-black);
-            width: 100%;
-            text-align: left;
-            padding: 0.75rem 1rem;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .dropdown-filter .btn:hover,
-        .dropdown-filter .btn:focus {
-            border-color: var(--primary-gold-solid);
-            box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.1);
-        }
-
-        .dropdown-filter .btn:after {
-            position: absolute;
-            right: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-
-        .dropdown-item.active,
-        .dropdown-item:active {
-            background: var(--primary-gold);
-            color: var(--primary-black);
-            font-weight: 600;
-        }
-
-        /* Chat Widget */
-        .chat-widget {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 1000;
-        }
-
-        .chat-button {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--primary-gold);
-            color: var(--primary-black);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            box-shadow: 0 5px 20px rgba(140, 111, 28, 0.4);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .chat-button:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(244, 228, 166, 0.8) 0%, rgba(212, 175, 55, 0.8) 50%, rgba(140, 111, 28, 0.8) 100%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .chat-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 8px 25px rgba(140, 111, 28, 0.5);
-        }
-
-        .chat-button:hover:before {
-            opacity: 1;
-        }
-
-        .chat-button i {
-            position: relative;
-            z-index: 1;
-        }
-
-        .chat-options {
-            position: absolute;
-            bottom: 70px;
-            right: 0;
-            background-color: var(--primary-white);
-            border-radius: 10px;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.15);
-            padding: 1rem;
-            width: 200px;
-            display: none;
-            border: 1px solid var(--light-gray);
-        }
-
-        .chat-options.show {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .chat-option {
-            display: flex;
-            align-items: center;
-            padding: 0.8rem;
-            border-radius: 5px;
-            margin-bottom: 0.5rem;
-            transition: background-color 0.2s, transform 0.2s;
-            color: var(--primary-black);
-            text-decoration: none;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .chat-option:before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 3px;
-            background: var(--primary-gold);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .chat-option:hover {
-            background-color: var(--off-white);
-            color: var(--primary-black);
-            transform: translateX(5px);
-        }
-
-        .chat-option:hover:before {
-            opacity: 1;
-        }
-
-        .chat-option i {
-            margin-right: 10px;
-            font-size: 1.2rem;
-            width: 20px;
-            text-align: center;
-        }
-
-        /* Image Slider */
-        .image-slider {
-            margin: 4rem 0;
-        }
-
-        .slider-item {
-            border-radius: 10px;
-            overflow: hidden;
-            height: 400px;
-            position: relative;
-        }
-
-        .slider-item:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(244, 228, 166, 0.1) 0%, rgba(212, 175, 55, 0.1) 50%, rgba(140, 111, 28, 0.1) 100%);
-            z-index: 1;
-        }
-
-        .slider-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .carousel-control-prev,
-        .carousel-control-next {
-            width: 50px;
-            height: 50px;
-            background: var(--primary-gold);
-            border-radius: 50%;
-            top: 50%;
-            transform: translateY(-50%);
-            opacity: 0.8;
-            transition: all 0.3s ease;
-        }
-
-        .carousel-control-prev {
-            left: 20px;
-        }
-
-        .carousel-control-next {
-            right: 20px;
-        }
-
-        .carousel-control-prev:hover,
-        .carousel-control-next:hover {
-            opacity: 1;
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        .slider-dots {
-            display: flex;
-            justify-content: center;
-            margin-top: 1.5rem;
-        }
-
-        .slider-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: var(--light-gray);
-            margin: 0 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .slider-dot.active {
-            background: var(--primary-gold);
-            transform: scale(1.2);
-        }
+            background: linear-gradient(rgba(18,18,18,.88), rgba(18,18,18,.92)),
+                url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1950&q=80');
+            background-size: cover; background-position: center;
+            color: var(--primary-white); padding: 9rem 0 7rem; position: relative;
+        }
+        .hero-title { font-size: 3.6rem; font-weight: 700; margin-bottom: 1.5rem; line-height: 1.2; }
+        .hero-subtitle { font-size: 1.2rem; margin-bottom: 2rem; max-width: 600px; color: var(--light-gray); }
+        .hero-highlight { background: var(--primary-gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+        /* ── Buttons ── */
+        .btn-gold { background: var(--primary-gold); color: var(--primary-black); font-weight: 600; border: none; padding: .8rem 2rem; border-radius: 4px; transition: all .3s ease; }
+        .btn-gold:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(140,111,28,.3); color: var(--primary-black); }
+
+        /* ── Section titles ── */
+        .section-title { font-size: 2.5rem; margin-bottom: 3rem; position: relative; display: inline-block; }
+        .section-title::after { content: ''; position: absolute; width: 60%; height: 4px; background: var(--primary-gold); bottom: -10px; left: 0; border-radius: 2px; }
+        .section-pad { padding: 4rem 0; }
+        .bg-soft { background-color: var(--off-white); }
+
+        /* ── Service Cards ── */
+        .service-card {
+            border-radius: 10px; overflow: hidden; margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,.06); transition: all .3s ease;
+            background-color: var(--primary-white); border: 1px solid var(--light-gray);
+            position: relative; padding: 2rem 1.5rem; text-align: center;
+        }
+        .service-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--primary-gold); opacity: 0; transition: opacity .3s; }
+        .service-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,.1); border-color: transparent; }
+        .service-card:hover::before { opacity: 1; }
+        .service-icon { font-size: 2.5rem; margin-bottom: 1rem; background: var(--primary-gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .service-title { font-size: 1.3rem; font-weight: 600; margin-bottom: .75rem; }
+        .service-desc { color: #666; font-size: .95rem; line-height: 1.7; }
+
+        /* ── Process Steps ── */
+        .process-step { text-align: center; padding: 1.5rem 1rem; }
+        .step-number { width: 60px; height: 60px; border-radius: 50%; background: var(--primary-gold); color: var(--primary-black); font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; box-shadow: 0 5px 15px rgba(140,111,28,.3); }
+        .step-title { font-size: 1.1rem; font-weight: 600; margin-bottom: .5rem; }
+        .step-desc { color: #666; font-size: .9rem; }
+        .process-connector { position: relative; }
+        .process-connector::after { content: '→'; position: absolute; top: 30px; right: -15px; color: var(--primary-gold-solid); font-size: 1.5rem; }
+
+        /* ── Measurement Image ── */
+        .measurement-visual { border-radius: 10px; overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,.15); }
+        .measurement-list { list-style: none; padding: 0; }
+        .measurement-list li { padding: .6rem 0; border-bottom: 1px solid var(--light-gray); display: flex; align-items: center; color: #555; }
+        .measurement-list li i { color: var(--primary-gold-solid); width: 24px; margin-right: .5rem; }
+
+        /* ── Suit Showcase ── */
+        .suit-card { border-radius: 10px; overflow: hidden; margin-bottom: 2rem; box-shadow: 0 5px 15px rgba(0,0,0,.07); transition: all .3s ease; background-color: var(--primary-white); border: 1px solid var(--light-gray); position: relative; }
+        .suit-card:hover { box-shadow: 0 12px 28px rgba(0,0,0,.12); transform: translateY(-6px); border-color: transparent; }
+        .suit-card:hover::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--primary-gold); z-index: 2; }
+        .suit-img-wrap { height: 300px; overflow: hidden; position: relative; }
+        .suit-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+        .suit-card:hover .suit-img-wrap img { transform: scale(1.06); }
+        .suit-badge { position: absolute; top: 12px; left: 12px; background: var(--primary-gold); color: var(--primary-black); padding: 4px 14px; border-radius: 20px; font-size: .78rem; font-weight: 700; z-index: 2; box-shadow: 0 4px 10px rgba(140,111,28,.3); }
+        .suit-info { padding: 1.4rem; }
+        .suit-name { font-size: 1.1rem; font-weight: 600; margin-bottom: .4rem; }
+        .suit-price { font-size: 1.2rem; font-weight: 700; background: linear-gradient(to right, #BF953F, #B38728, #FBF5B7, #AA771C); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .suit-colors { display: flex; margin-top: .5rem; }
+        .color-dot { width: 18px; height: 18px; border-radius: 50%; margin-right: 7px; border: 2px solid var(--light-gray); transition: transform .2s, border-color .2s; cursor: pointer; }
+        .color-dot:hover { transform: scale(1.2); border-color: var(--primary-gold-solid); }
+
+        /* ── Slider ── */
+        .image-slider { margin: 4rem 0; }
+        .slider-item { border-radius: 10px; overflow: hidden; height: 420px; position: relative; }
+        .slider-img { width: 100%; height: 100%; object-fit: cover; }
+        .carousel-control-prev, .carousel-control-next { width: 50px; height: 50px; background: var(--primary-gold); border-radius: 50%; top: 50%; transform: translateY(-50%); opacity: .85; transition: all .3s; }
+        .carousel-control-prev { left: 20px; } .carousel-control-next { right: 20px; }
+        .carousel-control-prev:hover, .carousel-control-next:hover { opacity: 1; transform: translateY(-50%) scale(1.1); }
+        .slider-dots { display: flex; justify-content: center; margin-top: 1.5rem; }
+        .slider-dot { width: 12px; height: 12px; border-radius: 50%; background-color: var(--light-gray); margin: 0 8px; cursor: pointer; transition: all .3s; }
+        .slider-dot.active { background: var(--primary-gold-solid); transform: scale(1.2); }
+
+        /* ── Stats ── */
+        .stats-section {
+            background: linear-gradient(rgba(18,18,18,.92), rgba(18,18,18,.92)),
+                url('https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1950&q=80');
+            background-size: cover; background-position: center; background-attachment: fixed;
+            color: var(--primary-white); padding: 4rem 0;
+        }
+        .stat-item { text-align: center; padding: 1rem; }
+        .stat-number { font-family: 'Playfair Display', serif; font-size: 3rem; font-weight: 700; background: var(--primary-gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
+        .stat-label { text-transform: uppercase; letter-spacing: 1px; font-size: .9rem; color: var(--light-gray); margin-top: .75rem; }
+
+        /* ── Testimonials ── */
+        .testimonial-card { background: var(--primary-white); border: 1px solid var(--light-gray); border-radius: 10px; padding: 2rem; height: 100%; box-shadow: 0 5px 15px rgba(0,0,0,.05); transition: all .3s; position: relative; }
+        .testimonial-card:hover { transform: translateY(-6px); box-shadow: 0 15px 30px rgba(0,0,0,.1); border-color: transparent; }
+        .testimonial-quote { font-size: 2.5rem; color: var(--primary-gold-solid); line-height: 1; margin-bottom: .5rem; opacity: .5; }
+        .testimonial-stars { color: var(--primary-gold-solid); margin-bottom: 1rem; }
+        .testimonial-text { color: #555; font-style: italic; margin-bottom: 1.5rem; line-height: 1.7; }
+        .testimonial-author { display: flex; align-items: center; }
+        .testimonial-avatar { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; margin-right: 1rem; border: 2px solid var(--primary-gold-solid); }
+        .testimonial-name { font-weight: 600; margin: 0; }
+        .testimonial-role { color: var(--text-gray); font-size: .85rem; }
+
+        /* ── Branch ── */
+        .branch-card { border-radius: 10px; overflow: hidden; background: var(--primary-white); border: 1px solid var(--light-gray); box-shadow: 0 5px 15px rgba(0,0,0,.05); transition: all .3s; height: 100%; }
+        .branch-card:hover { transform: translateY(-6px); box-shadow: 0 15px 30px rgba(0,0,0,.1); border-color: transparent; }
+        .branch-img { height: 200px; width: 100%; object-fit: cover; }
+        .branch-body { padding: 1.5rem; }
+        .branch-name { font-size: 1.3rem; margin-bottom: 1rem; }
+        .branch-meta { list-style: none; padding: 0; margin: 0; }
+        .branch-meta li { color: #555; margin-bottom: .6rem; display: flex; align-items: flex-start; }
+        .branch-meta li i { color: var(--primary-gold-solid); width: 22px; margin-top: 4px; }
+
+        /* ── Contact ── */
+        .contact-section { background-color: var(--secondary-black); color: var(--primary-white); }
+        .contact-info-item { display: flex; align-items: center; margin-bottom: 1.5rem; }
+        .contact-icon { width: 50px; height: 50px; min-width: 50px; border-radius: 50%; background: var(--primary-gold); color: var(--primary-black); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-right: 1rem; }
+        .contact-form .form-control { background-color: var(--primary-black); border: 1px solid #333; color: var(--primary-white); padding: .8rem 1rem; margin-bottom: 1rem; }
+        .contact-form .form-control:focus { border-color: var(--primary-gold-solid); box-shadow: 0 0 0 .2rem rgba(212,175,55,.15); background-color: var(--primary-black); color: var(--primary-white); }
+        .contact-form .form-control::placeholder { color: #888; }
+
+        /* ── WhatsApp Float ── */
+        .whatsapp-float { position: fixed; bottom: 30px; right: 30px; z-index: 999; }
+        .whatsapp-btn { width: 60px; height: 60px; border-radius: 50%; background: #25D366; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.7rem; box-shadow: 0 5px 20px rgba(37,211,102,.45); text-decoration: none; transition: all .3s; }
+        .whatsapp-btn:hover { transform: scale(1.12); color: #fff; box-shadow: 0 8px 25px rgba(37,211,102,.55); }
+
+        /* ── Footer ── */
+        .footer { background-color: var(--primary-black); color: var(--primary-white); padding: 4rem 0 2rem; margin-top: 4rem; position: relative; }
+        .footer::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--primary-gold); }
+        .footer-title { font-size: 1.5rem; margin-bottom: 1.5rem; color: var(--primary-white); }
+        .footer-title span { background: var(--primary-gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .footer-links { list-style: none; padding: 0; }
+        .footer-links li { margin-bottom: .8rem; position: relative; padding-left: 0; transition: padding-left .3s; }
+        .footer-links li:hover { padding-left: 10px; }
+        .footer-links a { color: var(--text-gray); text-decoration: none; transition: color .3s; }
+        .footer-links a:hover { color: var(--light-gold); }
+        .social-icons { display: flex; margin-top: 1.5rem; }
+        .social-icon { width: 40px; height: 40px; border-radius: 50%; background-color: var(--secondary-black); display: flex; align-items: center; justify-content: center; margin-right: 10px; color: var(--primary-white); text-decoration: none; transition: all .3s; position: relative; overflow: hidden; }
+        .social-icon::before { content: ''; position: absolute; inset: 0; background: var(--primary-gold); opacity: 0; transition: opacity .3s; }
+        .social-icon:hover { transform: translateY(-5px); color: var(--primary-black); }
+        .social-icon:hover::before { opacity: 1; }
+        .social-icon i { position: relative; z-index: 1; }
+        .copyright { border-top: 1px solid var(--secondary-black); padding-top: 2rem; margin-top: 3rem; text-align: center; color: var(--text-gray); }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--off-white); }
+        ::-webkit-scrollbar-thumb { background: var(--primary-gold-solid); border-radius: 4px; }
 
-        /* Responsive */
         @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2.5rem;
-            }
-
-            .section-title {
-                font-size: 2rem;
-            }
-
-            .products-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .sort-dropdown {
-                width: 100%;
-            }
-
-            .sort-dropdown .btn {
-                width: 100%;
-            }
+            .hero-title { font-size: 2.4rem; }
+            .section-title { font-size: 2rem; }
+            .process-connector::after { display: none; }
         }
     </style>
 </head>
 
 <body>
-    <!-- Header/Navbar -->
-    <nav class="navbar navbar-expand-lg sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url('/') }}">
-                <img src="{{ asset('assets/images/Jaans_Fabrics_Logo_Print_Ready_page-0002.jpg') }}" alt="Jaans Fabrics Logo" height="50">
-                <span>Fabrics</span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <i class="fas fa-bars"></i>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Collections</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Masterpieces</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Luxury Fabrics</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Embroideries</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Fancy Collection</a>
-                    </li>
-                    @auth
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            {{ Auth::user()->name }}
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item">Logout</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </li>
-                    @else
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('login') }}">Login</a>
-                    </li>
-                    @if (Route::has('register'))
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('register') }}">Register</a>
-                    </li>
+
+<!-- ══ NAVBAR ══════════════════════════════════════════════════════ -->
+<nav class="navbar navbar-expand-lg sticky-top">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url('/') }}">
+            Royal<span>Stitch</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+                <li class="nav-item"><a class="nav-link" href="#suits">Suits</a></li>
+                <li class="nav-item"><a class="nav-link" href="#process">How It Works</a></li>
+                <li class="nav-item"><a class="nav-link" href="#reviews">Reviews</a></li>
+                <li class="nav-item"><a class="nav-link" href="#branches">Branches</a></li>
+                <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                @auth
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        {{ Auth::user()->name }}
+                    </a>
+                    <ul class="dropdown-menu">
+                        @hasanyrole('superadmin|admin')
+                        <li><a class="dropdown-item" href="{{ route('dashboard') }}">Dashboard</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        @endhasanyrole
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="dropdown-item">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+                @else
+                <li class="nav-item"><a class="nav-link" href="{{ route('login') }}">Login</a></li>
+                @endauth
+            </ul>
+        </div>
+    </div>
+</nav>
+
+@if(session('success') || session('status'))
+    <div class="container mt-4">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ session('success') ?? session('status') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="container mt-4">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+@endif
+
+<main>
+
+<!-- ══ HERO ════════════════════════════════════════════════════════ -->
+<section class="hero-section" id="home">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="hero-title">
+                    Perfectly Stitched,<br>
+                    <span class="hero-highlight">Perfectly Yours</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Bespoke suits, shalwar kameez, and sherwanis — tailored to your exact measurements
+                    by master craftsmen with decades of experience.
+                </p>
+                <a href="#suits" class="btn btn-gold me-2">View Our Work</a>
+                <a href="#contact" class="btn btn-outline-light px-4 py-2">Book Appointment</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ SERVICES ═════════════════════════════════════════════════════ -->
+<section class="section-pad" id="services">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Our Services</h2>
+        </div>
+        <div class="row">
+            @php
+            $services = [
+                ['icon' => 'fas fa-tshirt',          'title' => 'Shalwar Kameez',    'desc' => 'Custom stitched shalwar kameez in any style — from everyday casual to formal wedding wear, with precise measurements.'],
+                ['icon' => 'fas fa-crown',            'title' => 'Sherwani & Achkan', 'desc' => 'Elegant sherwanis for weddings and special occasions. Traditional craftsmanship with modern finishing.'],
+                ['icon' => 'fas fa-briefcase',        'title' => 'Formal Suits',      'desc' => 'Two-piece and three-piece suits tailored for business and formal events. Perfect fit guaranteed.'],
+                ['icon' => 'fas fa-scissors',         'title' => 'Alterations',       'desc' => 'Expert alterations and repairs on any garment. Resizing, shortening, and modifications done with care.'],
+                ['icon' => 'fas fa-ruler-combined',   'title' => 'Custom Measurements','desc' => 'We record and save your measurements so every future order is ready without starting from scratch.'],
+                ['icon' => 'fas fa-truck',            'title' => 'Home Delivery',     'desc' => 'Get your finished suits delivered to your doorstep on time, with proper packaging.'],
+            ];
+            @endphp
+            @foreach($services as $service)
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="service-card">
+                    <div class="service-icon"><i class="{{ $service['icon'] }}"></i></div>
+                    <h4 class="service-title">{{ $service['title'] }}</h4>
+                    <p class="service-desc">{{ $service['desc'] }}</p>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+<!-- ══ SUIT SHOWCASE ════════════════════════════════════════════════ -->
+<section class="bg-soft section-pad" id="suits">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Featured Suits &amp; Pricing</h2>
+        </div>
+        <div class="row" id="suitGrid">
+            @php
+            $suits = [
+                [
+                    'name'    => 'Classic Shalwar Kameez',
+                    'price'   => 'From Rs 2,500',
+                    'badge'   => 'BEST SELLER',
+                    'img'     => 'assets/landing-page-images/Classic-shalwar-kameez.jpg',
+                    'colors'  => ['#2C3E50','#5D6D7E','#1ABC9C','#E74C3C'],
+                    'desc'    => 'Cotton / Lawn / Khaddar',
+                ],
+                [
+                    'name'    => 'Premium Sherwani',
+                    'price'   => 'From Rs 8,000',
+                    'badge'   => 'WEDDING',
+                    'img'     => 'assets/landing-page-images/premium-sherwani.jpg',
+                    'colors'  => ['#D4AF37','#121212','#7D3C98','#C0392B'],
+                    'desc'    => 'Silk / Velvet / Brocade',
+                ],
+                [
+                    'name'    => 'Business Formal Suit',
+                    'price'   => 'From Rs 5,000',
+                    'badge'   => 'NEW',
+                    'img'     => 'assets/landing-page-images/Business-formal-suit.jpg',
+                    'colors'  => ['#1C2833','#5D6D7E','#117A65','#784212'],
+                    'desc'    => 'Wool / Polyester Blend',
+                ],
+                [
+                    'name'    => 'Kurta Pajama',
+                    'price'   => 'From Rs 1,800',
+                    'badge'   => null,
+                    'img'     => 'assets/landing-page-images/Kurta-pajama.jpg',
+                    'colors'  => ['#ECF0F1','#F9E79F','#D2B4DE','#AED6F1'],
+                    'desc'    => 'Cotton / Silk / Chiffon',
+                ],
+                [
+                    'name'    => 'Party Wear Suit',
+                    'price'   => 'From Rs 4,500',
+                    'badge'   => 'POPULAR',
+                    'img'     => 'assets/landing-page-images/Party-wear-suit.jpg',
+                    'colors'  => ['#D4AC0D','#2E4057','#C0392B','#117A65'],
+                    'desc'    => 'Jamawar / Brocade / Silk',
+                ],
+                [
+                    'name'    => 'Kids Shalwar Kameez',
+                    'price'   => 'From Rs 1,200',
+                    'badge'   => null,
+                    'img'     => 'assets/landing-page-images/Kids-shalwar-kameez.jpg',
+                    'colors'  => ['#3498DB','#E74C3C','#2ECC71','#F39C12'],
+                    'desc'    => 'All fabrics available',
+                ],
+            ];
+            @endphp
+            @foreach($suits as $suit)
+            <div class="col-md-6 col-lg-4">
+                <div class="suit-card">
+                    @if($suit['badge'])
+                    <div class="suit-badge">{{ $suit['badge'] }}</div>
                     @endif
-                    @endauth
+                    <div class="suit-img-wrap">
+                        <img src="{{ asset($suit['img']) }}" alt="{{ $suit['name'] }}">
+                    </div>
+                    <div class="suit-info">
+                        <h5 class="suit-name">{{ $suit['name'] }}</h5>
+                        <div class="text-muted mb-1" style="font-size:.9rem;">{{ $suit['desc'] }}</div>
+                        <div class="suit-price">{{ $suit['price'] }}</div>
+                        <div class="suit-colors mt-2">
+                            @foreach($suit['colors'] as $color)
+                            <div class="color-dot" style="background-color:{{ $color }};"></div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+<!-- ══ SLIDER ═══════════════════════════════════════════════════════ -->
+<section class="">
+    <div class="container image-slider">
+        <div id="tailorSlider" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner rounded">
+                <div class="carousel-item active">
+                    <div class="slider-item">
+                        <img src="https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=1950&q=80" class="slider-img" alt="Tailoring craftsmanship">
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <div class="slider-item">
+                        <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1950&q=80" class="slider-img" alt="Formal suits">
+                    </div>
+                </div>
+                <div class="carousel-item">
+                    <div class="slider-item">
+                        <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=1950&q=80" class="slider-img" alt="Bespoke tailoring">
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#tailorSlider" data-bs-slide="prev">
+                <i class="fas fa-chevron-left text-dark"></i><span class="visually-hidden">Previous</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#tailorSlider" data-bs-slide="next">
+                <i class="fas fa-chevron-right text-dark"></i><span class="visually-hidden">Next</span>
+            </button>
+        </div>
+        <div class="slider-dots">
+            <span class="slider-dot active"></span>
+            <span class="slider-dot"></span>
+            <span class="slider-dot"></span>
+        </div>
+    </div>
+</section>
+
+<!-- ══ HOW IT WORKS ═════════════════════════════════════════════════ -->
+<section class="section-pad" id="process">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">How It Works</h2>
+        </div>
+        <div class="row justify-content-center">
+            @php
+            $steps = [
+                ['num'=>'1','title'=>'Visit or Call Us',    'desc'=>'Come to any branch or call us to book your appointment at a convenient time.'],
+                ['num'=>'2','title'=>'Take Measurements',   'desc'=>'Our expert tailor records all your body measurements carefully and saves them for future orders.'],
+                ['num'=>'3','title'=>'Choose Your Style',   'desc'=>'Select suit type, fabric, color and any special finishing you want.'],
+                ['num'=>'4','title'=>'We Stitch Your Suit', 'desc'=>'Your suit is assigned to a skilled tailor and stitched with precision by the delivery date.'],
+                ['num'=>'5','title'=>'Collect or Delivery', 'desc'=>'Pick it up from the branch or get it delivered to your home — perfectly packed.'],
+            ];
+            @endphp
+            @foreach($steps as $i => $step)
+            <div class="col-6 col-md-4 col-lg-2 {{ $i < count($steps)-1 ? 'process-connector' : '' }}">
+                <div class="process-step">
+                    <div class="step-number">{{ $step['num'] }}</div>
+                    <h6 class="step-title">{{ $step['title'] }}</h6>
+                    <p class="step-desc">{{ $step['desc'] }}</p>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+<!-- ══ MEASUREMENTS SECTION ════════════════════════════════════════ -->
+<section class="bg-soft section-pad">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h2 class="section-title">Precise Measurements<br>Every Time</h2>
+                <p class="text-muted mb-4">
+                    We record and store your complete measurements so every order —
+                    whether it's your first suit or your tenth — fits you perfectly without
+                    needing to come in for a fitting again.
+                </p>
+                <ul class="measurement-list">
+                    @php
+                    $measures = ['Length','Shoulder','Chest','Waist','Hip','Sleeve','Collar','Trouser Length','Trouser Waist','Thigh'];
+                    @endphp
+                    @foreach($measures as $m)
+                    <li><i class="fas fa-check-circle"></i> {{ $m }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            <div class="col-lg-6">
+                <div class="measurement-visual">
+                    <img src="public/assets/landing-page-images/Precise-measurements.jpg"
+                         alt="Measurement process" class="img-fluid" style="border-radius:10px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ STATS ════════════════════════════════════════════════════════ -->
+<section class="stats-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-6 col-md-3"><div class="stat-item"><div class="stat-number">15+</div><div class="stat-label">Years in Business</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-item"><div class="stat-number">8,000+</div><div class="stat-label">Suits Stitched</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-item"><div class="stat-number">3,500+</div><div class="stat-label">Happy Customers</div></div></div>
+            <div class="col-6 col-md-3"><div class="stat-item"><div class="stat-number">4.9★</div><div class="stat-label">Average Rating</div></div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ REVIEWS ══════════════════════════════════════════════════════ -->
+<section class="section-pad" id="reviews">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">What Our Customers Say</h2>
+        </div>
+        <div class="row">
+            @php
+            $reviews = [
+                ['name'=>'Ahmed Raza',    'city'=>'Lahore',    'stars'=>5, 'avatar'=>'https://randomuser.me/api/portraits/men/32.jpg',
+                 'text'=>'My sherwani was stitched perfectly for my wedding. The tailor understood exactly what I wanted. Delivered 2 days early. Highly recommended!'],
+                ['name'=>'Usman Tariq',   'city'=>'Karachi',   'stars'=>5, 'avatar'=>'https://randomuser.me/api/portraits/men/44.jpg',
+                 'text'=>'I have been getting my suits stitched here for 5 years. The quality and fitting is always spot-on. No one else compares.'],
+                ['name'=>'Hamza Sheikh',  'city'=>'Islamabad', 'stars'=>4, 'avatar'=>'https://randomuser.me/api/portraits/men/68.jpg',
+                 'text'=>'Great experience. They saved my measurements so when I ordered again it was very fast. The shalwar kameez fits perfectly.'],
+            ];
+            @endphp
+            @foreach($reviews as $review)
+            <div class="col-md-4 mb-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-quote"><i class="fas fa-quote-left"></i></div>
+                    <div class="testimonial-stars">
+                        @for($i = 0; $i < 5; $i++)
+                            <i class="fa{{ $i < $review['stars'] ? 's' : 'r' }} fa-star"></i>
+                        @endfor
+                    </div>
+                    <p class="testimonial-text">{{ $review['text'] }}</p>
+                    <div class="testimonial-author">
+                        <img src="{{ $review['avatar'] }}" class="testimonial-avatar" alt="{{ $review['name'] }}">
+                        <div>
+                            <p class="testimonial-name">{{ $review['name'] }}</p>
+                            <span class="testimonial-role">{{ $review['city'] }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+<!-- ══ BRANCHES ════════════════════════════════════════════════════ -->
+<section class="bg-soft section-pad" id="branches">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Our Branches</h2>
+        </div>
+        <div class="row">
+            @php
+            $branches = [
+                ['name'=>'Karachi — Main Branch',  'img'=>'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80', 'address'=>'Tariq Road, PECHS Block 2, Karachi', 'phone'=>'+92 300 1234567', 'hours'=>'Mon – Sat: 10:00 AM – 9:00 PM'],
+                ['name'=>'Lahore — Gulberg',        'img'=>'https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?auto=format&fit=crop&w=800&q=80', 'address'=>'Liberty Market, Gulberg III, Lahore',  'phone'=>'+92 321 7654321', 'hours'=>'Mon – Sun: 11:00 AM – 9:00 PM'],
+                ['name'=>'Islamabad — F-10',        'img'=>'https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?auto=format&fit=crop&w=800&q=80', 'address'=>'Jinnah Super, F-10 Markaz, Islamabad',  'phone'=>'+92 333 9876543', 'hours'=>'Mon – Sat: 10:00 AM – 8:30 PM'],
+            ];
+            @endphp
+            @foreach($branches as $branch)
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="branch-card">
+                    <img src="{{ $branch['img'] }}" class="branch-img" alt="{{ $branch['name'] }}">
+                    <div class="branch-body">
+                        <h3 class="branch-name">{{ $branch['name'] }}</h3>
+                        <ul class="branch-meta">
+                            <li><i class="fas fa-map-marker-alt"></i><span>{{ $branch['address'] }}</span></li>
+                            <li><i class="fas fa-phone"></i><span>{{ $branch['phone'] }}</span></li>
+                            <li><i class="fas fa-clock"></i><span>{{ $branch['hours'] }}</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+<!-- ══ CONTACT ══════════════════════════════════════════════════════ -->
+<section class="contact-section section-pad" id="contact">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-5 mb-4 mb-lg-0">
+                <h2 class="footer-title">Get in <span>Touch</span></h2>
+                <p class="text-muted mb-4">Want to place an order, ask about pricing, or book an appointment? We are happy to help.</p>
+                <div class="contact-info-item">
+                    <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div><strong>Head Office</strong><br><span class="text-muted">Tariq Road, PECHS Block 2, Karachi</span></div>
+                </div>
+                <div class="contact-info-item">
+                    <div class="contact-icon"><i class="fab fa-whatsapp"></i></div>
+                    <div><strong>WhatsApp</strong><br><span class="text-muted">+92 300 1234567</span></div>
+                </div>
+                <div class="contact-info-item">
+                    <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                    <div><strong>Email</strong><br><span class="text-muted">info@royalstitch.pk</span></div>
+                </div>
+                <div class="contact-info-item">
+                    <div class="contact-icon"><i class="fas fa-clock"></i></div>
+                    <div><strong>Working Hours</strong><br><span class="text-muted">Mon – Sat: 10:00 AM – 9:00 PM</span></div>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <form class="contact-form" onsubmit="event.preventDefault(); this.reset(); alert('Thank you! We will contact you shortly.');">
+                    <div class="row">
+                        <div class="col-md-6"><input type="text" class="form-control" placeholder="Your Name" required></div>
+                        <div class="col-md-6"><input type="tel" class="form-control" placeholder="Phone Number" required></div>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Suit Type (e.g. Shalwar Kameez, Sherwani)">
+                    <textarea class="form-control" rows="5" placeholder="Tell us about your requirement..." required></textarea>
+                    <button type="submit" class="btn btn-gold">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+</main>
+
+<!-- ══ FOOTER ═══════════════════════════════════════════════════════ -->
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <h4 class="footer-title">Royal<span>Stitch</span></h4>
+                <p class="text-muted">Master tailors delivering bespoke suits since 2008. Your measurements, your style, your perfect fit.</p>
+                <div class="social-icons">
+                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+            <div class="col-lg-2 col-md-6 mb-4">
+                <h5 class="footer-title">Quick Links</h5>
+                <ul class="footer-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#services">Services</a></li>
+                    <li><a href="#suits">Suits & Pricing</a></li>
+                    <li><a href="#branches">Branches</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h5 class="footer-title">Services</h5>
+                <ul class="footer-links">
+                    <li><a href="#">Shalwar Kameez</a></li>
+                    <li><a href="#">Sherwani & Achkan</a></li>
+                    <li><a href="#">Formal Suits</a></li>
+                    <li><a href="#">Kids Wear</a></li>
+                    <li><a href="#">Alterations</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 mb-4">
+                <h5 class="footer-title">Contact Info</h5>
+                <ul class="footer-links">
+                    <li><i class="fas fa-map-marker-alt me-2"></i>Tariq Road, Karachi</li>
+                    <li><i class="fas fa-phone me-2"></i>+92 300 1234567</li>
+                    <li><i class="fab fa-whatsapp me-2"></i>+92 300 1234567</li>
+                    <li><i class="fas fa-envelope me-2"></i>info@royalstitch.pk</li>
                 </ul>
             </div>
         </div>
-    </nav>
-
-    <!-- Main Content -->
-    <main>
-        @yield('content')
-    </main>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <h4 class="footer-title">Jaans<span>Fabrics</span></h4>
-                    <p>Providing premium quality fabrics and embroideries since 2010.</p>
-                    <div class="social-icons">
-                        <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-icon"><i class="fab fa-pinterest-p"></i></a>
-                    </div>
-                </div>
-                <div class="col-lg-2 col-md-6 mb-4">
-                    <h5 class="footer-title">Quick Links</h5>
-                    <ul class="footer-links">
-                        <li><a href="{{ url('/') }}">Home</a></li>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Collections</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <h5 class="footer-title">Categories</h5>
-                    <ul class="footer-links">
-                        <li><a href="#">Masterpieces</a></li>
-                        <li><a href="#">Luxury Fabrics</a></li>
-                        <li><a href="#">Embroideries</a></li>
-                    </ul>
-                </div>
-                <div class="col-lg-3 mb-4">
-                    <h5 class="footer-title">Contact Info</h5>
-                    <ul class="footer-links">
-                        <li><i class="fas fa-map-marker-alt me-2"></i> Main Street, Lahore, Pakistan</li>
-                        <li><i class="fas fa-phone me-2"></i> +92 300 1234567</li>
-                        <li><i class="fas fa-envelope me-2"></i> info@jaansfabrics.com</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="copyright">
-                <p>&copy; {{ date('Y') }} JaansFabrics.com. All Rights Reserved.</p>
-            </div>
+        <div class="copyright">
+            <p>&copy; {{ date('Y') }} Royal Stitch. All Rights Reserved.</p>
         </div>
-    </footer>
+    </div>
+</footer>
 
-    <!-- Bootstrap JS Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<!-- WhatsApp Float Button -->
+<a href="https://wa.me/923001234567" target="_blank" class="whatsapp-float">
+    <div class="whatsapp-btn">
+        <i class="fab fa-whatsapp"></i>
+    </div>
+</a>
 
-    <!-- Custom Scripts -->
-    <script>
-        // Filter functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            const filterForm = document.getElementById('filterForm');
-            const productGrid = document.getElementById('productGrid');
-            const resetBtn = document.getElementById('resetFilters');
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
-            // All products data
-            const allProducts = [{
-                    id: 1,
-                    name: 'Premium Silk Embroidered',
-                    price: 8500,
-                    front_image: 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80',
-                    back_image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80',
-                    category: 'Embroidered Silk',
-                    collection: 'Winter Collection',
-                    is_bestseller: true,
-                    is_new: false,
-                    colors: ['#D4AF37', '#2C3E50', '#7D3C98', '#C0392B'],
-                    tags: ['men', 'winter', 'luxury']
-                },
-                {
-                    id: 2,
-                    name: 'Cotton Linen Blend',
-                    price: 5200,
-                    front_image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80',
-                    back_image: 'https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80',
-                    category: 'Premium Cotton',
-                    collection: 'Summer Collection',
-                    is_bestseller: false,
-                    is_new: false,
-                    colors: ['#ECF0F1', '#34495E', '#1ABC9C'],
-                    tags: ['men', 'summer', 'luxury']
-                },
-                {
-                    id: 3,
-                    name: 'Royal Velvet Collection',
-                    price: 12000,
-                    front_image: 'https://images.unsplash.com/photo-1562157873-818bc0726f68?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80',
-                    back_image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80',
-                    category: 'Luxury Velvet',
-                    collection: 'Winter Collection',
-                    is_bestseller: false,
-                    is_new: true,
-                    colors: ['#2C3E50', '#7D3C98', '#C0392B'],
-                    tags: ['women', 'winter', 'luxury']
-                },
-                {
-                    id: 4,
-                    name: 'Sheer Chiffon Embroidered',
-                    price: 6800,
-                    front_image: 'https://images.unsplash.com/photo-1520004434532-668416a08753?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80',
-                    back_image: 'https://images.unsplash.com/photo-1544441893-675973e31985?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80',
-                    category: 'Embroidered Chiffon',
-                    collection: 'All Seasons',
-                    is_bestseller: false,
-                    is_new: false,
-                    colors: ['#FADBD8', '#D4EFDF', '#D6EAF8', '#FCF3CF'],
-                    tags: ['women', 'summer', 'embroidery']
-                },
-                {
-                    id: 5,
-                    name: 'Pure Wool Premium',
-                    price: 9500,
-                    front_image: 'https://tailorbros.com/wp-content/uploads/2023/10/cotton-fabric-unveiled-best-cotton-types-for-mens-suits-3407-2.jpg',
-                    back_image: 'https://images.unsplash.com/photo-1519457431-44ccd64a579b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80',
-                    category: '100% Wool',
-                    collection: 'Winter Collection',
-                    is_bestseller: false,
-                    is_new: false,
-                    colors: ['#5D6D7E', '#1C2833', '#641E16'],
-                    tags: ['men', 'winter', 'masterpieces']
-                },
-                {
-                    id: 6,
-                    name: 'Sparkle Organza Collection',
-                    price: 7200,
-                    front_image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZQOTC-NUcdS64ezfaqkPTxI8dbonIIsCV6Q&s',
-                    back_image: 'https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80',
-                    category: 'Embellished Organza',
-                    collection: 'Party Wear',
-                    is_bestseller: false,
-                    is_new: false,
-                    colors: ['#F7DC6F', '#F0B27A', '#D7BDE2'],
-                    tags: ['women', 'fancy']
-                }
-            ];
+<script>
+document.addEventListener('DOMContentLoaded', function () {
 
-            // Initial render
-            renderProducts(allProducts);
+    // Slider dots sync
+    const slider = document.getElementById('tailorSlider');
+    const dots   = document.querySelectorAll('.slider-dot');
 
-            // Apply filters function
-            window.applyFilters = function() {
-                const formData = new FormData(filterForm);
-                const selectedCategories = [];
-                const selectedBrands = [];
+    slider.addEventListener('slid.bs.carousel', function () {
+        const active = Array.from(slider.querySelectorAll('.carousel-item'))
+                            .findIndex(el => el.classList.contains('active'));
+        dots.forEach((d, i) => d.classList.toggle('active', i === active));
+    });
 
-                // Get selected categories
-                const categoryCheckboxes = filterForm.querySelectorAll('input[name="categories[]"]:checked');
-                categoryCheckboxes.forEach(cb => selectedCategories.push(cb.value));
-
-                // Get selected brands
-                const brandCheckboxes = filterForm.querySelectorAll('input[name="brands[]"]:checked');
-                brandCheckboxes.forEach(cb => selectedBrands.push(cb.value));
-
-                // Get price range
-                const minPrice = parseFloat(document.getElementById('minPrice').value) || 0;
-                const maxPrice = parseFloat(document.getElementById('maxPrice').value) || Infinity;
-
-                // Filter products
-                const filteredProducts = allProducts.filter(product => {
-                    // Check if product matches any selected category
-                    const categoryMatch = selectedCategories.length === 0 ||
-                        selectedCategories.some(category => product.tags.includes(category));
-
-                    // Check if product matches any selected brand
-                    const brandMatch = selectedBrands.length === 0 ||
-                        selectedBrands.some(brand => product.tags.includes(brand));
-
-                    // Check price range
-                    const priceMatch = product.price >= minPrice && product.price <= maxPrice;
-
-                    return categoryMatch && brandMatch && priceMatch;
-                });
-
-                // Render filtered products
-                renderProducts(filteredProducts);
-            };
-
-            // Sort functionality
-            document.querySelectorAll('.dropdown-item[data-sort]').forEach(item => {
-                item.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const sortType = this.getAttribute('data-sort');
-                    document.getElementById('productSort').textContent = 'Sort by: ' + this.textContent;
-
-                    // Get current products
-                    const productCards = Array.from(document.querySelectorAll('.product-card')).map(card => {
-                        const productId = parseInt(card.closest('.col-md-6').dataset.productId);
-                        return allProducts.find(p => p.id === productId);
-                    }).filter(p => p);
-
-                    // Sort products
-                    const sortedProducts = sortProducts(productCards, sortType);
-
-                    // Re-render sorted products
-                    renderProducts(sortedProducts);
-                });
-            });
-
-            // Reset filters
-            resetBtn.addEventListener('click', function() {
-                filterForm.reset();
-                renderProducts(allProducts);
-            });
-
-            // Render products to grid
-            function renderProducts(products) {
-                let html = '';
-                products.forEach(product => {
-                    html += `
-                <div class="col-md-6 col-lg-4" data-product-id="${product.id}">
-                    <div class="product-card">
-                        ${product.is_bestseller ? '<div class="product-badge gold-shimmer">BEST SELLER</div>' : ''}
-                        ${product.is_new ? '<div class="product-badge gold-shimmer">NEW</div>' : ''}
-                        
-                        <div class="product-image-container">
-                            <img src="${product.front_image}" class="product-front-img" alt="${product.name}">
-                            ${product.back_image ? `<img src="${product.back_image}" class="product-back-img" alt="${product.name} Back">` : ''}
-                        </div>
-                        <div class="product-info">
-                            <h5 class="product-title">${product.name}</h5>
-                            <div class="product-price">PKR ${product.price.toLocaleString()}</div>
-                            <div class="product-colors">
-                                ${product.colors.map(color => `<div class="color-dot" style="background-color: ${color};"></div>`).join('')}
-                            </div>
-                            <div class="text-muted">${product.category} | ${product.collection}</div>
-                        </div>
-                    </div>
-                </div>
-                `;
-                });
-
-                productGrid.innerHTML = html;
-            }
-
-            // Sort products function
-            function sortProducts(products, sortType) {
-                const sorted = [...products];
-
-                switch (sortType) {
-                    case 'best':
-                        // Best selling first
-                        sorted.sort((a, b) => (b.is_bestseller ? 1 : 0) - (a.is_bestseller ? 1 : 0));
-                        break;
-                    case 'a-z':
-                        sorted.sort((a, b) => a.name.localeCompare(b.name));
-                        break;
-                    case 'z-a':
-                        sorted.sort((a, b) => b.name.localeCompare(a.name));
-                        break;
-                    case 'low':
-                        sorted.sort((a, b) => a.price - b.price);
-                        break;
-                    case 'high':
-                        sorted.sort((a, b) => b.price - a.price);
-                        break;
-                }
-
-                return sorted;
-            }
-
-            // Carousel functionality
-            const fabricSlider = document.getElementById('fabricSlider');
-            const sliderDots = document.querySelectorAll('.slider-dot');
-
-            fabricSlider.addEventListener('slid.bs.carousel', function() {
-                const activeIndex = Array.from(fabricSlider.querySelectorAll('.carousel-item')).findIndex(item => item.classList.contains('active'));
-
-                sliderDots.forEach((dot, index) => {
-                    if (index === activeIndex) {
-                        dot.classList.add('active');
-                    } else {
-                        dot.classList.remove('active');
-                    }
-                });
-            });
-
-            // Click on slider dots to navigate
-            sliderDots.forEach((dot, index) => {
-                dot.addEventListener('click', function() {
-                    const carousel = new bootstrap.Carousel(fabricSlider);
-                    carousel.to(index);
-                });
-            });
+    dots.forEach((dot, i) => {
+        dot.addEventListener('click', () => {
+            bootstrap.Carousel.getInstance(slider)?.to(i);
         });
-    </script>
-</body>
+    });
 
+    // Smooth scroll for nav links
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', function (e) {
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+});
+</script>
+
+</body>
 </html>
