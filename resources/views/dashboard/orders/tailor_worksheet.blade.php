@@ -6,11 +6,11 @@
             <div style="font-size: 24px; font-weight: bold; text-transform: uppercase;">TAILOR WORKSHEET</div>
             <div style="font-size: 16px; margin-top: 5px;">{{ $settings->shop_name ?? config('app.name', 'Tailor Shop') }}</div>
             <div style="font-size: 14px;">Order #{{ $order->order_number }}</div>
-            @if($order->delivery_date->diffInDays(now()) < ($settings->reminder_days_before ?? 3) && $order->delivery_date->isFuture())
+            {{-- @if($order->delivery_date->diffInDays(now()) < ($settings->reminder_days_before ?? 3) && $order->delivery_date->isFuture())
                 <div style="color: red; font-weight: bold; font-size: 18px; margin-top: 5px;">
                     ⚠️ URGENT - DELIVERY IN {{ round($order->delivery_date->diffInDays(now())) }} DAYS ⚠️
                 </div>
-            @endif
+            @endif --}}
         </div>
 
         <!-- Order Summary -->
@@ -21,7 +21,7 @@
                 <strong>Order Date:</strong> {{ $order->order_date->format('d M, Y') }}
             </div>
             <div>
-                <strong>Delivery Date:</strong> {{ $order->delivery_date->format('d M, Y') }}<br>
+                {{-- <strong>Delivery Date:</strong> {{ $order->delivery_date->format('d M, Y') }}<br> --}}
                 <strong>Branch:</strong> {{ $order->branch->name }}<br>
                 <strong>Order Type:</strong> {{ ucfirst($order->order_type) }}
             </div>

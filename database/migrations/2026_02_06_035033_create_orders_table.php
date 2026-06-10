@@ -10,24 +10,25 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->string('order_number')->unique();
+            $table->string('order_number')->unique(); // ORD-YYYY-0001
             $table->foreignId('customer_id')->constrained('customers')->onDelete('restrict');
+            $table->foreignId('tailor_id')->nullable()->constrained('tailors')->onDelete('set null');
             $table->foreignId('branch_id')->constrained('branches')->onDelete('restrict');
             $table->foreignId('status_id')->default(1)->constrained('order_statuses')->onDelete('restrict');
-            $table->foreignId('payment_status_id')->default(1)->constrained('payment_statuses')->onDelete('restrict');
             $table->date('order_date');
             $table->date('delivery_date')->nullable();
-            $table->date('estimated_date')->nullable();
+            $table->date('actual_delivery_date')->nullable();
+            $table->string('order_label', 100)->nullable(); // e.g. "For Self", "For Bilal"
+            $table->integer('total_suits')->default(0);
             $table->decimal('total_amount', 12, 2)->default(0);
-            $table->decimal('advance_amount', 12, 2)->default(0);
-            $table->decimal('remaining_amount', 12, 2)->default(0);
-            $table->decimal('discount_amount', 10, 2)->default(0);
-            $table->decimal('final_amount', 12, 2)->default(0);
+            $table->decimal('advance_paid', 12, 2)->default(0);
+            $table->decimal('balance_due', 12, 2)->default(0);
+            $table->decimal('tailor_fee_total', 12, 2)->default(0);
+            $table->decimal('tailor_fee_paid', 12, 2)->default(0);
+            $table->decimal('tailor_fee_balance', 12, 2)->default(0);
             $table->text('notes')->nullable();
-            $table->text('internal_notes')->nullable();
             $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
             $table->foreignId('updated_by')->nullable()->constrained('users')->onDelete('set null');
-            $table->enum('order_type', ['tailoring', 'product', 'mixed'])->default('tailoring');
             $table->timestamps();
             $table->softDeletes();
         });

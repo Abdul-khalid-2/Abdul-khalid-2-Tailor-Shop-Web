@@ -1,1501 +1,324 @@
+@php
+    use App\Models\OrderStatus;
+
+    $statuses = OrderStatus::orderBy('sort_order')->get();
+    $specialtyLabels = [
+        'shalwar_kameez' => 'Shalwar Kameez',
+        'sherwani' => 'Sherwani',
+        'all' => 'All Types',
+    ];
+    $measurementFields = [
+        'length' => 'Length', 'shoulder' => 'Shoulder', 'chest' => 'Chest', 'waist' => 'Waist',
+        'hip' => 'Hip', 'sleeve' => 'Sleeve', 'collar' => 'Collar',
+        'trouser_length' => 'Trouser Length', 'trouser_waist' => 'Trouser Waist',
+        'thigh' => 'Thigh', 'bottom_opening' => 'Bottom Opening',
+    ];
+@endphp
+
 <x-app-layout>
     @push('css')
-    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend-plugin.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/css/backend.css?v=1.0.0') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css') }}">
+        <link rel="stylesheet" href="{{ asset('backend/assets/vendor/remixicon/fonts/remixicon.css') }}">
     @endpush
 
     <div class="container-fluid">
-        <!-- Page Header -->
-        <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
-            <div>
-                <h4 class="mb-3">{{ __('Order Details: :order_number', ['order_number' => $order->order_number]) }}</h4>
-                <p class="mb-0">{{ __('Complete order information and tracking') }}</p>
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="las la-check-circle mr-2"></i> {{ session('success') }}
+                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
             </div>
-            <div class="d-flex">
-                <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary mr-2">
-                    <i class="las la-arrow-left"></i> {{ __('messages.back') }}
-                </a>
-                <a href="{{ route('orders.edit', $order) }}" class="btn btn-outline-primary mr-2">
-                    <i class="las la-edit"></i> {{ __('messages.edit') }}
-                </a>
-                <!-- Customer Bill Print Button -->
-                <button class="btn btn-outline-success mr-2" onclick="printCustomerBill()">
-                    <i class="las la-file-invoice"></i> {{ __('Customer Bill') }}
-                </button>
-                <!-- Tailor Worksheet Print Button -->
-                <button class="btn btn-outline-info" onclick="printTailorWorksheet()">
-                    <i class="las la-tshirt"></i> {{ __('Tailor Worksheet') }}
-                </button>
+        @endif
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="las la-exclamation-circle mr-2"></i> {{ session('error') }}
+                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+            </div>
+        @endif
+
+        {{-- Header --}}
+        <div class="card shadow mb-4">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start">
+                    <div>
+                        <h4 class="mb-2">{{ $order->order_number }}</h4>
+                        @if($order->order_label)
+                            <p class="text-muted mb-2">{{ $order->order_label }}</p>
+                        @endif
+                        <div class="mb-2">@include('dashboard.orders.partials.status-badge', ['order' => $order])</div>
+                        <div class="text-muted small">
+                            <span class="mr-3"><strong>Order Date:</strong> {{ $order->order_date->format('d M, Y') }}</span>
+                            <span>
+                                <strong>Delivery Date:</strong>
+                                @if($order->delivery_date)
+                                    {{ $order->delivery_date->format('d M, Y') }}
+                                    @if($order->isOverdue())
+                                        <span class="text-danger font-weight-bold ml-1">OVERDUE</span>
+                                    @endif
+                                @else
+                                    —
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-wrap mt-2 mt-md-0">
+                        <a href="{{ route('orders.edit', $order) }}" class="btn btn-primary mr-2 mb-2">
+                            <i class="las la-edit mr-1"></i> Edit
+                        </a>
+                        <button type="button" class="btn btn-outline-info mr-2 mb-2" data-toggle="modal" data-target="#statusModal">
+                            <i class="las la-sync mr-1"></i> Update Status
+                        </button>
+                        <a href="{{ route('orders.index') }}" class="btn btn-outline-secondary mb-2">
+                            <i class="las la-arrow-left mr-1"></i> Back
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
-        @php
-            // Calculate totals properly from items
-            $subTotal = 0; // Base Price × Quantity
-            $totalFabricCost = 0;
-            $totalStitchingCharges = 0;
-            $totalAdditionalCharges = 0;
-            $totalItemDiscount = 0;
-
-            foreach($order->items as $item) {
-                $quantity = $item->quantity ?? 1;
-
-                // Base subtotal (price * qty)
-                $subTotal += (($item->price ?? 0) * $quantity);
-
-                // Fabric cost: assume stored as total for the item (if per-item stored, adapt as needed)
-                $itemFabric = $item->fabric_cost ?? 0;
-                $totalFabricCost += $itemFabric;
-
-                // Stitching: prefer explicit column on order_items, otherwise sum tailor assignments' stitching_charge
-                $perItemStitching = $item->stitching_charges ?? ($item->tailorAssignments->first()->stitching_charge ?? 0);
-                $totalStitchingCharges += ($perItemStitching * $quantity);
-
-                // Additional charges: treat as per-item amount stored on order_items
-                $perItemAdditional = $item->additional_charges ?? 0;
-                $totalAdditionalCharges += ($perItemAdditional * $quantity);
-
-                // Discount: order_items.discount_amount may be stored as per-item or already multiplied. Handle both:
-                $rawDiscount = $item->discount_amount ?? 0;
-                if ($rawDiscount > 0) {
-                    // If discount looks like a per-item value (<= price), multiply by qty, otherwise assume total
-                    if ($rawDiscount <= ($item->price ?? 0)) {
-                        $itemDiscountTotal = $rawDiscount * $quantity;
-                    } else {
-                        $itemDiscountTotal = $rawDiscount;
-                    }
-                } else {
-                    $itemDiscountTotal = 0;
-                }
-
-                $totalItemDiscount += $itemDiscountTotal;
-            }
-
-            $totalDiscount = $totalItemDiscount + ($order->discount_amount ?? 0);
-            $grandTotal = $subTotal + $totalFabricCost + $totalStitchingCharges + $totalAdditionalCharges - $totalDiscount;
-        @endphp
-
-        <!-- Order Summary -->
+        {{-- Customer & Tailor --}}
         <div class="row mb-4">
-            <div class="col-lg-8">
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <div class="card border-left-primary shadow h-100">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                            {{ __('Order Status') }}
-                                        </div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            <span class="badge badge-pill" style="background-color: {{ $order->status->color ?? '#6b7280' }}; color: white; font-size: 1rem;">
-                                                {{ $order->status->name ?? 'Pending' }}
-                                            </span>
-                                        </div>
-                                        <div class="mt-2 mb-0 text-muted text-xs">
-                                            @if($order->delivery_date)
-                                                @if($order->delivery_date->isFuture())
-                                                {{ __(':days days remaining', ['days' => $order->delivery_date->diffInDays(now())]) }}
-                                                @elseif($order->delivery_date->isPast() && ($order->status->slug ?? '') != 'delivered')
-                                                <span class="text-danger">{{ __('Overdue by :days days', ['days' => now()->diffInDays($order->delivery_date)]) }}</span>
-                                                @else
-                                                {{ $order->delivery_date->diffForHumans() }}
-                                                @endif
-                                            @else
-                                                {{ __('Delivery date not set') }}
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="las la-{{ ($order->status->slug ?? 'pending') == 'pending' ? 'clock' : (($order->status->slug ?? '') == 'in-progress' ? 'tasks' : (($order->status->slug ?? '') == 'delivered' ? 'check-circle' : 'circle')) }} fa-2x text-primary"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6 mb-4">
-                        <div class="card border-left-success shadow h-100">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                            {{ __('Payment Status') }}
-                                        </div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            <span class="badge badge-pill" style="background-color: {{ $order->paymentStatus->color ?? '#6b7280' }}; color: white; font-size: 1rem;">
-                                                {{ $order->paymentStatus->name ?? 'Pending' }}
-                                            </span>
-                                        </div>
-                                        <div class="mt-2 mb-0 text-muted text-xs">
-                                            @if(($order->paymentStatus->slug ?? '') == 'partial')
-                                            {{ __('Rs :amount remaining', ['amount' => number_format($order->remaining_amount, 0)]) }}
-                                            @elseif(($order->paymentStatus->slug ?? '') == 'paid')
-                                            {{ __('Fully paid') }}
-                                            @else
-                                            {{ __('Pending') }}
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="col-auto">
-                                        <i class="las la-money-bill-wave fa-2x text-success"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Customer & Order Info -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 font-weight-bold text-primary">{{ __('messages.customer_order_info') }}</h6>
-                        <span class="badge badge-light">{{ __('Order Date') }}: {{ $order->order_date ? $order->order_date->format('d M, Y') : 'N/A' }}</span>
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <div class="card shadow h-100">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Customer</h6>
                     </div>
                     <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="avatar bg-primary text-white rounded-circle mr-3">
-                                        <span class="avatar-title">{{ $order->customer ? substr($order->customer->name, 0, 1) : '?' }}</span>
-                                    </div>
-                                    <div>
-                                        <h6 class="mb-0 font-weight-bold">{{ $order->customer->name ?? 'N/A' }}</h6>
-                                        <small class="text-muted">{{ __('Customer ID') }}: #{{ $order->customer->id ?? 'N/A' }}</small>
-                                    </div>
-                                </div>
-                                <table class="table table-sm">
-                                    <tr>
-                                        <th width="40%">{{ __('messages.phone') }}:</th>
-                                        <td>{{ $order->customer->phone ?? 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>{{ __('messages.address') }}:</th>
-                                        <td>{{ $order->customer->address ?? 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>{{ __('Customer Type') }}:</th>
-                                        <td>
-                                            <span class="badge badge-{{ ($order->customer->customer_type ?? 'regular') == 'regular' ? 'primary' : (($order->customer->customer_type ?? '') == 'vip' ? 'success' : 'secondary') }}">
-                                                {{ ucfirst($order->customer->customer_type ?? 'regular') }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <table class="table table-sm">
-                                    <tr>
-                                        <th width="40%">{{ __('messages.order_number') }}:</th>
-                                        <td class="font-weight-bold">{{ $order->order_number }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>{{ __('messages.delivery_date') }}:</th>
-                                        <td>
-                                            {{ $order->delivery_date ? $order->delivery_date->format('d M, Y') : 'N/A' }}
-                                            @if($order->delivery_date && $order->delivery_date->isToday())
-                                            <span class="badge badge-warning ml-2">{{ __('Today') }}</span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>{{ __('messages.branch') }}:</th>
-                                        <td>{{ $order->branch->name ?? 'N/A' }}</td>
-                                    </tr>
-                                    <tr>
-                                        <th>{{ __('Order Type') }}:</th>
-                                        <td>
-                                            <span class="badge badge-{{ $order->order_type == 'tailoring' ? 'info' : 'secondary' }}">
-                                                {{ ucfirst($order->order_type ?? 'tailoring') }}
-                                            </span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>{{ __('Total Items') }}:</th>
-                                        <td><span class="badge badge-dark">{{ $order->items->count() }}</span></td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-
-                        @if($order->notes)
-                        <div class="mt-3 p-3 bg-light rounded">
-                            <div class="d-flex">
-                                <i class="las la-sticky-note text-primary mr-2 mt-1"></i>
-                                <div>
-                                    <strong>{{ __('Customer Notes') }}:</strong>
-                                    <p class="mb-0">{{ $order->notes }}</p>
-                                </div>
-                            </div>
-                        </div>
+                        <h5 class="font-weight-bold mb-2">
+                            <a href="{{ route('customers.show', $order->customer) }}">{{ $order->customer?->name }}</a>
+                        </h5>
+                        <p class="mb-1"><i class="las la-phone mr-1"></i> {{ $order->customer?->phone }}</p>
+                        @if($order->customer?->address)
+                            <p class="mb-0 text-muted"><i class="las la-map-marker mr-1"></i> {{ $order->customer->address }}</p>
                         @endif
                     </div>
                 </div>
-
-                <!-- Order Items -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 font-weight-bold text-primary">{{ __('messages.order_items') }}</h6>
+            </div>
+            <div class="col-lg-6">
+                <div class="card shadow h-100">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Tailor</h6>
                     </div>
-                    <div class="card-body p-0">
-                        <div class="list-group list-group-flush">
-                            @foreach($order->items as $index => $item)
-                            <div class="list-group-item p-3" style="border-left: 4px solid {{ $item->dressType->color ?? '#007bff' }};">
-                                <!-- Item Header -->
-                                <div class="d-flex justify-content-between align-items-start mb-3">
-                                    <div>
-                                        <h6 class="mb-1 font-weight-bold">
-                                            {{ $item->dressType->name ?? $item->item_name ?? 'N/A' }}
-                                            <span class="badge badge-pill badge-{{ $item->item_status == 'pending' ? 'warning' : ($item->item_status == 'cutting' ? 'info' : ($item->item_status == 'stitching' ? 'primary' : ($item->item_status == 'ready' ? 'success' : 'secondary'))) }} ml-2">
-                                                {{ ucfirst(str_replace('_', ' ', $item->item_status ?? 'pending')) }}
-                                            </span>
-                                        </h6>
-                                        <small class="text-muted">
-                                            <i class="las la-tag"></i> {{ __('messages.item') }} #{{ $index + 1 }}
-                                        </small>
-                                    </div>
-                                    <div class="text-right">
-                                        <div class="h6 mb-1 font-weight-bold text-success">
-                                            Rs {{ number_format($item->price * $item->quantity, 0) }}
-                                        </div>
-                                        <small class="text-muted d-block">{{ __('Base Total') }}</small>
-                                    </div>
+                    <div class="card-body">
+                        @if($order->tailor)
+                            <h5 class="font-weight-bold mb-2">{{ $order->tailor->name }}</h5>
+                            <p class="mb-1"><i class="las la-phone mr-1"></i> {{ $order->tailor->phone }}</p>
+                            <p class="mb-1">
+                                <strong>Specialty:</strong>
+                                {{ $specialtyLabels[$order->tailor->specialty] ?? $order->tailor->specialty }}
+                            </p>
+                            <p class="mb-3">
+                                <strong>Status:</strong>
+                                <span class="badge badge-{{ $order->tailor->status === 'active' ? 'success' : 'warning' }}">
+                                    {{ ucfirst(str_replace('_', ' ', $order->tailor->status)) }}
+                                </span>
+                            </p>
+                            <div class="row mb-3">
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Fee Total</small>
+                                    <strong>Rs {{ number_format($order->tailor_fee_total, 2) }}</strong>
                                 </div>
-
-                                <!-- Item Pricing Details with better missing value handling -->
-                                <div class="row mb-3">
-                                    <div class="col-md-3">
-                                        <small class="text-muted d-block font-weight-bold">{{ __('messages.quantity') }}</small>
-                                        <span class="h6">{{ $item->quantity ?? 1 }}</span>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <small class="text-muted d-block font-weight-bold">{{ __('messages.base_price') }}</small>
-                                        <span class="h6">Rs {{ number_format($item->price ?? 0, 0) }}</span>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <small class="text-muted d-block font-weight-bold">{{ __('messages.stitching_charges') }}</small>
-                                        @if(isset($item->stitching_charges) && $item->stitching_charges > 0)
-                                            <span class="h6 text-success">Rs {{ number_format($item->stitching_charges, 0) }}</span>
-                                        @else
-                                            <span class="badge badge-warning">Not set</span>
-                                        @endif
-                                    </div>
-                                    <div class="col-md-3">
-                                        <small class="text-muted d-block font-weight-bold">{{ __('messages.additional_charges') }}</small>
-                                        @if(isset($item->additional_charges) && $item->additional_charges > 0)
-                                            <span class="h6 text-info">Rs {{ number_format($item->additional_charges, 0) }}</span>
-                                        @else
-                                            <span class="badge badge-warning">Not set</span>
-                                        @endif
-                                    </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Fee Paid</small>
+                                    <strong>Rs {{ number_format($order->tailor_fee_paid, 2) }}</strong>
                                 </div>
-
-                                <!-- Show fabric cost if available -->
-                                @if(isset($item->fabric_cost) && $item->fabric_cost > 0)
-                                <div class="row mb-2">
-                                    <div class="col-md-3">
-                                        <small class="text-muted d-block font-weight-bold">{{ __('messages.fabric_cost') }}</small>
-                                        <span class="h6 text-danger">Rs {{ number_format($item->fabric_cost, 0) }}</span>
-                                    </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Fee Balance</small>
+                                    <strong class="{{ $order->tailor_fee_balance > 0 ? 'text-danger' : '' }}">
+                                        Rs {{ number_format($order->tailor_fee_balance, 2) }}
+                                    </strong>
                                 </div>
-                                @endif
-
-                                <!-- Show discount if available -->
-                                @if(isset($item->discount_amount) && $item->discount_amount > 0)
-                                <div class="row mb-2">
-                                    <div class="col-md-3">
-                                        <small class="text-muted d-block font-weight-bold">{{ __('messages.discount') }}</small>
-                                        <span class="h6 text-danger">- Rs {{ number_format($item->discount_amount, 0) }}</span>
-                                    </div>
-                                </div>
-                                @endif
-
-                                <!-- Fabric Details Section -->
-                                @if($item->fabric_type || $item->fabric_color || $item->fabric_meters)
-                                <div class="mt-3 pt-3 border-top">
-                                    <h6 class="mb-2 font-weight-bold">
-                                        <i class="las la-layer-group text-info mr-2"></i>{{ __('messages.fabric_details') }}
-                                    </h6>
-                                    <div class="row">
-                                        @if($item->fabric_type)
-                                        <div class="col-md-2">
-                                            <small class="text-muted d-block">{{ __('messages.fabric_type') }}</small>
-                                            <span class="font-weight-bold">{{ $item->fabric_type }}</span>
-                                        </div>
-                                        @endif
-                                        @if($item->fabric_color)
-                                        <div class="col-md-2">
-                                            <small class="text-muted d-block">{{ __('messages.color') }}</small>
-                                            <div class="d-flex align-items-center">
-                                                <span class="badge" style="background-color: {{ $item->fabric_color }}; color: white; min-width: 60px;">
-                                                    {{ $item->fabric_color }}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        @endif
-                                        @if($item->fabric_meters)
-                                        <div class="col-md-2">
-                                            <small class="text-muted d-block">{{ __('messages.meter_required') }}</small>
-                                            <span class="font-weight-bold">{{ $item->fabric_meters }} m</span>
-                                        </div>
-                                        @endif
-                                        @if($item->fabric_rate)
-                                        <div class="col-md-2">
-                                            <small class="text-muted d-block">{{ __('messages.fabric_rate_m') }}</small>
-                                            <span class="font-weight-bold">Rs {{ number_format($item->fabric_rate, 0) }}/m</span>
-                                        </div>
-                                        @endif
-                                        @if($item->fabric_cost)
-                                        <div class="col-md-2">
-                                            <small class="text-muted d-block">{{ __('messages.fabric_cost') }}</small>
-                                            <span class="font-weight-bold text-danger">Rs {{ number_format($item->fabric_cost, 0) }}</span>
-                                        </div>
-                                        @endif
-                                    </div>
-                                </div>
-                                @endif
-
-                                <!-- Measurements Section -->
-                                @if($item->measurements && $item->measurements->count() > 0)
-                                <div class="mt-3 pt-3 border-top">
-                                    <div class="d-flex align-items-center mb-2">
-                                        <i class="las la-ruler text-primary mr-2 fa-lg"></i>
-                                        <h6 class="mb-0 font-weight-bold">{{ __('messages.measurements_cm') }}</h6>
-                                    </div>
-                                    <div class="row mt-2">
-                                        @php
-                                        $measurement = $item->measurements->first();
-                                        $displayedFields = 0;
-                                        $enabledFields = $enabledFields ?? ['height', 'chest', 'waist', 'shoulder', 'sleeve_length'];
-                                        @endphp
-
-                                        @foreach($enabledFields as $field)
-                                        @if($measurement && $measurement->$field !== null)
-                                        <div class="col-md-3 col-6 mb-2">
-                                            <div class="bg-light p-2 rounded small">
-                                                <small class="text-muted d-block text-capitalize">{{ str_replace('_', ' ', $field) }}</small>
-                                                <span class="font-weight-bold">{{ $measurement->$field }} cm</span>
-                                            </div>
-                                        </div>
-                                        @php $displayedFields++; @endphp
-                                        @endif
-                                        @endforeach
-
-                                        @if($displayedFields == 0)
-                                        <div class="col-12">
-                                            <p class="text-muted small mb-0">{{ __('No measurements recorded for this item.') }}</p>
-                                        </div>
-                                        @endif
-                                    </div>
-
-                                    @if($measurement && ($measurement->fitting_preferences || $measurement->notes))
-                                    <div class="mt-2">
-                                        @if($measurement->fitting_preferences)
-                                        <div class="bg-warning-light p-2 rounded small mb-2">
-                                            <small class="text-muted d-block font-weight-bold">{{ __('messages.fitting_preferences') }}</small>
-                                            <span>{{ $measurement->fitting_preferences }}</span>
-                                        </div>
-                                        @endif
-
-                                        @if($measurement->notes)
-                                        <div class="bg-info-light p-2 rounded small">
-                                            <small class="text-muted d-block font-weight-bold">{{ __('messages.measurement_notes') }}</small>
-                                            <span>{{ $measurement->notes }}</span>
-                                        </div>
-                                        @endif
-                                    </div>
-                                    @endif
-                                </div>
-                                @endif
-
-                                <!-- Discount & Special Instructions -->
-                                <div class="row mt-3 pt-3 border-top">
-                                    @if(($item->discount_amount ?? 0) > 0)
-                                    <div class="col-md-6">
-                                        <small class="text-muted d-block font-weight-bold">{{ __('messages.discount') }}</small>
-                                        <span class="h6 text-danger">- Rs {{ number_format($item->discount_amount, 0) }}</span>
-                                    </div>
-                                    @endif
-                                    @if($item->instructions)
-                                    <div class="col-md-{{ ($item->discount_amount ?? 0) > 0 ? '6' : '12' }}">
-                                        <small class="text-muted d-block font-weight-bold">{{ __('messages.special_instructions') }}</small>
-                                        <p class="small mb-0">{{ $item->instructions }}</p>
-                                    </div>
-                                    @endif
-                                </div>
-
-                                <!-- Tailor Assignment -->
-                                @if($item->tailorAssignments && $item->tailorAssignments->count() > 0)
-                                <div class="mt-3 pt-3 border-top">
-                                    <div class="row align-items-center">
-                                        <div class="col-md-6">
-                                            @php $assignment = $item->tailorAssignments->first(); @endphp
-                                            <small class="text-muted d-block font-weight-bold">{{ __('Tailor Assignment') }}</small>
-                                            <div class="d-flex align-items-center mt-2">
-                                                <div class="avatar avatar-sm bg-info text-white rounded-circle mr-2">
-                                                    <span class="avatar-title">{{ $assignment->tailor ? substr($assignment->tailor->name, 0, 1) : '?' }}</span>
-                                                </div>
-                                                <div>
-                                                    <strong>{{ $assignment->tailor->name ?? 'N/A' }}</strong>
-                                                    <small class="d-block text-muted">
-                                                        <span class="badge" style="background-color: {{ $assignment->status->color ?? '#6b7280' }}; color: white;">
-                                                            {{ $assignment->status->name ?? 'Assigned' }}
-                                                        </span>
-                                                    </small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                    </div>
-                                </div>
-                                @endif
-
                             </div>
+                            <form action="{{ route('orders.tailor-payment', $order) }}" method="POST" class="form-inline">
+                                @csrf
+                                <label class="sr-only" for="tailor_amount">Amount</label>
+                                <input type="number" name="amount" id="tailor_amount" class="form-control form-control-sm mr-2"
+                                       min="0.01" step="0.01" placeholder="Amount" required style="width: 120px;">
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Record Tailor Payment</button>
+                            </form>
+                        @else
+                            <p class="text-muted mb-0">No tailor assigned to this order.</p>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Suits & Payments --}}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Suits &amp; Billing</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Color</th>
+                                <th class="text-center">Qty</th>
+                                <th class="text-right">Stitching</th>
+                                <th class="text-right">Buttons</th>
+                                <th class="text-right">Other</th>
+                                <th>Note</th>
+                                <th class="text-right">Row Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($order->suits as $suit)
+                                <tr>
+                                    <td>{{ $suit->color }}</td>
+                                    <td class="text-center">{{ $suit->quantity }}</td>
+                                    <td class="text-right">Rs {{ number_format($suit->stitching_charge, 2) }}</td>
+                                    <td class="text-right">Rs {{ number_format($suit->button_charge, 2) }}</td>
+                                    <td class="text-right">Rs {{ number_format($suit->other_charge, 2) }}</td>
+                                    <td>{{ $suit->other_charge_note ?: '—' }}</td>
+                                    <td class="text-right font-weight-bold">Rs {{ number_format($suit->suit_total, 2) }}</td>
+                                </tr>
                             @endforeach
-                        </div>
-                    </div>
+                            <tr class="bg-light font-weight-bold">
+                                <td colspan="6" class="text-right">TOTAL</td>
+                                <td class="text-right">Rs {{ number_format($order->total_amount, 2) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-
-                <!-- Order Summary & Pricing Breakdown -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">{{ __('messages.order_summary_payment') }}</h6>
+            </div>
+            <div class="card-footer">
+                <div class="row align-items-center">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <span class="mr-4"><strong>Advance Paid:</strong> Rs {{ number_format($order->advance_paid, 2) }}</span>
+                        <span class="{{ $order->balance_due > 0 ? 'text-warning font-weight-bold' : 'font-weight-bold' }}">
+                            <strong>Balance Due:</strong> Rs {{ number_format($order->balance_due, 2) }}
+                        </span>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="card bg-light">
-                                    <div class="card-body">
-                                        <!-- Item-wise Breakdown -->
-                                        <div class="mb-4 pb-3" style="border-bottom: 2px solid #dee2e6;">
-                                            <h6 class="mb-3 font-weight-bold">{{ __('Item-wise Breakdown') }}</h6>
-                                            @foreach($order->items as $index => $item)
-                                            <div class="mb-3 pb-2" style="border-bottom: 1px dashed #dee2e6;">
-                                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <strong class="text-primary">
-                                                        {{ $item->dressType->name ?? $item->item_name ?? 'Item' }} #{{ $index + 1 }}
-                                                    </strong>
-                                                    <strong class="text-success">
-                                                        Rs {{ number_format($item->price * $item->quantity, 0) }} 
-                                                        ({{ $item->quantity }} {{ $item->quantity > 1 ? 'items' : 'item' }})
-                                                    </strong>
-                                                </div>
-                                                
-                                                                    @php
-                                                                    $qty = $item->quantity ?? 1;
-                                                                    $perItemStitching = $item->stitching_charges ?? ($item->tailorAssignments->first()->stitching_charge ?? 0);
-                                                                    $totalStitchingForItem = $perItemStitching * $qty;
-                                                                    @endphp
-                                                                    @if($perItemStitching > 0)
-                                                                    <div class="d-flex justify-content-between small text-muted pl-3">
-                                                                        <span>Stitching charges (Rs {{ number_format($perItemStitching, 0) }} × {{ $qty }})</span>
-                                                                        <span class="text-dark">+ Rs {{ number_format($totalStitchingForItem, 0) }}</span>
-                                                                    </div>
-                                                                    @endif
-                                                
-                                                @php
-                                                $perItemAdditional = $item->additional_charges ?? 0;
-                                                $totalAdditionalForItem = $perItemAdditional * ($item->quantity ?? 1);
-                                                @endphp
-                                                @if($perItemAdditional > 0)
-                                                <div class="d-flex justify-content-between small text-muted pl-3">
-                                                    <span>Additional charges (Rs {{ number_format($perItemAdditional, 0) }} × {{ $item->quantity ?? 1 }})</span>
-                                                    <span class="text-dark">+ Rs {{ number_format($totalAdditionalForItem, 0) }}</span>
-                                                </div>
-                                                @endif
-                                                
-                                                @php
-                                                $perItemFabric = $item->fabric_cost ?? 0;
-                                                // If fabric cost was stored per-item, multiply by qty. Otherwise treat as total stored value.
-                                                $totalFabricForItem = $perItemFabric;
-                                                @endphp
-                                                @if($perItemFabric > 0)
-                                                <div class="d-flex justify-content-between small text-muted pl-3">
-                                                    <span>Fabric cost (Rs {{ number_format(($perItemFabric / ($item->quantity ?? 1)), 0) }} × {{ $item->quantity ?? 1 }})</span>
-                                                    <span class="text-dark">+ Rs {{ number_format($totalFabricForItem, 0) }}</span>
-                                                </div>
-                                                @endif
-                                                
-                                                @php
-                                                $rawDiscount = $item->discount_amount ?? 0;
-                                                if ($rawDiscount > 0) {
-                                                    if ($rawDiscount <= ($item->price ?? 0)) {
-                                                        $perItemDiscount = $rawDiscount;
-                                                        $totalDiscountForItem = $perItemDiscount * ($item->quantity ?? 1);
-                                                    } else {
-                                                        $perItemDiscount = $rawDiscount / ($item->quantity ?? 1);
-                                                        $totalDiscountForItem = $rawDiscount;
-                                                    }
-                                                } else {
-                                                    $perItemDiscount = 0;
-                                                    $totalDiscountForItem = 0;
-                                                }
-                                                @endphp
-                                                @if($totalDiscountForItem > 0)
-                                                <div class="d-flex justify-content-between small text-danger pl-3">
-                                                    <span>Discount (Rs {{ number_format($perItemDiscount, 0) }} × {{ $item->quantity ?? 1 }})</span>
-                                                    <span>- Rs {{ number_format($totalDiscountForItem, 0) }}</span>
-                                                </div>
-                                                @endif
-                                            </div>
-                                            @endforeach
-                                        </div>
-
-                                        <!-- Totals with better missing value handling -->
-                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                                            <span>{{ __('messages.sub_total') }} (Base Price × Quantity):</span>
-                                            <span class="font-weight-bold">Rs {{ number_format($subTotal, 0) }}</span>
-                                        </div>
-
-                                        @if($totalFabricCost > 0)
-                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                                            <span>{{ __('messages.total_fabric_cost') }}:</span>
-                                            <span class="font-weight-bold">Rs {{ number_format($totalFabricCost, 0) }}</span>
-                                        </div>
-                                        @else
-                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2 text-muted">
-                                            <span>{{ __('messages.total_fabric_cost') }}:</span>
-                                            <span class="font-italic">Not applicable</span>
-                                        </div>
-                                        @endif
-
-                                        @if($totalStitchingCharges > 0)
-                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                                            <span>{{ __('messages.total_stitching_charges') }}:</span>
-                                            <span class="font-weight-bold">Rs {{ number_format($totalStitchingCharges, 0) }}</span>
-                                        </div>
-                                        @else
-                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2 text-muted">
-                                            <span>{{ __('messages.total_stitching_charges') }}:</span>
-                                            <span class="font-italic">Not included</span>
-                                        </div>
-                                        @endif
-
-                                        @if($totalAdditionalCharges > 0)
-                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
-                                            <span>{{ __('messages.total_additional_charges') }}:</span>
-                                            <span class="font-weight-bold">Rs {{ number_format($totalAdditionalCharges, 0) }}</span>
-                                        </div>
-                                        @else
-                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2 text-muted">
-                                            <span>{{ __('messages.total_additional_charges') }}:</span>
-                                            <span class="font-italic">None</span>
-                                        </div>
-                                        @endif
-
-                                        @if($totalDiscount > 0)
-                                        <div class="d-flex justify-content-between border-bottom pb-2 mb-3">
-                                            <span>{{ __('messages.total_discount') }}:</span>
-                                            <span class="font-weight-bold text-danger">- Rs {{ number_format($totalDiscount, 0) }}</span>
-                                        </div>
-                                        @endif
-
-                                        <div class="d-flex justify-content-between pt-2">
-                                            <strong class="h6 mb-0">{{ __('messages.grand_total') }}:</strong>
-                                            <strong class="h5 mb-0 text-success">Rs {{ number_format($grandTotal, 0) }}</strong>
-                                        </div>
-                                        <small class="text-muted d-block mt-2 text-right">
-                                            Grand Total = SubTotal + Fabric + Stitching + Additional - Discount
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Payments -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 font-weight-bold text-primary">{{ __('Payment History') }}</h6>
-                        <button class="btn btn-sm btn-outline-success" onclick="addPayment()">
-                            <i class="las la-money-bill-wave"></i> {{ __('Add Payment') }}
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        @if($order->payments && $order->payments->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead class="thead-light">
-                                    <tr>
-                                        <th>{{ __('Date') }}</th>
-                                        <th>{{ __('Receipt #') }}</th>
-                                        <th>{{ __('Method') }}</th>
-                                        <th class="text-right">{{ __('Amount') }}</th>
-                                        <th class="text-right">{{ __('Previous Balance') }}</th>
-                                        <th class="text-right">{{ __('New Balance') }}</th>
-                                        <th>{{ __('Received By') }}</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($order->payments as $payment)
-                                    <tr>
-                                        <td>{{ $payment->payment_date ? $payment->payment_date->format('d M, Y') : 'N/A' }}</td>
-                                        <td class="font-weight-bold">{{ $payment->receipt_number ?? 'N/A' }}</td>
-                                        <td>{{ $payment->paymentMethod->name ?? 'N/A' }}</td>
-                                        <td class="text-right text-success font-weight-bold">Rs {{ number_format($payment->amount, 0) }}</td>
-                                        <td class="text-right">Rs {{ number_format($payment->previous_balance, 0) }}</td>
-                                        <td class="text-right">Rs {{ number_format($payment->new_balance, 0) }}</td>
-                                        <td>{{ $payment->receivedBy->name ?? 'N/A' }}</td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        @else
-                        <div class="alert alert-info">
-                            <i class="las la-info-circle"></i> {{ __('No payments recorded yet.') }}
-                        </div>
-                        @endif
-
-                        <!-- Payment Summary -->
-                        <div class="row mt-4">
-                            <div class="col-md-4">
-                                <div class="card border-left-primary">
-                                    <div class="card-body">
-                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                            {{ __('messages.total_amount') }}
-                                        </div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            Rs {{ number_format($grandTotal, 0) }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card border-left-success">
-                                    <div class="card-body">
-                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                            {{ __('Total Paid') }}
-                                        </div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            Rs {{ number_format($order->payments->sum('amount'), 0) }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="card border-left-{{ $order->remaining_amount > 0 ? 'danger' : 'secondary' }}">
-                                    <div class="card-body">
-                                        <div class="text-xs font-weight-bold text-{{ $order->remaining_amount > 0 ? 'danger' : 'secondary' }} text-uppercase mb-1">
-                                            {{ __('messages.balance_due') }}
-                                        </div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                            Rs {{ number_format($order->remaining_amount, 0) }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="col-md-6">
+                        <form action="{{ route('orders.customer-payment', $order) }}" method="POST" class="form-inline justify-content-md-end">
+                            @csrf
+                            <label class="sr-only" for="customer_amount">Amount</label>
+                            <input type="number" name="amount" id="customer_amount" class="form-control form-control-sm mr-2"
+                                   min="0.01" step="0.01" placeholder="Payment amount" required style="width: 140px;">
+                            <button type="submit" class="btn btn-sm btn-outline-success">Record Customer Payment</button>
+                        </form>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Right Sidebar -->
-            <div class="col-lg-4">
-                <!-- Status Timeline -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">{{ __('Status Timeline') }}</h6>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="timeline p-3">
-                            @forelse($order->statusLogs->sortByDesc('changed_at') as $log)
-                            <div class="timeline-item mb-3">
-                                <div class="timeline-marker" style="background-color: {{ $log->newStatus->color ?? '#6b7280' }};"></div>
-                                <div class="timeline-content">
-                                    <div class="d-flex justify-content-between">
-                                        <div class="font-weight-bold">{{ $log->newStatus->name ?? 'Status Updated' }}</div>
-                                        <small class="text-muted">{{ $log->changed_at ? $log->changed_at->format('h:i A') : '' }}</small>
-                                    </div>
-                                    <small class="text-muted d-block">
-                                        {{ $log->changed_at ? $log->changed_at->format('d M, Y') : '' }}
-                                    </small>
-                                    @if($log->notes)
-                                    <div class="mt-1 p-2 bg-light rounded small">
-                                        <i class="las la-quote-left"></i> {{ $log->notes }}
-                                    </div>
-                                    @endif
-                                    <div class="text-muted small mt-1">
-                                        <i class="las la-user"></i> {{ $log->changedBy->name ?? __('System') }}
-                                    </div>
+        {{-- Measurements --}}
+        @if($order->measurement)
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Measurements</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        @foreach($measurementFields as $field => $label)
+                            @if($order->measurement->$field !== null)
+                                <div class="col-md-3 col-sm-4 mb-3">
+                                    <small class="text-muted d-block">{{ $label }}</small>
+                                    <strong>{{ $order->measurement->$field }}"</strong>
                                 </div>
-                            </div>
+                            @endif
+                        @endforeach
+                    </div>
+                    @if($order->measurement->notes)
+                        <hr>
+                        <small class="text-muted d-block">Notes</small>
+                        <p class="mb-0">{{ $order->measurement->notes }}</p>
+                    @endif
+                </div>
+            </div>
+        @endif
+
+        {{-- Status History --}}
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Status History</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>By</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($order->statusLogs as $log)
+                                <tr>
+                                    <td>{{ ($log->changed_at ?? $log->created_at)->format('d M, Y h:i A') }}</td>
+                                    <td>{{ $log->oldStatus?->name ?? '—' }}</td>
+                                    <td>{{ $log->newStatus?->name ?? '—' }}</td>
+                                    <td>{{ $log->changedBy?->name ?? 'System' }}</td>
+                                    <td>{{ $log->notes ?: '—' }}</td>
+                                </tr>
                             @empty
-                            <div class="text-center py-4">
-                                <i class="las la-history fa-2x text-muted mb-2"></i>
-                                <p class="text-muted mb-0">{{ __('No status logs available.') }}</p>
-                            </div>
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">No status changes recorded.</td>
+                                </tr>
                             @endforelse
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quick Actions -->
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">{{ __('Quick Actions') }}</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="list-group">
-                            <button class="list-group-item list-group-item-action d-flex align-items-center" onclick="updateOrderStatus({{ $order->id }})">
-                                <i class="las la-sync text-primary mr-3 fa-lg"></i>
-                                <div class="flex-grow-1">
-                                    <strong>{{ __('Update Status') }}</strong>
-                                    <small class="d-block text-muted">{{ __('Change order progress') }}</small>
-                                </div>
-                                <i class="las la-chevron-right text-muted"></i>
-                            </button>
-
-                            <button class="list-group-item list-group-item-action d-flex align-items-center" onclick="addPayment()">
-                                <i class="las la-money-bill-wave text-success mr-3 fa-lg"></i>
-                                <div class="flex-grow-1">
-                                    <strong>{{ __('Add Payment') }}</strong>
-                                    <small class="d-block text-muted">{{ __('Record a new payment') }}</small>
-                                </div>
-                                <i class="las la-chevron-right text-muted"></i>
-                            </button>
-
-                            <button class="list-group-item list-group-item-action d-flex align-items-center" onclick="assignTailor()">
-                                <i class="las la-user-tie text-info mr-3 fa-lg"></i>
-                                <div class="flex-grow-1">
-                                    <strong>{{ __('Assign Tailor') }}</strong>
-                                    <small class="d-block text-muted">{{ __('Assign to a tailor') }}</small>
-                                </div>
-                                <i class="las la-chevron-right text-muted"></i>
-                            </button>
-
-                            <a href="{{ route('orders.edit', $order) }}" class="list-group-item list-group-item-action d-flex align-items-center">
-                                <i class="las la-edit text-warning mr-3 fa-lg"></i>
-                                <div class="flex-grow-1">
-                                    <strong>{{ __('messages.edit') }}</strong>
-                                    <small class="d-block text-muted">{{ __('Modify order details') }}</small>
-                                </div>
-                                <i class="las la-chevron-right text-muted"></i>
-                            </a>
-
-                            <button class="list-group-item list-group-item-action d-flex align-items-center" onclick="printCustomerBill()">
-                                <i class="las la-file-invoice text-secondary mr-3 fa-lg"></i>
-                                <div class="flex-grow-1">
-                                    <strong>{{ __('Print Bill') }}</strong>
-                                    <small class="d-block text-muted">{{ __('Generate customer invoice') }}</small>
-                                </div>
-                                <i class="las la-chevron-right text-muted"></i>
-                            </button>
-
-                            <button class="list-group-item list-group-item-action d-flex align-items-center text-danger" onclick="deleteOrder({{ $order->id }})">
-                                <i class="las la-trash mr-3 fa-lg"></i>
-                                <div class="flex-grow-1">
-                                    <strong>{{ __('Delete Order') }}</strong>
-                                    <small class="d-block text-muted">{{ __('Permanently delete') }}</small>
-                                </div>
-                                <i class="las la-chevron-right text-muted"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Internal Notes Section -->
-                <div class="card shadow mb-4 border-left-warning">
-                    <div class="card-header py-3 bg-light">
-                        <h6 class="m-0 font-weight-bold text-primary">
-                            <i class="las la-lock text-warning mr-2"></i>{{ __('messages.internal_notes') }}
-                        </h6>
-                    </div>
-                    <div class="card-body">
-                        @if($order->internal_notes)
-                        <div class="alert alert-warning-light mb-3 p-3 rounded">
-                            <i class="las la-info-circle mr-2"></i>
-                            <strong>{{ __('Current Notes') }}:</strong><br>
-                            <p class="mb-0 mt-2">{{ $order->internal_notes }}</p>
-                        </div>
-                        @else
-                        <div class="alert alert-info mb-3">
-                            <i class="las la-sticky-note mr-2"></i>{{ __('No internal notes yet.') }}
-                        </div>
-                        @endif
-                        
-                        {{-- Form to add/update internal notes would go here --}}
-                    </div>
-                </div>
-
-                <!-- Order Summary Card -->
-                <div class="card shadow bg-gradient-primary text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="m-0 font-weight-bold">{{ __('Order Summary') }}</h6>
-                            <span class="badge badge-light">{{ $order->order_number }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>{{ __('Subtotal') }}:</span>
-                            <span class="font-weight-bold">Rs {{ number_format($subTotal, 0) }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>{{ __('Fabric Cost') }}:</span>
-                            <span class="font-weight-bold">Rs {{ number_format($totalFabricCost, 0) }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>{{ __('Stitching') }}:</span>
-                            <span class="font-weight-bold">Rs {{ number_format($totalStitchingCharges, 0) }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>{{ __('Additional') }}:</span>
-                            <span class="font-weight-bold">Rs {{ number_format($totalAdditionalCharges, 0) }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>{{ __('Discount') }}:</span>
-                            <span class="font-weight-bold">- Rs {{ number_format($totalDiscount, 0) }}</span>
-                        </div>
-                        <hr class="bg-white">
-                        <div class="d-flex justify-content-between">
-                            <span class="h6 mb-0">{{ __('Grand Total') }}:</span>
-                            <span class="h5 mb-0 font-weight-bold">Rs {{ number_format($grandTotal, 0) }}</span>
-                        </div>
-                        <hr class="bg-white">
-                        <div class="d-flex justify-content-between">
-                            <span class="h6 mb-0">{{ __('Advance Paid') }}:</span>
-                            <span class="h6 mb-0 font-weight-bold">Rs {{ number_format($order->advance_amount, 0) }}</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <span class="h6 mb-0">{{ __('Balance Due') }}:</span>
-                            <span class="h5 mb-0 font-weight-bold text-warning">Rs {{ number_format($order->remaining_amount, 0) }}</span>
-                        </div>
-                    </div>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Add Payment Modal -->
-    <div class="modal fade" id="addPaymentModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{{ __('Add Payment for Order: :order_number', ['order_number' => $order->order_number]) }}</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('messages.close') }}">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+        @if($order->notes)
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Order Notes</h6>
                 </div>
-                <form id="paymentForm" method="POST" action="{{ route('orders.payments.store', $order) }}">
-                    @csrf
-                    <div class="modal-body">
-                        <!-- Order & Balance Info -->
-                        <div class="alert alert-info">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <strong>{{ __('Order Total') }}:</strong><br>
-                                    <h5 class="mt-1 text-dark">Rs {{ number_format($grandTotal) }}</h5>
-                                </div>
-                                <div class="col-md-4">
-                                    <strong>{{ __('Already Paid') }}:</strong><br>
-                                    <h5 class="mt-1 text-success">Rs {{ number_format($order->payments->sum('amount')) }}</h5>
-                                </div>
-                                <div class="col-md-4">
-                                    <strong>{{ __('messages.balance_due') }}:</strong><br>
-                                    <h5 class="mt-1 text-danger">Rs {{ number_format($order->remaining_amount) }}</h5>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Payment Amount') }} *</label>
-                                <div class="input-group">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text">Rs</span>
-                                    </div>
-                                    <input type="number" step="0.01" class="form-control" id="payment_amount"
-                                        name="amount" required min="0" max="{{ $order->remaining_amount }}"
-                                        placeholder="{{ __('Enter payment amount') }}">
-                                </div>
-                                <small class="form-text text-muted">{{ __('Maximum: Rs :amount', ['amount' => number_format($order->remaining_amount)]) }}</small>
-                                <div class="invalid-feedback">{{ __('Please enter a valid payment amount.') }}</div>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Payment Date') }} *</label>
-                                <input type="date" class="form-control" name="payment_date"
-                                    value="{{ date('Y-m-d') }}" required>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('messages.payment_method') }} *</label>
-                                <select class="form-control select2" name="payment_method_id" required>
-                                    <option value="">{{ __('messages.select') }} {{ __('messages.payment_method') }}</option>
-                                    @foreach($paymentMethods ?? [] as $method)
-                                    <option value="{{ $method->id }}" {{ old('payment_method_id') == $method->id ? 'selected' : '' }}>
-                                        {{ $method->name }}
-                                    </option>
-                                    @endforeach
-                                </select>
-                                <div class="invalid-feedback">{{ __('Please select a payment method.') }}</div>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Receipt Number') }}</label>
-                                <input type="text" class="form-control" name="receipt_number"
-                                    placeholder="{{ __('Auto-generated if left blank') }}"
-                                    value="{{ old('receipt_number', 'RC-' . time()) }}">
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Reference/Transaction ID') }}</label>
-                                <input type="text" class="form-control" name="reference_number"
-                                    placeholder="{{ __('e.g., Bank transaction ID, UTR No.') }}">
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">{{ __('Collected By') }}</label>
-                                <input type="text" class="form-control" value="{{ auth()->user()->name }}" readonly>
-                                <input type="hidden" name="received_by" value="{{ auth()->id() }}">
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">{{ __('Payment Notes') }}</label>
-                            <textarea class="form-control" name="notes" rows="3"
-                                placeholder="{{ __('Any additional notes about this payment...') }}"></textarea>
-                        </div>
-
-                        <!-- Payment Preview -->
-                        <div class="card border-primary">
-                            <div class="card-header bg-light">
-                                <h6 class="mb-0">{{ __('Payment Preview') }}</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <table class="table table-sm">
-                                            <tr>
-                                                <th>{{ __('Current Balance') }}:</th>
-                                                <td class="text-danger">Rs <span id="current_balance">{{ number_format($order->remaining_amount, 2) }}</span></td>
-                                            </tr>
-                                            <tr>
-                                                <th>{{ __('Payment Amount') }}:</th>
-                                                <td class="text-success">Rs <span id="preview_amount">0.00</span></td>
-                                            </tr>
-                                            <tr>
-                                                <th>{{ __('New Balance') }}:</th>
-                                                <td class="font-weight-bold text-primary">Rs <span id="new_balance">{{ number_format($order->remaining_amount, 2) }}</span></td>
-                                            </tr>
-                                        </table>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="alert alert-light">
-                                            <small class="text-muted">
-                                                <i class="las la-info-circle"></i>
-                                                {{ __('After this payment, the remaining balance will be updated automatically.') }}
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('messages.cancel') }}</button>
-                        <button type="submit" class="btn btn-primary" id="savePaymentBtn">
-                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
-                            {{ __('Record Payment') }}
-                        </button>
-                    </div>
-                </form>
+                <div class="card-body">
+                    <p class="mb-0">{{ $order->notes }}</p>
+                </div>
             </div>
-        </div>
+        @endif
     </div>
 
-    <!-- Update Status Modal -->
-    <div class="modal fade" id="updateStatusModal" tabindex="-1" role="dialog">
+    {{-- Update Status Modal --}}
+    <div class="modal fade" id="statusModal" tabindex="-1" role="dialog" aria-labelledby="statusModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">{{ __('Update Order Status') }}</h5>
-                    <button type="button" class="close" data-dismiss="modal">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form id="updateStatusForm" method="POST" action="#">
+                <form action="{{ route('orders.update-status', $order) }}" method="POST">
                     @csrf
-                    @method('PUT')
+                    @method('PATCH')
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="statusModalLabel">Update Order Status</h5>
+                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                    </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <label class="form-label">{{ __('Status') }} *</label>
-                            <select class="form-control select2" name="status_id" required>
-                                <option value="">{{ __('Select Status') }}</option>
-                                @foreach($orderStatuses ?? \App\Models\OrderStatus::where('is_active', true)->get() as $status)
-                                <option value="{{ $status->id }}" {{ $order->status_id == $status->id ? 'selected' : '' }}
-                                    data-color="{{ $status->color }}">
-                                    {{ $status->name }}
-                                </option>
+                            <label for="status_id">New Status</label>
+                            <select name="status_id" id="status_id" class="form-control" required>
+                                @foreach($statuses as $status)
+                                    <option value="{{ $status->id }}" @selected($order->status_id == $status->id)>
+                                        {{ $status->name }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">{{ __('Notes') }}</label>
-                            <textarea class="form-control" name="notes" rows="3"
-                                placeholder="{{ __('Add notes about this status change...') }}"></textarea>
+                        <div class="form-group mb-0">
+                            <label for="status_notes">Notes (optional)</label>
+                            <textarea name="notes" id="status_notes" class="form-control" rows="3" placeholder="Reason for status change"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
-                        <button type="submit" class="btn btn-primary">{{ __('Update Status') }}</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Status</button>
                     </div>
                 </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Order Confirmation Modal -->
-    <div class="modal fade" id="deleteOrderModal" tabindex="-1" role="dialog">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title">{{ __('Delete Order') }}</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="text-center py-3">
-                        <i class="las la-exclamation-triangle fa-4x text-danger mb-3"></i>
-                        <h5>{{ __('Are you sure?') }}</h5>
-                        <p class="text-muted">
-                            {{ __('You are about to delete order :order_number. This action cannot be undone.', ['order_number' => $order->order_number]) }}
-                        </p>
-                        @if($order->payments && $order->payments->count() > 0)
-                        <div class="alert alert-warning">
-                            <i class="las la-exclamation-circle"></i>
-                            {{ __('This order has :count payment(s). Deleting will also remove payment records.', ['count' => $order->payments->count()]) }}
-                        </div>
-                        @endif
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Cancel') }}</button>
-                    <form action="{{ route('orders.destroy', $order) }}" method="POST" style="display: inline;">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">
-                            <i class="las la-trash"></i> {{ __('Yes, Delete Order') }}
-                        </button>
-                    </form>
-                </div>
             </div>
         </div>
     </div>
 
     @push('js')
-    <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
-
-    <!-- Table Treeview JavaScript -->
-    <script src="{{ asset('backend/assets/js/table-treeview.js') }}"></script>
-
-    <!-- Chart Custom JavaScript -->
-    <script src="{{ asset('backend/assets/js/customizer.js') }}"></script>
-
-
-    <!-- Chart Custom JavaScript -->
-    <script async src="{{ asset('backend/assets/js/chart-custom.js') }}"></script>
-
-    <!-- app JavaScript -->
-    <script src="{{ asset('backend/assets/js/app.js') }}"></script>
-
-    <script>
-        $(document).ready(function() {
-
-            // Payment amount preview
-            $('#payment_amount').on('input', function() {
-                const amount = parseFloat($(this).val()) || 0;
-                const currentBalance = parseFloat('{{ $order->remaining_amount }}');
-                const newBalance = currentBalance - amount;
-
-                $('#preview_amount').text(amount.toFixed(2));
-                $('#new_balance').text(newBalance.toFixed(2));
-
-                // Validate max amount
-                if (amount > currentBalance || amount <= 0) {
-                    $(this).addClass('is-invalid');
-                    $('#savePaymentBtn').prop('disabled', true);
-                } else {
-                    $(this).removeClass('is-invalid');
-                    $('#savePaymentBtn').prop('disabled', false);
-                }
-            });
-
-            // Payment form submission
-            $('#paymentForm').submit(function(e) {
-                e.preventDefault();
-
-                const saveBtn = $('#savePaymentBtn');
-                const spinner = saveBtn.find('.spinner-border');
-
-                // Validate form
-                if (!this.checkValidity()) {
-                    e.stopPropagation();
-                    $(this).addClass('was-validated');
-                    return;
-                }
-
-                // Show loading
-                saveBtn.prop('disabled', true);
-                spinner.removeClass('d-none');
-
-                $.ajax({
-                    url: $(this).attr('action'),
-                    type: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        if (response.success) {
-                            // toastr.success(response.message);
-
-                            // Close modal and reset form
-                            $('#addPaymentModal').modal('hide');
-                            $('#paymentForm')[0].reset();
-                            $('#paymentForm').removeClass('was-validated');
-                            $('#preview_amount').text('0.00');
-                            $('#new_balance').text('{{ number_format($order->remaining_amount, 2) }}');
-
-                            // Reload page to show updated payment info
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1500);
-                        } else {
-                            toastr.error(response.message);
-                        }
-                    },
-                    error: function(xhr) {
-                        let errorMessage = '{{ __("messages.an_error_occurred") }}';
-
-                        if (xhr.responseJSON && xhr.responseJSON.errors) {
-                            const errors = xhr.responseJSON.errors;
-                            errorMessage = Object.values(errors).flat().join('<br>');
-                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
-                        }
-
-                        toastr.error(errorMessage);
-                    },
-                    complete: function() {
-                        saveBtn.prop('disabled', false);
-                        spinner.addClass('d-none');
-                        $('#addPaymentModal').modal('hide');
-                    }
-                });
-            });
-
-            // Update Status Form Submission
-            $('#updateStatusForm').submit(function(e) {
-                e.preventDefault();
-
-                $.ajax({
-                    url: $(this).attr('action'),
-                    type: 'POST',
-                    data: $(this).serialize(),
-                    success: function(response) {
-                        if (response.success) {
-                            // toastr.success(response.message);
-                            $('#updateStatusModal').modal('hide');
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1500);
-                        }
-                    },
-                    error: function(xhr) {
-                        toastr.error(xhr.responseJSON?.message || 'Error updating status');
-                    }
-                });
-            });
-
-            // Add Note Form Submission
-            // $('#addNoteForm').submit(function(e) {
-            //     e.preventDefault();
-
-            //     const note = $('#note').val();
-            //     if (!note.trim()) {
-            //         toastr.warning('Please enter a note');
-            //         return;
-            //     }
-
-            //     $.ajax({
-            //         url: $(this).attr('action'),
-            //         type: 'POST',
-            //         data: $(this).serialize(),
-            //         success: function(response) {
-            //             if (response.success) {
-            //                 toastr.success('Note added successfully');
-            //                 $('#note').val('');
-            //                 setTimeout(() => {
-            //                     location.reload();
-            //                 }, 1500);
-            //             }
-            //         },
-            //         error: function(xhr) {
-            //             toastr.error('Error adding note');
-            //         }
-            //     });
-            // });
-        });
-
-        // Reset modal when closed
-        $('#addPaymentModal').on('hidden.bs.modal', function() {
-            $('#paymentForm')[0].reset();
-            $('#paymentForm').removeClass('was-validated');
-            $('#preview_amount').text('0.00');
-            $('#new_balance').text('{{ number_format($order->remaining_amount, 2) }}');
-            $('#savePaymentBtn').prop('disabled', false);
-        });
-
-        function updateOrderStatus(orderId) {
-            $('#updateStatusModal').modal('show');
-        }
-
-        function addPayment() {
-            $('#addPaymentModal').modal('show');
-        }
-
-        function assignTailor() {
-            alert('{{ __("Assign tailor functionality will be implemented") }}');
-            // TODO: Implement tailor assignment modal
-        }
-
-        function assignTailorToItem(itemId) {
-            alert('{{ __("Assign tailor to item: ") }}' + itemId);
-            // TODO: Implement tailor assignment per item
-        }
-
-        function addItem(orderId) {
-            alert('{{ __("Add item to order functionality will be implemented") }}');
-            // TODO: Implement add item modal
-        }
-
-        function updateItemStatus(itemId, currentStatus) {
-            alert('{{ __("Update status for item: ") }}' + itemId + ' - Current: ' + currentStatus);
-            // TODO: Implement item status update modal
-        }
-
-        function editItem(itemId) {
-            alert('{{ __("Edit item: ") }}' + itemId);
-            // TODO: Implement edit item modal
-        }
-
-        function deleteOrder(orderId) {
-            $('#deleteOrderModal').modal('show');
-        }
-
-        // Print Functions
-        function printCustomerBill() {
-            var content = document.getElementById('customer-bill-template').innerHTML;
-            var printWindow = window.open('', '_blank', 'width=900,height=700');
-
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Customer Bill - Order #{{ $order->order_number }}</title>
-                    <style>
-                        body { font-family: 'Arial', sans-serif; margin: 0; padding: 20px; background: white; }
-                        @media print {
-                            body { padding: 0; }
-                            .no-print { display: none !important; }
-                        }
-                        .bill-header { text-align: center; margin-bottom: 30px; }
-                        .shop-name { font-size: 24px; font-weight: bold; color: #333; }
-                        .bill-title { font-size: 20px; margin: 15px 0; }
-                        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                        th { background: #f8f9fa; padding: 10px; text-align: left; border: 1px solid #dee2e6; }
-                        td { padding: 10px; border: 1px solid #dee2e6; }
-                        .text-right { text-align: right; }
-                        .text-center { text-align: center; }
-                        .font-bold { font-weight: bold; }
-                        .total-row { font-size: 16px; }
-                        .grand-total { font-size: 18px; font-weight: bold; color: #28a745; }
-                        .footer { margin-top: 50px; text-align: center; font-size: 14px; color: #6c757d; }
-                        .no-print { text-align: center; margin-top: 30px; }
-                    </style>
-                </head>
-                <body>
-                    ${content}
-                    <div class="no-print">
-                        <button onclick="window.print();" style="background: #28a745; color: white; border: none; padding: 12px 30px; border-radius: 5px; font-size: 16px; cursor: pointer; margin-right: 10px;">
-                            🖨️ Print Bill
-                        </button>
-                        <button onclick="window.close()" style="background: #6c757d; color: white; border: none; padding: 12px 30px; border-radius: 5px; font-size: 16px; cursor: pointer;">
-                            ✕ Close
-                        </button>
-                    </div>
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-        }
-
-        function printTailorWorksheet() {
-            var content = document.getElementById('tailor-worksheet-template').innerHTML;
-            var printWindow = window.open('', '_blank', 'width=900,height=700');
-
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>Tailor Worksheet - Order #{{ $order->order_number }}</title>
-                    <style>
-                        body { font-family: 'Arial', sans-serif; margin: 0; padding: 20px; background: white; }
-                        @media print {
-                            body { padding: 0; }
-                            .no-print { display: none !important; }
-                        }
-                        .header { text-align: center; margin-bottom: 30px; }
-                        .worksheet-title { font-size: 24px; font-weight: bold; margin: 15px 0; }
-                        .order-info { background: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px; }
-                        .item-card { border: 1px solid #dee2e6; border-radius: 5px; padding: 15px; margin-bottom: 20px; }
-                        .measurement-table { width: 100%; border-collapse: collapse; margin: 10px 0; }
-                        .measurement-table td { padding: 8px; border: 1px solid #dee2e6; }
-                        .label { font-weight: bold; color: #495057; }
-                        .no-print { text-align: center; margin-top: 30px; }
-                    </style>
-                </head>
-                <body>
-                    ${content}
-                    <div class="no-print">
-                        <button onclick="window.print();" style="background: #17a2b8; color: white; border: none; padding: 12px 30px; border-radius: 5px; font-size: 16px; cursor: pointer; margin-right: 10px;">
-                            🖨️ Print Worksheet
-                        </button>
-                        <button onclick="window.close()" style="background: #6c757d; color: white; border: none; padding: 12px 30px; border-radius: 5px; font-size: 16px; cursor: pointer;">
-                            ✕ Close
-                        </button>
-                    </div>
-                </body>
-                </html>
-            `);
-            printWindow.document.close();
-        }
-
-        // Toastr Configuration
-        toastr.options = {
-            closeButton: true,
-            progressBar: true,
-            positionClass: "toast-top-right",
-            timeOut: 3000
-        };
-    </script>
+        <script src="{{ asset('backend/assets/js/backend-bundle.min.js') }}"></script>
+        <script src="{{ asset('backend/assets/js/app.js') }}"></script>
     @endpush
-    <style>
-        .timeline {
-            position: relative;
-            padding-left: 30px;
-        }
-
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 10px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background-color: #e9ecef;
-        }
-
-        .timeline-item {
-            position: relative;
-            margin-bottom: 20px;
-        }
-
-        .timeline-marker {
-            position: absolute;
-            left: -30px;
-            top: 5px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: #3B82F6;
-            border: 2px solid white;
-            box-shadow: 0 0 0 3px #e9ecef;
-        }
-
-        .timeline-content {
-            padding-left: 10px;
-        }
-
-        .avatar {
-            width: 40px;
-            height: 40px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            font-weight: bold;
-        }
-
-        .avatar-sm {
-            width: 30px;
-            height: 30px;
-            font-size: 12px;
-        }
-
-        .avatar-title {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
-        }
-
-        .card {
-            border-radius: 0.5rem;
-            border: none;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        }
-
-        .border-left-primary {
-            border-left: 0.25rem solid #4e73df !important;
-        }
-
-        .border-left-success {
-            border-left: 0.25rem solid #1cc88a !important;
-        }
-
-        .border-left-danger {
-            border-left: 0.25rem solid #e74a3b !important;
-        }
-
-        .border-left-warning {
-            border-left: 0.25rem solid #f6c23e !important;
-        }
-
-        .border-left-info {
-            border-left: 0.25rem solid #36b9cc !important;
-        }
-
-        .bg-gradient-primary {
-            background: linear-gradient(180deg, #4e73df 10%, #224abe 100%);
-        }
-
-        .badge-pill {
-            padding: 0.5rem 1rem;
-        }
-
-        .list-group-item {
-            border: none;
-            border-bottom: 1px solid rgba(0, 0, 0, .125);
-            padding: 1rem 1.25rem;
-        }
-
-        .list-group-item:last-child {
-            border-bottom: none;
-        }
-
-        .list-group-item:hover {
-            background-color: #f8f9fa;
-        }
-    </style>
-
-    <!-- Include Print Templates -->
-    @include('dashboard.orders.customer_bill')
-    @include('dashboard.orders.tailor_worksheet')
 </x-app-layout>

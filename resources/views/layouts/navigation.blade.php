@@ -220,7 +220,7 @@
                                             {{-- <h5 class="mb-1">JoanDuo@property.com</h5>
                                             <p class="mb-0">{{ __('messages.since_date', ['date' => '10 March, 2020']) }}</p> --}}
                                             <div class="d-flex align-items-center justify-content-center mt-3">
-                                                <a href="#" class="btn border mr-2">{{ __('messages.profile') }}</a>
+                                                <a href="{{ route('profile.edit') }}" class="btn border mr-2">{{ __('messages.profile') }}</a>
 
                                                 <form method="POST" action="{{ route('logout') }}">
                                                     @csrf

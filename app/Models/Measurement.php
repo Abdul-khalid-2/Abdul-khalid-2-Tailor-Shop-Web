@@ -10,68 +10,37 @@ class Measurement extends Model
     use HasFactory;
 
     protected $fillable = [
-        'order_item_id',
-        'height',
-        'weight',
+        'order_id',
+        'length',
         'shoulder',
         'chest',
         'waist',
-        'hips',
-        'sleeve_length',
-        'sleeve_width',
+        'hip',
+        'sleeve',
         'collar',
-        'bicep',
-        'wrist',
-        'pant_length',
-        'inseam',
+        'trouser_length',
+        'trouser_waist',
         'thigh',
-        'knee',
-        'bottom',
-        'ankle',
-        'additional_measurements',
+        'bottom_opening',
         'notes',
-        'fitting_preferences',
-        'version',
-        'is_current',
-        'created_by',
-        'updated_by'
     ];
 
     protected $casts = [
-        'height' => 'decimal:1',
-        'weight' => 'decimal:1',
+        'length' => 'decimal:1',
         'shoulder' => 'decimal:1',
         'chest' => 'decimal:1',
         'waist' => 'decimal:1',
-        'hips' => 'decimal:1',
-        'sleeve_length' => 'decimal:1',
-        'sleeve_width' => 'decimal:1',
+        'hip' => 'decimal:1',
+        'sleeve' => 'decimal:1',
         'collar' => 'decimal:1',
-        'bicep' => 'decimal:1',
-        'wrist' => 'decimal:1',
-        'pant_length' => 'decimal:1',
-        'inseam' => 'decimal:1',
+        'trouser_length' => 'decimal:1',
+        'trouser_waist' => 'decimal:1',
         'thigh' => 'decimal:1',
-        'knee' => 'decimal:1',
-        'bottom' => 'decimal:1',
-        'ankle' => 'decimal:1',
-        'additional_measurements' => 'array',
-        'version' => 'integer',
-        'is_current' => 'boolean'
+        'bottom_opening' => 'decimal:1',
     ];
 
-    public function orderItem()
+    public function order()
     {
-        return $this->belongsTo(OrderItem::class);
-    }
-
-    public function createdBy()
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
-    public function updatedBy()
-    {
-        return $this->belongsTo(User::class, 'updated_by');
+        return $this->belongsTo(Order::class);
     }
 }

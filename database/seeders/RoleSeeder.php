@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use App\Models\Branch;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -39,6 +40,8 @@ class RoleSeeder extends Seeder
             ]
         ];
 
+        $branchId = Branch::value('id');
+
         foreach ($users as $userData) {
             $user = User::firstOrCreate(
                 ['email' => $userData['email']],
@@ -46,8 +49,13 @@ class RoleSeeder extends Seeder
                     'name' => $userData['name'],
                     'password' => Hash::make('password'),
                     'email_verified_at' => now(),
+                    'branch_id' => $userData['role'] === 'admin' ? $branchId : null,
                 ]
             );
+
+            if ($userData['role'] === 'admin' && $branchId) {
+                $user->update(['branch_id' => $branchId]);
+            }
 
             $user->assignRole($userData['role']);
             $this->command->info("{$userData['name']} created: {$userData['email']}");

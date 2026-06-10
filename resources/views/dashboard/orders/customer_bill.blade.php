@@ -60,9 +60,9 @@
                     </tr>
                     <tr>
                         <td style="padding: 6px 0; color: #555; font-weight: 700;">Delivery Date:</td>
-                        <td style="padding: 6px 0; font-weight: 700; color: {{ $order->delivery_date->isFuture() ? '#28a745' : '#dc3545' }};">
+                        {{-- <td style="padding: 6px 0; font-weight: 700; color: {{ $order->delivery_date->isFuture() ? '#28a745' : '#dc3545' }};">
                             {{ $order->delivery_date->format('d M, Y') }}
-                        </td>
+                        </td> --}}
                     </tr>
                     <tr>
                         <td style="padding: 6px 0; color: #555; font-weight: 700;">Branch:</td>
