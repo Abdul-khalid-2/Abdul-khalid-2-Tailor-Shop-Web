@@ -149,6 +149,8 @@
 
         /* ── Contact ── */
         .contact-section { background-color: var(--secondary-black); color: var(--primary-white); }
+        /* Bootstrap's .text-muted is dark gray — unreadable on the dark contact/footer bg. */
+        .contact-section .text-muted, .footer .text-muted { color: var(--light-gray) !important; }
         .contact-info-item { display: flex; align-items: center; margin-bottom: 1.5rem; }
         .contact-icon { width: 50px; height: 50px; min-width: 50px; border-radius: 50%; background: var(--primary-gold); color: var(--primary-black); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-right: 1rem; }
         .contact-form .form-control { background-color: var(--primary-black); border: 1px solid #333; color: var(--primary-white); padding: .8rem 1rem; margin-bottom: 1rem; }
@@ -551,11 +553,46 @@
         </div>
         <div class="row">
             @php
-            $branches = [
-                ['name'=>'Karachi — Main Branch',  'img'=>'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80', 'address'=>'Tariq Road, PECHS Block 2, Karachi', 'phone'=>'+92 300 1234567', 'hours'=>'Mon – Sat: 10:00 AM – 9:00 PM'],
-                ['name'=>'Lahore — Gulberg',        'img'=>'https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?auto=format&fit=crop&w=800&q=80', 'address'=>'Liberty Market, Gulberg III, Lahore',  'phone'=>'+92 321 7654321', 'hours'=>'Mon – Sun: 11:00 AM – 9:00 PM'],
-                ['name'=>'Islamabad — F-10',        'img'=>'https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?auto=format&fit=crop&w=800&q=80', 'address'=>'Jinnah Super, F-10 Markaz, Islamabad',  'phone'=>'+92 333 9876543', 'hours'=>'Mon – Sat: 10:00 AM – 8:30 PM'],
+            // Curated showcase images reused as fallbacks (the Branch model has no image column).
+            $branchImages = [
+                'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1567401893414-76b7b1e5a7a5?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1604335399105-a0c585fd81a1?auto=format&fit=crop&w=800&q=80',
             ];
+
+            $dbBranches = \App\Models\Branch::where('is_active', true)->orderBy('name')->get();
+
+            if ($dbBranches->isNotEmpty()) {
+                $branches = $dbBranches->values()->map(function ($b, $i) use ($branchImages) {
+                    // Build "Mon – Sat: 9:00 AM – 8:00 PM" from working days + opening/closing times.
+                    $days = '';
+                    $wd = $b->working_days;
+                    if (is_array($wd) && count($wd)) {
+                        $first = substr($wd[0], 0, 3);
+                        $last  = substr(end($wd), 0, 3);
+                        $days  = $first === $last ? $first : "{$first} – {$last}";
+                    }
+                    $time = ($b->opening_time && $b->closing_time)
+                        ? \Illuminate\Support\Carbon::parse($b->opening_time)->format('g:i A')
+                            . ' – ' . \Illuminate\Support\Carbon::parse($b->closing_time)->format('g:i A')
+                        : '';
+
+                    return [
+                        'name'    => $b->name,
+                        'img'     => $branchImages[$i % count($branchImages)],
+                        'address' => $b->address ?: '—',
+                        'phone'   => $b->phone ?: '—',
+                        'hours'   => trim(($days ? "{$days}: " : '') . $time) ?: 'Mon – Sat: 10:00 AM – 9:00 PM',
+                    ];
+                })->all();
+            } else {
+                // Fallback showcase when no branches are configured yet.
+                $branches = [
+                    ['name'=>'Karachi — Main Branch',  'img'=>$branchImages[0], 'address'=>'Tariq Road, PECHS Block 2, Karachi', 'phone'=>'+92 300 1234567', 'hours'=>'Mon – Sat: 10:00 AM – 9:00 PM'],
+                    ['name'=>'Lahore — Gulberg',        'img'=>$branchImages[1], 'address'=>'Liberty Market, Gulberg III, Lahore',  'phone'=>'+92 321 7654321', 'hours'=>'Mon – Sun: 11:00 AM – 9:00 PM'],
+                    ['name'=>'Islamabad — F-10',        'img'=>$branchImages[2], 'address'=>'Jinnah Super, F-10 Markaz, Islamabad',  'phone'=>'+92 333 9876543', 'hours'=>'Mon – Sat: 10:00 AM – 8:30 PM'],
+                ];
+            }
             @endphp
             @foreach($branches as $branch)
             <div class="col-md-6 col-lg-4 mb-4">
@@ -566,7 +603,7 @@
                         <ul class="branch-meta">
                             <li><i class="fas fa-map-marker-alt"></i><span>{{ $branch['address'] }}</span></li>
                             <li><i class="fas fa-phone"></i><span>{{ $branch['phone'] }}</span></li>
-                            <li><i class="fas fa-clock"></i><span>{{ $branch['hours'] }}</span></li>
+                            <!-- <li><i class="fas fa-clock"></i><span>{{ $branch['hours'] }}</span></li> -->
                         </ul>
                     </div>
                 </div>
@@ -577,6 +614,12 @@
 </section>
 
 <!-- ══ CONTACT ══════════════════════════════════════════════════════ -->
+@php
+    // Shop contact info pulled from the active Setting (falls back to defaults when empty).
+    $contactAddress = $brandSetting?->shop_address ?: 'Tariq Road, PECHS Block 2, Karachi';
+    $contactPhone   = $brandSetting?->shop_phone   ?: '+92 300 1234567';
+    $contactEmail   = $brandSetting?->shop_email   ?: 'info@royalstitch.pk';
+@endphp
 <section class="contact-section section-pad" id="contact">
     <div class="container">
         <div class="row align-items-center">
@@ -585,15 +628,15 @@
                 <p class="text-muted mb-4">Want to place an order, ask about pricing, or book an appointment? We are happy to help.</p>
                 <div class="contact-info-item">
                     <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
-                    <div><strong>Head Office</strong><br><span class="text-muted">Tariq Road, PECHS Block 2, Karachi</span></div>
+                    <div><strong>Head Office</strong><br><span class="text-muted">{{ $contactAddress }}</span></div>
                 </div>
                 <div class="contact-info-item">
                     <div class="contact-icon"><i class="fab fa-whatsapp"></i></div>
-                    <div><strong>WhatsApp</strong><br><span class="text-muted">+92 300 1234567</span></div>
+                    <div><strong>WhatsApp</strong><br><span class="text-muted">{{ $contactPhone }}</span></div>
                 </div>
                 <div class="contact-info-item">
                     <div class="contact-icon"><i class="fas fa-envelope"></i></div>
-                    <div><strong>Email</strong><br><span class="text-muted">info@royalstitch.pk</span></div>
+                    <div><strong>Email</strong><br><span class="text-muted">{{ $contactEmail }}</span></div>
                 </div>
                 <div class="contact-info-item">
                     <div class="contact-icon"><i class="fas fa-clock"></i></div>
@@ -653,10 +696,10 @@
             <div class="col-lg-3 mb-4">
                 <h5 class="footer-title">Contact Info</h5>
                 <ul class="footer-links">
-                    <li><i class="fas fa-map-marker-alt me-2"></i>Tariq Road, Karachi</li>
-                    <li><i class="fas fa-phone me-2"></i>+92 300 1234567</li>
-                    <li><i class="fab fa-whatsapp me-2"></i>+92 300 1234567</li>
-                    <li><i class="fas fa-envelope me-2"></i>info@royalstitch.pk</li>
+                    <li><i class="fas fa-map-marker-alt me-2"></i>{{ $contactAddress }}</li>
+                    <li><i class="fas fa-phone me-2"></i>{{ $contactPhone }}</li>
+                    <li><i class="fab fa-whatsapp me-2"></i>{{ $contactPhone }}</li>
+                    <li><i class="fas fa-envelope me-2"></i>{{ $contactEmail }}</li>
                 </ul>
             </div>
         </div>
@@ -667,7 +710,7 @@
 </footer>
 
 <!-- WhatsApp Float Button -->
-<a href="https://wa.me/923001234567" target="_blank" class="whatsapp-float">
+<a href="https://wa.me/{{ $contactPhone }}" target="_blank" class="whatsapp-float">
     <div class="whatsapp-btn">
         <i class="fab fa-whatsapp"></i>
     </div>
