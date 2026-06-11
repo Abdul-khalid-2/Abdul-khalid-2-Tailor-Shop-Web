@@ -37,11 +37,11 @@
                     <x-ui.table>
                         <thead class="thead-light">
                             <tr>
-                                <th>{{ __('messages.order_hash') }}</th>
-                                <th>{{ __('messages.customer') }}</th>
-                                <th>{{ __('messages.tailor') }}</th>
-                                <th>{{ __('messages.delivery_date') }}</th>
-                                <th class="text-right">{{ __('messages.days_overdue') }}</th>
+                                <th style="width:22%">{{ __('messages.order_hash') }}</th>
+                                <th style="width:38%">{{ __('messages.customer') }}</th>
+                                <th class="d-none d-sm-table-cell" style="width:20%">{{ __('messages.tailor') }}</th>
+                                <th class="d-none d-md-table-cell" style="width:20%">{{ __('messages.delivery_date') }}</th>
+                                <th class="text-right" style="width:20%">{{ __('messages.days_overdue') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -51,8 +51,8 @@
                                         <a href="{{ route('orders.show', $order) }}" class="font-weight-bold">{{ $order->order_number }}</a>
                                     </td>
                                     <td>{{ $order->customer?->name ?? '—' }}</td>
-                                    <td>{{ $order->tailor?->name ?? '—' }}</td>
-                                    <td>{{ $order->delivery_date?->format('d M, Y') ?? '—' }}</td>
+                                    <td class="d-none d-sm-table-cell">{{ $order->tailor?->name ?? '—' }}</td>
+                                    <td class="d-none d-md-table-cell">{{ $order->delivery_date?->format('d M, Y') ?? '—' }}</td>
                                     <td class="text-right text-danger font-weight-bold">
                                         {{ $order->delivery_date ? $order->delivery_date->diffInDays(now()) : '—' }}
                                     </td>
@@ -76,10 +76,10 @@
                     <x-ui.table>
                         <thead class="thead-light">
                             <tr>
-                                <th>{{ __('messages.customer') }}</th>
-                                <th>{{ __('messages.phone') }}</th>
-                                <th class="text-center">{{ __('messages.suits') }}</th>
-                                <th class="text-right">{{ __('messages.balance_due_label') }}</th>
+                                <th style="width:34%">{{ __('messages.customer') }}</th>
+                                <th style="width:28%">{{ __('messages.phone') }}</th>
+                                <th class="text-center" style="width:14%">{{ __('messages.suits') }}</th>
+                                <th class="text-right" style="width:24%">{{ __('messages.balance_due_label') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -111,17 +111,17 @@
                 <x-ui.button :href="route('orders.index')" variant="outline-primary" size="sm">{{ __('messages.view_all_orders') }}</x-ui.button>
             </x-slot:header>
 
-            <x-ui.table>
+            <x-ui.table :wide="true">
                 <thead class="thead-light">
                     <tr>
                         <th>{{ __('messages.order_hash') }}</th>
                         <th>{{ __('messages.customer') }}</th>
-                        <th>{{ __('messages.label') }}</th>
+                        <th class="d-none d-md-table-cell">{{ __('messages.label') }}</th>
                         <th class="text-center">{{ __('messages.suits') }}</th>
                         <th class="text-right">{{ __('messages.total') }}</th>
                         <th>{{ __('messages.status') }}</th>
-                        <th>{{ __('messages.date') }}</th>
-                        <th class="text-center" width="80">{{ __('messages.action') }}</th>
+                        <th class="d-none d-sm-table-cell">{{ __('messages.date') }}</th>
+                        <th class="text-center">{{ __('messages.action') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -133,11 +133,11 @@
                                 </a>
                             </td>
                             <td>{{ $order->customer?->name ?? '—' }}</td>
-                            <td>{{ $order->order_label ?: '—' }}</td>
+                            <td class="d-none d-md-table-cell">{{ $order->order_label ?: '—' }}</td>
                             <td class="text-center">{{ $order->total_suits }}</td>
                             <td class="text-right"><x-ui.currency :amount="$order->total_amount" /></td>
                             <td><x-ui.order-status-badge :order="$order" /></td>
-                            <td>{{ $order->order_date->format('d M, Y') }}</td>
+                            <td class="d-none d-sm-table-cell">{{ $order->order_date->format('d M, Y') }}</td>
                             <td>
                                 <x-ui.row-actions :view="route('orders.show', $order)" />
                             </td>

@@ -16,7 +16,7 @@
 
 @if(isset($errors) && $errors->any())
     <x-ui.alert type="danger" :dismissible="true">
-        <strong>Please fix the following errors:</strong>
+        <strong>{{ __('messages.please_fix_errors') }}</strong>
         <ul class="mb-0 mt-2 pl-3">
             @foreach($errors->all() as $error)
                 <li>{{ $error }}</li>

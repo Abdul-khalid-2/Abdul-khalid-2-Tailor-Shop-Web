@@ -140,7 +140,7 @@ class OrderController extends Controller
         });
 
         return redirect()->route('orders.show', $order)
-            ->with('success', "Order {$order->order_number} created successfully.");
+            ->with('success', __('messages.order_created', ['number' => $order->order_number]));
     }
 
     /*
@@ -226,7 +226,7 @@ class OrderController extends Controller
         });
 
         return redirect()->route('orders.show', $order)
-            ->with('success', "Order {$order->order_number} updated successfully.");
+            ->with('success', __('messages.order_updated', ['number' => $order->order_number]));
     }
 
     /*
@@ -264,7 +264,7 @@ class OrderController extends Controller
             $order->tailor?->syncStats();
         });
 
-        return redirect()->back()->with('success', 'Order status updated.');
+        return redirect()->back()->with('success', __('messages.order_status_updated'));
     }
 
     public function recordTailorPayment(Request $request, Order $order)
@@ -279,7 +279,7 @@ class OrderController extends Controller
 
         $order->tailor?->syncStats();
 
-        return redirect()->back()->with('success', 'Tailor payment recorded.');
+        return redirect()->back()->with('success', __('messages.tailor_payment_recorded'));
     }
 
     public function recordCustomerPayment(Request $request, Order $order)
@@ -292,7 +292,7 @@ class OrderController extends Controller
         $order->balance_due  = (float) $order->total_amount - (float) $order->advance_paid;
         $order->save();
 
-        return redirect()->back()->with('success', 'Customer payment recorded.');
+        return redirect()->back()->with('success', __('messages.customer_payment_recorded'));
     }
 
     /*
@@ -306,7 +306,7 @@ class OrderController extends Controller
 
         if (! in_array($statusName, ['Pending', 'Cancelled'], true)) {
             return redirect()->back()
-                ->with('error', 'Only Pending or Cancelled orders can be deleted.');
+                ->with('error', __('messages.order_delete_only_pending'));
         }
 
         $tailor = $order->tailor;
@@ -314,7 +314,7 @@ class OrderController extends Controller
         $tailor?->syncStats();
 
         return redirect()->route('orders.index')
-            ->with('success', 'Order deleted successfully.');
+            ->with('success', __('messages.order_deleted'));
     }
 
     /*

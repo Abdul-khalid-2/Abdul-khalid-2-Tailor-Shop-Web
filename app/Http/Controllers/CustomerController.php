@@ -74,7 +74,7 @@ class CustomerController extends Controller
         }
 
         return redirect()->route('customers.show', $customer)
-            ->with('success', 'Customer created successfully.');
+            ->with('success', __('messages.customer_created'));
     }
 
     public function show(Customer $customer)
@@ -126,14 +126,14 @@ class CustomerController extends Controller
         }
 
         return redirect()->route('customers.show', $customer)
-            ->with('success', 'Customer updated successfully.');
+            ->with('success', __('messages.customer_updated'));
     }
 
     public function destroy(Customer $customer)
     {
         if ($customer->orders()->exists()) {
             return redirect()->back()
-                ->with('error', 'Cannot delete a customer with existing orders.');
+                ->with('error', __('messages.customer_has_orders'));
         }
 
         $this->deleteBranchImage($customer->profile_photo);
@@ -141,6 +141,6 @@ class CustomerController extends Controller
         $customer->delete();
 
         return redirect()->route('customers.index')
-            ->with('success', 'Customer deleted successfully.');
+            ->with('success', __('messages.customer_deleted'));
     }
 }

@@ -291,7 +291,7 @@
         {{-- RTL overrides + Urdu Nastaliq font — must load AFTER the theme CSS above --}}
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="{{ asset('backend/assets/css/rtl-custom.css') }}?v=1.0.2">
+        <link rel="stylesheet" href="{{ asset('backend/assets/css/rtl-custom.css') }}?v=1.0.4">
     @endif
 </head>
 

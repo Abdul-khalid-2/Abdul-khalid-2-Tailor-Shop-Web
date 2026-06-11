@@ -1,4 +1,4 @@
-<x-ui.table>
+<x-ui.table :wide="true">
     <thead class="thead-light">
         <tr>
             <th>{{ __('messages.order_hash') }}</th>

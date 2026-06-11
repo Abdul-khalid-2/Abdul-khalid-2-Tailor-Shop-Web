@@ -479,4 +479,23 @@ return [
     'color_maroon' => 'Maroon',
     'color_beige' => 'Beige',
     'color_olive_green' => 'Olive Green',
+
+    // Flash + error messages
+    'please_fix_errors' => 'Please fix the following errors:',
+    'order_created' => 'Order :number created successfully.',
+    'order_updated' => 'Order :number updated successfully.',
+    'order_status_updated' => 'Order status updated.',
+    'tailor_payment_recorded' => 'Tailor payment recorded.',
+    'customer_payment_recorded' => 'Customer payment recorded.',
+    'order_delete_only_pending' => 'Only Pending or Cancelled orders can be deleted.',
+    'order_deleted' => 'Order deleted successfully.',
+    'customer_created' => 'Customer created successfully.',
+    'customer_updated' => 'Customer updated successfully.',
+    'customer_has_orders' => 'Cannot delete a customer with existing orders.',
+    'customer_deleted' => 'Customer deleted successfully.',
+    'tailor_created' => 'Tailor created successfully.',
+    'tailor_updated' => 'Tailor updated successfully.',
+    'tailor_marked' => 'Tailor marked as :status.',
+    'tailor_has_active_orders' => 'Cannot delete a tailor with active (non-delivered) orders.',
+    'tailor_deleted' => 'Tailor deleted successfully.',
 ];

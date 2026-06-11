@@ -50,7 +50,7 @@ class Order extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Boot — auto-generate order_number (ORD-YYYY-0001)
+    | Boot — order_number from branch Receipt Settings (prefix + next number)
     |--------------------------------------------------------------------------
     */
     protected static function boot()
@@ -58,13 +58,31 @@ class Order extends Model
         parent::boot();
 
         static::creating(function (Order $order) {
-            if (empty($order->order_number)) {
-                $year = now()->year;
-                $count = static::withTrashed()
-                    ->whereYear('created_at', $year)
-                    ->count() + 1;
-                $order->order_number = 'ORD-' . $year . '-' . str_pad($count, 4, '0', STR_PAD_LEFT);
+            if (! empty($order->order_number)) {
+                return;
             }
+
+            $settingQuery = Setting::query()->where('branch_id', $order->branch_id);
+
+            if (static::query()->getConnection()->transactionLevel() > 0) {
+                $settingQuery->lockForUpdate();
+            }
+
+            $setting = $settingQuery->first()
+                ?? Setting::query()
+                    ->whereNull('branch_id')
+                    ->when(
+                        static::query()->getConnection()->transactionLevel() > 0,
+                        fn ($q) => $q->lockForUpdate()
+                    )
+                    ->first();
+
+            $prefix = $setting?->receipt_prefix ?? 'ORD';
+            $number = $setting?->next_receipt_number ?? 1000;
+
+            $order->order_number = $prefix . $number;
+
+            $setting?->increment('next_receipt_number');
         });
     }
 

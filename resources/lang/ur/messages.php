@@ -479,4 +479,23 @@ return [
     'color_maroon' => 'مرون',
     'color_beige' => 'بیج',
     'color_olive_green' => 'زیتونی سبز',
+
+    // Flash + error messages
+    'please_fix_errors' => 'براہ کرم درج ذیل خرابیاں درست کریں:',
+    'order_created' => 'آرڈر :number کامیابی سے بن گیا۔',
+    'order_updated' => 'آرڈر :number کامیابی سے اپ ڈیٹ ہو گیا۔',
+    'order_status_updated' => 'آرڈر کی حیثیت اپ ڈیٹ ہو گئی۔',
+    'tailor_payment_recorded' => 'درزی کی ادائیگی درج ہو گئی۔',
+    'customer_payment_recorded' => 'گاہک کی ادائیگی درج ہو گئی۔',
+    'order_delete_only_pending' => 'صرف زیر التواء یا منسوخ شدہ آرڈرز حذف کیے جا سکتے ہیں۔',
+    'order_deleted' => 'آرڈر کامیابی سے حذف ہو گیا۔',
+    'customer_created' => 'گاہک کامیابی سے بن گیا۔',
+    'customer_updated' => 'گاہک کامیابی سے اپ ڈیٹ ہو گیا۔',
+    'customer_has_orders' => 'موجودہ آرڈرز والے گاہک کو حذف نہیں کیا جا سکتا۔',
+    'customer_deleted' => 'گاہک کامیابی سے حذف ہو گیا۔',
+    'tailor_created' => 'درزی کامیابی سے بن گیا۔',
+    'tailor_updated' => 'درزی کامیابی سے اپ ڈیٹ ہو گیا۔',
+    'tailor_marked' => 'درزی :status نشان زد کر دیا گیا۔',
+    'tailor_has_active_orders' => 'فعال (غیر ترسیل شدہ) آرڈرز والے درزی کو حذف نہیں کیا جا سکتا۔',
+    'tailor_deleted' => 'درزی کامیابی سے حذف ہو گیا۔',
 ];

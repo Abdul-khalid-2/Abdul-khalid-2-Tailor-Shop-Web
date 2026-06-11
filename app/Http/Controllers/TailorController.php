@@ -68,7 +68,7 @@ class TailorController extends Controller
         }
 
         return redirect()->route('tailors.show', $tailor)
-            ->with('success', 'Tailor created successfully.');
+            ->with('success', __('messages.tailor_created'));
     }
 
     public function show(Tailor $tailor)
@@ -120,7 +120,7 @@ class TailorController extends Controller
         }
 
         return redirect()->route('tailors.show', $tailor)
-            ->with('success', 'Tailor updated successfully.');
+            ->with('success', __('messages.tailor_updated'));
     }
 
     public function toggleStatus(Tailor $tailor)
@@ -129,7 +129,9 @@ class TailorController extends Controller
         $tailor->save();
 
         return redirect()->back()
-            ->with('success', "Tailor marked as {$tailor->status}.");
+            ->with('success', __('messages.tailor_marked', [
+                'status' => $tailor->status === 'active' ? __('messages.active') : __('messages.on_leave'),
+            ]));
     }
 
     public function destroy(Tailor $tailor)
@@ -140,7 +142,7 @@ class TailorController extends Controller
 
         if ($activeOrders > 0) {
             return redirect()->back()
-                ->with('error', 'Cannot delete a tailor with active (non-delivered) orders.');
+                ->with('error', __('messages.tailor_has_active_orders'));
         }
 
         $this->deleteBranchImage($tailor->profile_photo);
@@ -148,6 +150,6 @@ class TailorController extends Controller
         $tailor->delete();
 
         return redirect()->route('tailors.index')
-            ->with('success', 'Tailor deleted successfully.');
+            ->with('success', __('messages.tailor_deleted'));
     }
 }

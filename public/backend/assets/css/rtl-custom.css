@@ -217,13 +217,36 @@ html[dir="rtl"] .text-right { text-align: left !important; }
 /* Dropdown menus open from the correct edge */
 html[dir="rtl"] .dropdown-menu { text-align: right; }
 
-/* Tables read right-to-left */
+/* Tables read right-to-left and always fill the card */
+html[dir="rtl"] .ui-table-wrap {
+    width: 100%;
+    max-width: 100%;
+}
+
+html[dir="rtl"] .ui-table-wrap:not(.ui-table-wrap--wide) {
+    overflow-x: visible;
+}
+
+html[dir="rtl"] .ui-table-wrap > .ui-table,
+html[dir="rtl"] .ui-table-wrap > table,
+html[dir="rtl"] .table-responsive:not(.ui-table-wrap--wide) > table {
+    width: 100% !important;
+    table-layout: fixed;
+}
+
 html[dir="rtl"] .table th,
-html[dir="rtl"] .table td { text-align: right; }
+html[dir="rtl"] .table td,
+html[dir="rtl"] .ui-table th,
+html[dir="rtl"] .ui-table td { text-align: right; }
 html[dir="rtl"] .table th.text-right,
-html[dir="rtl"] .table td.text-right { text-align: left; }
+html[dir="rtl"] .table td.text-right,
+html[dir="rtl"] .ui-table th.text-right,
+html[dir="rtl"] .ui-table td.text-right { text-align: left; }
 html[dir="rtl"] .table th.text-center,
-html[dir="rtl"] .table td.text-center { text-align: center; }
+html[dir="rtl"] .table td.text-center,
+html[dir="rtl"] .ui-table th.text-center,
+html[dir="rtl"] .ui-table td.text-center,
+html[dir="rtl"] .ui-table-empty { text-align: center !important; }
 
 /* Form controls */
 html[dir="rtl"] .form-control { text-align: right; }
