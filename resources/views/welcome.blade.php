@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Royal Stitch | Premium Tailoring & Bespoke Suits</title>
+    <title>{{ $brandName ?? 'Tailor Shop' }} | Premium Tailoring & Bespoke Suits</title>
+    <link rel="shortcut icon" href="{{ $brandFavicon ?? asset('/backend/assets/images/favicon.ico') }}" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Bootstrap 5 -->
@@ -194,8 +195,11 @@
 <!-- ══ NAVBAR ══════════════════════════════════════════════════════ -->
 <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="{{ url('/') }}">
-            Royal<span>Stitch</span>
+        <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
+            @if(!empty($brandLogo))
+                <img src="{{ $brandLogo }}" alt="{{ $brandName }}" style="max-height:42px;" class="mr-2">
+            @endif
+            {{ $brandName ?? 'Tailor Shop' }}
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <i class="fas fa-bars"></i>
@@ -617,7 +621,7 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-4 mb-4">
-                <h4 class="footer-title">Royal<span>Stitch</span></h4>
+                <h4 class="footer-title">{{ $brandName ?? 'Tailor Shop' }}</h4>
                 <p class="text-muted">Master tailors delivering bespoke suits since 2008. Your measurements, your style, your perfect fit.</p>
                 <div class="social-icons">
                     <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>

@@ -214,7 +214,7 @@
                                     <div class="mb-3">
                                         <label class="form-label">Current Logo</label>
                                         <div class="d-flex align-items-center">
-                                            <img src="{{ Storage::url($setting->logo_path) }}" alt="Logo" class="img-thumbnail mr-3" style="max-height: 60px;">
+                                            <img src="{{ $setting->logo_url }}" alt="Logo" class="img-thumbnail mr-3" style="max-height: 60px;">
                                             <button type="button" class="btn btn-sm btn-danger" onclick="confirmDeleteLogo()">
                                                 <i class="las la-trash mr-1"></i> Delete Logo
                                             </button>

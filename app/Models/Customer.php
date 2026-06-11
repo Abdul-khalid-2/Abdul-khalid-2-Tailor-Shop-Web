@@ -16,6 +16,7 @@ class Customer extends Model
         'phone',
         'address',
         'notes',
+        'profile_photo',
         'branch_id',
         'created_by',
         'updated_by',

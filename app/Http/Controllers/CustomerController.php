@@ -36,17 +36,28 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'      => 'required|string|max:150',
-            'phone'     => ['required', 'string', 'max:20', $this->branchScopedUnique('customers', 'phone')],
-            'address'   => 'nullable|string',
-            'notes'     => 'nullable|string',
-            'branch_id' => 'nullable|exists:branches,id',
+            'name'          => 'required|string|max:150',
+            'phone'         => ['required', 'string', 'max:20', $this->branchScopedUnique('customers', 'phone')],
+            'address'       => 'nullable|string',
+            'notes'         => 'nullable|string',
+            'branch_id'     => 'nullable|exists:branches,id',
+            'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $validated = $this->enforceBranchId($validated);
-        $validated['created_by'] = auth()->id();
 
-        $customer = Customer::create($validated);
+        $data = collect($validated)->except('profile_photo')->all();
+        $data['created_by'] = auth()->id();
+
+        $customer = Customer::create($data);
+
+        if ($request->hasFile('profile_photo')) {
+            $customer->update([
+                'profile_photo' => $this->storeBranchImage(
+                    $request->file('profile_photo'), 'customer_imgs', $customer->branch_id
+                ),
+            ]);
+        }
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -87,17 +98,28 @@ class CustomerController extends Controller
     public function update(Request $request, Customer $customer)
     {
         $validated = $request->validate([
-            'name'      => 'required|string|max:150',
-            'phone'     => ['required', 'string', 'max:20', $this->branchScopedUnique('customers', 'phone', $customer->id)],
-            'address'   => 'nullable|string',
-            'notes'     => 'nullable|string',
-            'branch_id' => 'nullable|exists:branches,id',
+            'name'          => 'required|string|max:150',
+            'phone'         => ['required', 'string', 'max:20', $this->branchScopedUnique('customers', 'phone', $customer->id)],
+            'address'       => 'nullable|string',
+            'notes'         => 'nullable|string',
+            'branch_id'     => 'nullable|exists:branches,id',
+            'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $validated = $this->enforceBranchId($validated);
-        $validated['updated_by'] = auth()->id();
 
-        $customer->update($validated);
+        $data = collect($validated)->except('profile_photo')->all();
+        $data['updated_by'] = auth()->id();
+
+        $customer->update($data);
+
+        if ($request->hasFile('profile_photo')) {
+            $customer->update([
+                'profile_photo' => $this->storeBranchImage(
+                    $request->file('profile_photo'), 'customer_imgs', $customer->branch_id, $customer->profile_photo
+                ),
+            ]);
+        }
 
         return redirect()->route('customers.show', $customer)
             ->with('success', 'Customer updated successfully.');
@@ -109,6 +131,8 @@ class CustomerController extends Controller
             return redirect()->back()
                 ->with('error', 'Cannot delete a customer with existing orders.');
         }
+
+        $this->deleteBranchImage($customer->profile_photo);
 
         $customer->delete();
 

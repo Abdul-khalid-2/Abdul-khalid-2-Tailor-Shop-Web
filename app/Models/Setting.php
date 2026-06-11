@@ -43,6 +43,33 @@ class Setting extends Model
         'reminder_days_before' => 'integer'
     ];
 
+    /**
+     * Public URL for the shop logo. New logos live under public/assets/branch_{id}/logos
+     * (served directly via asset()); older ones used the storage disk.
+     */
+    public function getLogoUrlAttribute(): ?string
+    {
+        if (! $this->logo_path) {
+            return null;
+        }
+
+        return str_starts_with($this->logo_path, 'assets/')
+            ? asset($this->logo_path)
+            : \Illuminate\Support\Facades\Storage::url($this->logo_path);
+    }
+
+    /** Public URL for the favicon; falls back to the logo when none is set. */
+    public function getFaviconUrlAttribute(): ?string
+    {
+        if (! $this->favicon_path) {
+            return $this->logo_url;
+        }
+
+        return str_starts_with($this->favicon_path, 'assets/')
+            ? asset($this->favicon_path)
+            : \Illuminate\Support\Facades\Storage::url($this->favicon_path);
+    }
+
     public function branch()
     {
         return $this->belongsTo(Branch::class);

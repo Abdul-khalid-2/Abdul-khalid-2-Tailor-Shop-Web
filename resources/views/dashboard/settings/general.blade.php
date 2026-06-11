@@ -85,7 +85,7 @@
                     <x-ui.card title="Shop Logo">
                         @if($setting->logo_path)
                             <div class="text-center mb-3">
-                                <img src="{{ Storage::url($setting->logo_path) }}" alt="Logo" class="img-fluid rounded" style="max-height: 120px;">
+                                <img src="{{ $setting->logo_url }}" alt="Logo" class="img-fluid rounded" style="max-height: 120px;">
                             </div>
                             <x-ui.button :href="route('settings.delete.logo', 'general')" variant="outline-danger" size="sm"
                                 icon="las la-trash" class="btn-block mb-3"

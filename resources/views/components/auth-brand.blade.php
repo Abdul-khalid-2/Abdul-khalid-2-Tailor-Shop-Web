@@ -9,7 +9,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title }} | {{ config('app.name', 'Royal Stitch') }}</title>
+    <title>{{ $title }} | {{ $brandName ?? config('app.name', 'Tailor Shop') }}</title>
+    <link rel="shortcut icon" href="{{ $brandFavicon ?? asset('/backend/assets/images/favicon.ico') }}" />
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -70,20 +71,32 @@
         <div class="row auth-wrapper">
             <!-- Brand side -->
             <div class="col-lg-6 auth-brand-panel d-none d-lg-flex flex-column">
-                <a href="{{ url('/') }}" class="auth-logo">Royal <span>Stitch</span></a>
+                <a href="{{ url('/') }}" class="auth-logo">
+                    @if(!empty($brandLogo))
+                        <img src="{{ $brandLogo }}" alt="{{ $brandName }}" style="max-height:44px;">
+                    @else
+                        <span>{{ $brandName ?? 'Tailor Shop' }}</span>
+                    @endif
+                </a>
                 <div class="mt-auto">
                     <h2 class="auth-brand-tagline">Premium Tailoring &amp; <span>Bespoke Suits</span></h2>
                     <div class="auth-feature"><i class="fas fa-cut"></i> Expert craftsmanship since 2010</div>
                     <div class="auth-feature"><i class="fas fa-ruler-combined"></i> Precise measurements, perfect fit</div>
                     <div class="auth-feature"><i class="fas fa-store"></i> Trusted across multiple branches</div>
                 </div>
-                <p class="mt-auto mb-0 text-muted small">&copy; {{ date('Y') }} Royal Stitch. All rights reserved.</p>
+                <p class="mt-auto mb-0 text-muted small">&copy; {{ date('Y') }} {{ $brandName ?? 'Tailor Shop' }}. All rights reserved.</p>
             </div>
 
             <!-- Form side -->
             <div class="col-lg-6 auth-form-panel">
                 <div class="auth-form-inner">
-                    <a href="{{ url('/') }}" class="auth-logo text-dark d-lg-none mb-4 d-inline-block">Royal <span>Stitch</span></a>
+                    <a href="{{ url('/') }}" class="auth-logo text-dark d-lg-none mb-4 d-inline-block">
+                        @if(!empty($brandLogo))
+                            <img src="{{ $brandLogo }}" alt="{{ $brandName }}" style="max-height:40px;">
+                        @else
+                            <span>{{ $brandName ?? 'Tailor Shop' }}</span>
+                        @endif
+                    </a>
                     <h1 class="auth-title">{{ $title }}</h1>
                     @if($subtitle)
                         <p class="auth-subtitle">{{ $subtitle }}</p>

@@ -19,7 +19,12 @@
         {{-- Header --}}
         <x-ui.card class="mb-4">
             <div class="d-flex flex-wrap justify-content-between align-items-start">
-                <div>
+                <div class="d-flex">
+                    @if($customer->profile_photo)
+                        <img src="{{ asset($customer->profile_photo) }}" alt="{{ $customer->name }}"
+                             class="rounded mr-3" style="height:80px;width:80px;object-fit:cover;">
+                    @endif
+                    <div>
                     <h3 class="font-weight-bold mb-2">{{ $customer->name }}</h3>
                     <p class="mb-1"><i class="las la-phone mr-1"></i> {{ $customer->phone }}</p>
                     @if($customer->address)
@@ -29,6 +34,7 @@
                         <i class="las la-store mr-1"></i>
                         Branch: {{ $customer->branch?->name ?? '—' }}
                     </p>
+                    </div>
                 </div>
                 <div class="d-flex flex-wrap mt-2 mt-md-0">
                     <x-ui.button :href="route('customers.edit', $customer)" icon="las la-edit" class="mr-2 mb-2">Edit</x-ui.button>

@@ -14,7 +14,7 @@
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <x-ui.card>
-                    <form action="{{ route('tailors.update', $tailor) }}" method="POST">
+                    <form action="{{ route('tailors.update', $tailor) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -35,6 +35,15 @@
                                 <x-ui.form.input type="date" name="joining_date" label="Joining Date" :value="$tailor->joining_date?->format('Y-m-d')" />
                             </div>
                         </div>
+
+                        @if($tailor->profile_photo)
+                            <div class="form-group">
+                                <label class="form-label d-block">Current Photo</label>
+                                <img src="{{ asset($tailor->profile_photo) }}" alt="{{ $tailor->name }}"
+                                     class="rounded" style="height:90px;width:90px;object-fit:cover;">
+                            </div>
+                        @endif
+                        <x-ui.form.file name="profile_photo" label="Photo" accept="image/*" help="Leave empty to keep current photo. JPG, PNG or WEBP. Max 2MB." />
 
                         <x-ui.form.textarea name="address" label="Address" :value="$tailor->address" :rows="2" />
 

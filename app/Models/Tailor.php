@@ -16,6 +16,7 @@ class Tailor extends Model
         'name',
         'phone',
         'cnic',
+        'profile_photo',
         'address',
         'joining_date',
         'specialty',

@@ -1,7 +1,10 @@
 <div class="iq-sidebar sidebar-default">
     <div class="iq-sidebar-logo d-flex align-items-center justify-content-between">
-        <a href="{{ route('dashboard') }}" class="header-logo">
-            <h5 class="logo-title light-logo ml-3">Tailor Shop</h5>
+        <a href="/" class="header-logo">
+            @if(!empty($brandLogo))
+                <img src="{{ $brandLogo }}" class="img-fluid rounded-normal" alt="logo" style="max-height:40px;">
+            @endif
+            <h5 class="logo-title light-logo ml-3">{{ $brandName ?? 'Tailor Shop' }}</h5>
         </a>
         <div class="iq-menu-bt-sidebar ml-0">
             <i class="las la-bars wrapper-menu"></i>

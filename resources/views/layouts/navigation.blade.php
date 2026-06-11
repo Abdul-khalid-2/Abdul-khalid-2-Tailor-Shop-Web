@@ -3,10 +3,10 @@
         <nav class="navbar navbar-expand-lg navbar-light p-0">
             <div class="iq-navbar-logo d-flex align-items-center justify-content-between">
                 <i class="ri-menu-line wrapper-menu"></i>
-                <a href="../backend/index.html" class="header-logo">
-                    <img src=" {{ asset('backend/assets/images/MDLogo.jpg') }}" class="img-fluid rounded-normal"
+                <a href="{{ url('/dashboard') }}" class="header-logo">
+                    <img src="{{ $brandLogo ?? asset('backend/assets/images/MDLogo.jpg') }}" class="img-fluid rounded-normal"
                         alt="logo">
-                    <h5 class="logo-title ml-3">PAK-PINDI</h5>
+                    <h5 class="logo-title ml-3">{{ $brandName ?? 'Tailor Shop' }}</h5>
 
                 </a>
             </div>

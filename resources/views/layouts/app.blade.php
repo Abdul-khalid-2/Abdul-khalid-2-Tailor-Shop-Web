@@ -5,10 +5,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>PAK-PINDI</title>
+    <title>{{ $brandName ?? 'Tailor Shop' }}</title>
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href=" {{ asset('/backend/assets/images/favicon.ico') }}" />
+    <link rel="shortcut icon" href="{{ $brandFavicon ?? asset('/backend/assets/images/favicon.ico') }}" />
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 

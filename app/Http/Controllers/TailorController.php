@@ -39,22 +39,33 @@ class TailorController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'         => 'required|string|max:150',
-            'phone'        => ['required', 'string', 'max:20', $this->branchScopedUnique('tailors', 'phone')],
-            'cnic'         => 'nullable|string|max:20',
-            'address'      => 'nullable|string',
-            'joining_date' => 'nullable|date',
-            'status'       => 'nullable|in:active,on_leave',
-            'specialty'    => 'nullable|in:shalwar_kameez,sherwani,all',
-            'branch_id'    => 'nullable|exists:branches,id',
-            'notes'        => 'nullable|string',
+            'name'          => 'required|string|max:150',
+            'phone'         => ['required', 'string', 'max:20', $this->branchScopedUnique('tailors', 'phone')],
+            'cnic'          => 'nullable|string|max:20',
+            'address'       => 'nullable|string',
+            'joining_date'  => 'nullable|date',
+            'status'        => 'nullable|in:active,on_leave',
+            'specialty'     => 'nullable|in:shalwar_kameez,sherwani,all',
+            'branch_id'     => 'nullable|exists:branches,id',
+            'notes'         => 'nullable|string',
+            'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $validated = $this->enforceBranchId($validated);
-        $validated['status'] = $validated['status'] ?? 'active';
-        $validated['specialty'] = $validated['specialty'] ?? 'all';
 
-        $tailor = Tailor::create($validated);
+        $data = collect($validated)->except('profile_photo')->all();
+        $data['status'] = $data['status'] ?? 'active';
+        $data['specialty'] = $data['specialty'] ?? 'all';
+
+        $tailor = Tailor::create($data);
+
+        if ($request->hasFile('profile_photo')) {
+            $tailor->update([
+                'profile_photo' => $this->storeBranchImage(
+                    $request->file('profile_photo'), 'tailor_images', $tailor->branch_id
+                ),
+            ]);
+        }
 
         return redirect()->route('tailors.show', $tailor)
             ->with('success', 'Tailor created successfully.');
@@ -82,20 +93,31 @@ class TailorController extends Controller
     public function update(Request $request, Tailor $tailor)
     {
         $validated = $request->validate([
-            'name'         => 'required|string|max:150',
-            'phone'        => ['required', 'string', 'max:20', $this->branchScopedUnique('tailors', 'phone', $tailor->id)],
-            'cnic'         => 'nullable|string|max:20',
-            'address'      => 'nullable|string',
-            'joining_date' => 'nullable|date',
-            'status'       => 'nullable|in:active,on_leave',
-            'specialty'    => 'nullable|in:shalwar_kameez,sherwani,all',
-            'branch_id'    => 'nullable|exists:branches,id',
-            'notes'        => 'nullable|string',
+            'name'          => 'required|string|max:150',
+            'phone'         => ['required', 'string', 'max:20', $this->branchScopedUnique('tailors', 'phone', $tailor->id)],
+            'cnic'          => 'nullable|string|max:20',
+            'address'       => 'nullable|string',
+            'joining_date'  => 'nullable|date',
+            'status'        => 'nullable|in:active,on_leave',
+            'specialty'     => 'nullable|in:shalwar_kameez,sherwani,all',
+            'branch_id'     => 'nullable|exists:branches,id',
+            'notes'         => 'nullable|string',
+            'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $validated = $this->enforceBranchId($validated);
 
-        $tailor->update($validated);
+        $data = collect($validated)->except('profile_photo')->all();
+
+        $tailor->update($data);
+
+        if ($request->hasFile('profile_photo')) {
+            $tailor->update([
+                'profile_photo' => $this->storeBranchImage(
+                    $request->file('profile_photo'), 'tailor_images', $tailor->branch_id, $tailor->profile_photo
+                ),
+            ]);
+        }
 
         return redirect()->route('tailors.show', $tailor)
             ->with('success', 'Tailor updated successfully.');
@@ -120,6 +142,8 @@ class TailorController extends Controller
             return redirect()->back()
                 ->with('error', 'Cannot delete a tailor with active (non-delivered) orders.');
         }
+
+        $this->deleteBranchImage($tailor->profile_photo);
 
         $tailor->delete();
 

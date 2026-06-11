@@ -70,10 +70,10 @@ class SettingController extends Controller
         $data['sms_notifications']   = $request->has('sms_notifications');
         $data['email_notifications'] = $request->has('email_notifications');
         if ($request->hasFile('logo')) {
-            if ($setting->logo_path) {
-                Storage::disk('public')->delete($setting->logo_path);
-            }
-            $data['logo_path'] = $request->file('logo')->store('settings/logos', 'public');
+            $logoBranchId = $setting->branch_id ?? ($scope === 'branch' ? auth()->user()->branch_id : null);
+            $data['logo_path'] = $this->storeBranchImage(
+                $request->file('logo'), 'logos', $logoBranchId, $setting->logo_path
+            );
         }
 
         if (! $setting->exists && $scope === 'branch') {
@@ -99,7 +99,7 @@ class SettingController extends Controller
         }
 
         if ($setting?->logo_path) {
-            Storage::disk('public')->delete($setting->logo_path);
+            $this->deleteBranchImage($setting->logo_path);
             $setting->update(['logo_path' => null]);
         }
 
@@ -147,10 +147,9 @@ class SettingController extends Controller
         $data['sms_notifications']   = $request->has('sms_notifications');
         $data['email_notifications'] = $request->has('email_notifications');
         if ($request->hasFile('logo')) {
-            if ($setting->logo_path) {
-                Storage::disk('public')->delete($setting->logo_path);
-            }
-            $data['logo_path'] = $request->file('logo')->store('settings/logos', 'public');
+            $data['logo_path'] = $this->storeBranchImage(
+                $request->file('logo'), 'logos', $branch->id, $setting->logo_path
+            );
         }
 
         $setting->fill($data);

@@ -14,11 +14,12 @@
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <x-ui.card>
-                    <form action="{{ route('customers.store') }}" method="POST">
+                    <form action="{{ route('customers.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
                         <x-ui.form.input name="name" label="Name" required />
                         <x-ui.form.input name="phone" label="Phone" required />
+                        <x-ui.form.file name="profile_photo" label="Photo" accept="image/*" help="JPG, PNG or WEBP. Max 2MB." />
                         <x-ui.form.textarea name="address" label="Address" />
                         @if($branches->isNotEmpty())
                             <x-ui.form.select

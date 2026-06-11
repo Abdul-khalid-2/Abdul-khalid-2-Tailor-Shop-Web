@@ -14,7 +14,7 @@
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <x-ui.card>
-                    <form action="{{ route('tailors.store') }}" method="POST">
+                    <form action="{{ route('tailors.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
 
                         <div class="row">
@@ -34,6 +34,8 @@
                                 <x-ui.form.input type="date" name="joining_date" label="Joining Date" />
                             </div>
                         </div>
+
+                        <x-ui.form.file name="profile_photo" label="Photo" accept="image/*" help="JPG, PNG or WEBP. Max 2MB." />
 
                         <x-ui.form.textarea name="address" label="Address" :rows="2" />
 
