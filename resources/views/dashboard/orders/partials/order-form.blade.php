@@ -236,6 +236,27 @@
     <div class="col-xl-4 d-none d-xl-block">
         <div class="order-summary-sticky">
             @include('dashboard.orders.partials.order-summary')
+
+            {{-- Guidance note --}}
+            <x-ui.card class="mt-4 mb-0">
+                <h6 class="font-weight-bold mb-3">
+                    <i class="las la-info-circle text-primary mr-1"></i> Quick Guide
+                </h6>
+                <ul class="list-unstyled small text-muted mb-0 order-guide">
+                    <li class="mb-2"><i class="las la-user-plus text-primary mr-1"></i>
+                        Customer not listed? Use the <strong>+</strong> button to add one without leaving this page.</li>
+                    <li class="mb-2"><i class="las la-tshirt text-primary mr-1"></i>
+                        Add a row for each suit. Set the <strong>color</strong> and <strong>quantity</strong>, then enter the charges.</li>
+                    <li class="mb-2"><i class="las la-calculator text-primary mr-1"></i>
+                        <strong>Stitching</strong>, <strong>button</strong> and <strong>other</strong> charges are multiplied by quantity — the total updates automatically.</li>
+                    <li class="mb-2"><i class="las la-money-bill-wave text-primary mr-1"></i>
+                        <strong>Advance Paid</strong> is optional; the <strong>Balance Due</strong> recalculates as you type.</li>
+                    <li class="mb-2"><i class="las la-ruler text-primary mr-1"></i>
+                        <strong>Measurements</strong> are optional and saved with the order for future reference.</li>
+                    <li class="mb-0"><i class="las la-calendar-check text-primary mr-1"></i>
+                        <strong>Delivery Date</strong> must be on or after the Order Date.</li>
+                </ul>
+            </x-ui.card>
         </div>
     </div>
 </div>
