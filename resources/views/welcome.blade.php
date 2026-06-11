@@ -481,8 +481,9 @@
             </div>
             <div class="col-lg-6">
                 <div class="measurement-visual">
-                    <img src="public/assets/landing-page-images/Precise-measurements.jpg"
-                         alt="Measurement process" class="img-fluid" style="border-radius:10px;">
+                    <img src="{{ asset('assets/landing-page-images/Precise-measurements.jpg') }}"
+                         alt="Measurement process" class="img-fluid"
+                         style="border-radius:10px; width:100%; height:450px; object-fit:cover;">
                 </div>
             </div>
         </div>

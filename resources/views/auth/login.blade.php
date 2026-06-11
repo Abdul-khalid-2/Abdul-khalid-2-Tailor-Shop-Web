@@ -4,12 +4,18 @@
         <div class="alert alert-success">{{ session('status') }}</div>
     @endif
 
+    <div class="alert alert-info" role="alert">
+        <strong>Demo login</strong> — use these credentials to try the app:<br>
+        Email: <code>admin@example.com</code><br>
+        Password: <code>password</code>
+    </div>
+
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
         <div class="mb-3">
             <label for="email" class="form-label">Email</label>
-            <input id="email" type="email" name="email" value="{{ old('email') }}"
+            <input id="email" type="email" name="email" value="{{ old('email', 'admin@example.com') }}"
                    class="form-control @error('email') is-invalid @enderror"
                    required autofocus autocomplete="username">
             @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -17,7 +23,7 @@
 
         <div class="mb-3">
             <label for="password" class="form-label">Password</label>
-            <input id="password" type="password" name="password"
+            <input id="password" type="password" name="password" value="password"
                    class="form-control @error('password') is-invalid @enderror"
                    required autocomplete="current-password">
             @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
