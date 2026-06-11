@@ -3,9 +3,9 @@
     <x-ui.styles />
 
     <div class="container-fluid">
-        <x-ui.page-header title="Edit Order #{{ $order->order_number }}" subtitle="Update order details, suits, and measurements">
+        <x-ui.page-header :title="__('messages.edit_order_short').' #'.$order->order_number" :subtitle="__('messages.edit_order_subtitle')">
             <x-slot:actions>
-                <x-ui.button :href="route('orders.show', $order)" variant="outline-secondary" icon="las la-arrow-left">Back to Order</x-ui.button>
+                <x-ui.button :href="route('orders.show', $order)" variant="outline-secondary" icon="las la-arrow-left">{{ __('messages.back_to_order') }}</x-ui.button>
             </x-slot:actions>
         </x-ui.page-header>
 

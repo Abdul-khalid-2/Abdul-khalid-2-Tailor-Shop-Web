@@ -1,5 +1,9 @@
+@php
+    $appLocale = app()->getLocale();
+    $isRtl = in_array($appLocale, ['ur', 'ar', 'fa', 'ps', 'sd'], true);
+@endphp
 <!doctype html>
-<html lang="en">
+<html lang="{{ $appLocale }}" dir="{{ $isRtl ? 'rtl' : 'ltr' }}">
 
 <head>
     <meta charset="utf-8">
@@ -282,6 +286,13 @@
         }
     </style>
     @stack('css')
+
+    @if($isRtl)
+        {{-- RTL overrides + Urdu Nastaliq font — must load AFTER the theme CSS above --}}
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="{{ asset('backend/assets/css/rtl-custom.css') }}?v=1.0.2">
+    @endif
 </head>
 
 <body class="  ">
@@ -310,6 +321,10 @@
         {{-- navigation code here start  --}}
         @include('layouts.navigation')
         {{-- navigation code here end  --}}
+
+        @if($isRtl)
+            <div class="sidebar-backdrop" aria-hidden="true"></div>
+        @endif
 
 
 
@@ -436,6 +451,19 @@
         // hideLoader(false);
     </script>
     @stack('js')
+
+    @if($isRtl)
+    <script>
+        jQuery(function ($) {
+            function closeRtlSidebar() {
+                $('body').removeClass('sidebar-main');
+                $('.wrapper-menu').removeClass('open');
+            }
+
+            $(document).on('click', '.sidebar-backdrop', closeRtlSidebar);
+        });
+    </script>
+    @endif
 
 </body>
 

@@ -23,10 +23,22 @@
         'trouser_length', 'trouser_waist', 'thigh', 'bottom_opening',
     ];
     $measurementLabels = [
-        'length' => 'Length', 'shoulder' => 'Shoulder', 'chest' => 'Chest', 'waist' => 'Waist',
-        'hip' => 'Hip', 'sleeve' => 'Sleeve', 'collar' => 'Collar',
-        'trouser_length' => 'Trouser Length', 'trouser_waist' => 'Trouser Waist',
-        'thigh' => 'Thigh', 'bottom_opening' => 'Bottom Opening',
+        'length' => __('messages.m_length'), 'shoulder' => __('messages.m_shoulder'),
+        'chest' => __('messages.m_chest'), 'waist' => __('messages.m_waist'),
+        'hip' => __('messages.m_hip'), 'sleeve' => __('messages.m_sleeve'), 'collar' => __('messages.m_collar'),
+        'trouser_length' => __('messages.m_trouser_length'), 'trouser_waist' => __('messages.m_trouser_waist'),
+        'thigh' => __('messages.m_thigh'), 'bottom_opening' => __('messages.m_bottom_opening'),
+    ];
+    // Suit colour suggestions (translated label => swatch hex). Drives both the
+    // datalist below and the Alpine colorMap so the swatch matches the picked colour.
+    $suitColors = [
+        __('messages.color_black')       => '#000000',
+        __('messages.color_white')       => '#FFFFFF',
+        __('messages.color_navy_blue')   => '#1F3A5F',
+        __('messages.color_grey')        => '#808080',
+        __('messages.color_maroon')      => '#800000',
+        __('messages.color_beige')       => '#F5F5DC',
+        __('messages.color_olive_green') => '#556B2F',
     ];
 @endphp
 
@@ -51,18 +63,18 @@
 
     <div class="col-xl-8">
         {{-- Section 1: Order Info --}}
-        <x-ui.card title="Order Information" class="mb-4">
+        <x-ui.card :title="__('messages.order_information')" class="mb-4">
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label for="customer_input">Customer <span class="text-danger">*</span></label>
+                        <label for="customer_input">{{ __('messages.customer') }} <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <input type="text"
                                    id="customer_input"
                                    class="form-control {{ isset($errors) && $errors->has('customer_id') ? 'is-invalid' : '' }}"
                                    list="customers-list"
                                    value="{{ $customerDisplay }}"
-                                   placeholder="Search by name or phone"
+                                   placeholder="{{ __('messages.customer_search_ph') }}"
                                    autocomplete="off"
                                    required>
                             <div class="input-group-append">
@@ -83,30 +95,30 @@
                         @endif
                     </div>
 
-                    <x-ui.form.input name="order_label" label="Order Label"
+                    <x-ui.form.input name="order_label" :label="__('messages.order_label_field')"
                         :value="$isEdit ? $order->order_label : ''"
                         placeholder="For Self / For Bilal / For Wife" />
 
-                    <x-ui.form.input type="date" name="order_date" label="Order Date"
+                    <x-ui.form.input type="date" name="order_date" :label="__('messages.order_date')"
                         :value="$isEdit ? $order->order_date->format('Y-m-d') : $orderDate" required />
 
-                    <x-ui.form.input type="date" name="delivery_date" label="Delivery Date"
+                    <x-ui.form.input type="date" name="delivery_date" :label="__('messages.delivery_date')"
                         :value="$isEdit && $order->delivery_date ? $order->delivery_date->format('Y-m-d') : ''" />
                 </div>
 
                 <div class="col-md-6">
-                    <x-ui.form.select name="tailor_id" label="Assign Tailor"
+                    <x-ui.form.select name="tailor_id" :label="__('messages.assign_tailor')"
                         :options="$tailors" :selected="$isEdit ? $order->tailor_id : ''"
-                        placeholder="— Select tailor —" />
+                        :placeholder="__('messages.select_tailor_ph')" />
 
-                    <x-ui.form.input type="number" name="tailor_fee_total" label="Tailor Fee"
+                    <x-ui.form.input type="number" name="tailor_fee_total" :label="__('messages.tailor_fee')"
                         :value="$isEdit ? $order->tailor_fee_total : 0" min="0" step="0.01" />
 
-                    <x-ui.form.input type="number" name="advance_paid" label="Advance Paid"
+                    <x-ui.form.input type="number" name="advance_paid" :label="__('messages.advance_paid_label')"
                         :value="$isEdit ? $order->advance_paid : 0" min="0" step="0.01"
                         x-model.number="advancePaid" />
 
-                    <x-ui.form.textarea name="notes" label="Notes"
+                    <x-ui.form.textarea name="notes" :label="__('messages.notes')"
                         :value="$isEdit ? $order->notes : ''" />
                 </div>
             </div>
@@ -115,21 +127,21 @@
         {{-- Section 2: Suits --}}
         <x-ui.card class="mb-4" :noPadding="true">
             <x-slot:header>
-                <h6 class="m-0 font-weight-bold text-primary">Suits</h6>
-                <x-ui.button type="button" variant="outline-primary" size="sm" icon="las la-plus" @click="addSuit()">Add Suit</x-ui.button>
+                <h6 class="m-0 font-weight-bold text-primary">{{ __('messages.suits') }}</h6>
+                <x-ui.button type="button" variant="outline-primary" size="sm" icon="las la-plus" @click="addSuit()">{{ __('messages.add_suit') }}</x-ui.button>
             </x-slot:header>
 
                 <div class="table-responsive">
                     <table class="table table-bordered mb-0 suits-table">
                         <thead class="thead-light">
                             <tr>
-                                <th>Color</th>
-                                <th width="80">Qty</th>
-                                <th width="100">Stitching</th>
-                                <th width="100">Buttons</th>
-                                <th width="100">Other</th>
-                                <th>Note</th>
-                                <th width="100" class="text-right">Row Total</th>
+                                <th>{{ __('messages.color') }}</th>
+                                <th width="80">{{ __('messages.qty') }}</th>
+                                <th width="100">{{ __('messages.stitching') }}</th>
+                                <th width="100">{{ __('messages.buttons') }}</th>
+                                <th width="100">{{ __('messages.other') }}</th>
+                                <th>{{ __('messages.note') }}</th>
+                                <th width="100" class="text-right">{{ __('messages.row_total') }}</th>
                                 <th width="50"></th>
                             </tr>
                         </thead>
@@ -145,7 +157,7 @@
                                             </div>
                                             <input type="text" class="form-control form-control-sm" x-model="suit.color"
                                                    :name="'suits[' + index + '][color]'" list="suit-colors"
-                                                   required placeholder="Pick or type a color">
+                                                   required placeholder="{{ __('messages.pick_color_ph') }}">
                                         </div>
                                     </td>
                                     <td>
@@ -166,7 +178,7 @@
                                     </td>
                                     <td>
                                         <input type="text" class="form-control form-control-sm" x-model="suit.other_charge_note"
-                                               :name="'suits[' + index + '][other_charge_note]'" placeholder="Other charge note">
+                                               :name="'suits[' + index + '][other_charge_note]'" placeholder="{{ __('messages.other_charge_note_ph') }}">
                                         <input type="hidden" x-model="suit.notes" :name="'suits[' + index + '][notes]'">
                                     </td>
                                     <td class="text-right align-middle font-weight-bold" x-text="'Rs ' + rowTotal(suit).toFixed(2)"></td>
@@ -182,19 +194,15 @@
                 </div>
                 {{-- Shared color suggestions: pick one of the 7 or type a new name --}}
                 <datalist id="suit-colors">
-                    <option value="Black"></option>
-                    <option value="White"></option>
-                    <option value="Navy Blue"></option>
-                    <option value="Grey"></option>
-                    <option value="Maroon"></option>
-                    <option value="Beige"></option>
-                    <option value="Olive Green"></option>
+                    @foreach($suitColors as $colorLabel => $colorHex)
+                        <option value="{{ $colorLabel }}"></option>
+                    @endforeach
                 </datalist>
                 @if(isset($errors) && $errors->has('suits'))
                     <div class="text-danger small px-3 py-2">{{ $errors->first('suits') }}</div>
                 @endif
                 @if(isset($errors) && $errors->has('suits.*'))
-                    <div class="text-danger small px-3 py-2">Please check suit row details.</div>
+                    <div class="text-danger small px-3 py-2">{{ __('messages.check_suit_rows') }}</div>
                 @endif
         </x-ui.card>
 
@@ -203,7 +211,7 @@
             <x-slot:header>
                 <button type="button" class="btn btn-link p-0 font-weight-bold text-primary text-decoration-none"
                         @click="measurementsOpen = !measurementsOpen">
-                    <span x-text="measurementsOpen ? 'Hide Measurements ▲' : 'Add Measurements ▼'"></span>
+                    <span x-text="measurementsOpen ? '{{ __('messages.hide_measurements') }}' : '{{ __('messages.add_measurements') }}'"></span>
                 </button>
             </x-slot:header>
 
@@ -213,22 +221,22 @@
                         <div class="col-md-4 mb-3">
                             <label for="measurement_{{ $field }}">{{ $measurementLabels[$field] }}</label>
                             <input type="number" name="measurement[{{ $field }}]" id="measurement_{{ $field }}"
-                                   class="form-control" step="0.1" min="0" placeholder="inches"
+                                   class="form-control" step="0.1" min="0" placeholder="{{ __('messages.inches_ph') }}"
                                    value="{{ old('measurement.'.$field, $measurement?->$field) }}">
                         </div>
                     @endforeach
                     <div class="col-12">
-                        <label for="measurement_notes">Measurement Notes</label>
+                        <label for="measurement_notes">{{ __('messages.measurement_notes') }}</label>
                         <textarea name="measurement[notes]" id="measurement_notes" class="form-control" rows="2"
-                                  placeholder="Optional notes">{{ old('measurement.notes', $measurement?->notes) }}</textarea>
+                                  placeholder="{{ __('messages.optional_notes') }}">{{ old('measurement.notes', $measurement?->notes) }}</textarea>
                     </div>
                 </div>
             </div>
         </x-ui.card>
 
         <div class="mb-4">
-            <x-ui.button type="submit" size="lg" icon="las la-save">{{ $isEdit ? 'Update Order' : 'Create Order' }}</x-ui.button>
-            <x-ui.button :href="$isEdit ? route('orders.show', $order) : route('orders.index')" variant="outline-secondary" size="lg" class="ml-2">Cancel</x-ui.button>
+            <x-ui.button type="submit" size="lg" icon="las la-save">{{ $isEdit ? __('messages.update_order_btn') : __('messages.create_order_btn2') }}</x-ui.button>
+            <x-ui.button :href="$isEdit ? route('orders.show', $order) : route('orders.index')" variant="outline-secondary" size="lg" class="ml-2">{{ __('messages.cancel') }}</x-ui.button>
         </div>
     </div>
 
@@ -240,21 +248,21 @@
             {{-- Guidance note --}}
             <x-ui.card class="mt-4 mb-0">
                 <h6 class="font-weight-bold mb-3">
-                    <i class="las la-info-circle text-primary mr-1"></i> Quick Guide
+                    <i class="las la-info-circle text-primary mr-1"></i> {{ __('messages.quick_guide') }}
                 </h6>
                 <ul class="list-unstyled small text-muted mb-0 order-guide">
                     <li class="mb-2"><i class="las la-user-plus text-primary mr-1"></i>
-                        Customer not listed? Use the <strong>+</strong> button to add one without leaving this page.</li>
+                        {!! __('messages.order_guide_customer') !!}</li>
                     <li class="mb-2"><i class="las la-tshirt text-primary mr-1"></i>
-                        Add a row for each suit. Set the <strong>color</strong> and <strong>quantity</strong>, then enter the charges.</li>
+                        {!! __('messages.order_guide_suit') !!}</li>
                     <li class="mb-2"><i class="las la-calculator text-primary mr-1"></i>
-                        <strong>Stitching</strong>, <strong>button</strong> and <strong>other</strong> charges are multiplied by quantity — the total updates automatically.</li>
+                        {!! __('messages.order_guide_charges') !!}</li>
                     <li class="mb-2"><i class="las la-money-bill-wave text-primary mr-1"></i>
-                        <strong>Advance Paid</strong> is optional; the <strong>Balance Due</strong> recalculates as you type.</li>
+                        {!! __('messages.order_guide_advance') !!}</li>
                     <li class="mb-2"><i class="las la-ruler text-primary mr-1"></i>
-                        <strong>Measurements</strong> are optional and saved with the order for future reference.</li>
+                        {!! __('messages.order_guide_measure') !!}</li>
                     <li class="mb-0"><i class="las la-calendar-check text-primary mr-1"></i>
-                        <strong>Delivery Date</strong> must be on or after the Order Date.</li>
+                        {!! __('messages.order_guide_delivery') !!}</li>
                 </ul>
             </x-ui.card>
         </div>
@@ -262,29 +270,29 @@
 </div>
 
 {{-- Add New Customer modal (AJAX — no page reload) --}}
-<x-ui.modal id="addCustomerModal" title="Add New Customer">
+<x-ui.modal id="addCustomerModal" :title="__('messages.add_new_customer')">
     <div id="ncErrors" class="alert alert-danger d-none"></div>
 
     <div class="form-group">
-        <label for="nc_name">Name <span class="text-danger">*</span></label>
+        <label for="nc_name">{{ __('messages.name') }} <span class="text-danger">*</span></label>
         <input type="text" id="nc_name" class="form-control" autocomplete="off">
     </div>
     <div class="form-group">
-        <label for="nc_phone">Phone <span class="text-danger">*</span></label>
+        <label for="nc_phone">{{ __('messages.phone') }} <span class="text-danger">*</span></label>
         <input type="text" id="nc_phone" class="form-control" autocomplete="off">
     </div>
     <div class="form-group">
-        <label for="nc_address">Address</label>
+        <label for="nc_address">{{ __('messages.address') }}</label>
         <textarea id="nc_address" class="form-control" rows="2"></textarea>
     </div>
     <div class="form-group mb-0">
-        <label for="nc_notes">Notes</label>
+        <label for="nc_notes">{{ __('messages.notes') }}</label>
         <textarea id="nc_notes" class="form-control" rows="2"></textarea>
     </div>
 
     <x-slot:footer>
-        <x-ui.button variant="secondary" data-dismiss="modal">Cancel</x-ui.button>
-        <x-ui.button type="button" id="ncSaveBtn" icon="las la-save">Save Customer</x-ui.button>
+        <x-ui.button variant="secondary" data-dismiss="modal">{{ __('messages.cancel') }}</x-ui.button>
+        <x-ui.button type="button" id="ncSaveBtn" icon="las la-save">{{ __('messages.save_customer') }}</x-ui.button>
     </x-slot:footer>
 </x-ui.modal>
 
@@ -297,11 +305,7 @@
             advancePaid: initialAdvance,
             measurementsOpen: {{ ($isEdit && $measurement) ? 'true' : 'false' }},
 
-            colorMap: {
-                'Black': '#000000', 'White': '#FFFFFF', 'Navy Blue': '#1F3A5F',
-                'Grey': '#808080', 'Maroon': '#800000', 'Beige': '#F5F5DC',
-                'Olive Green': '#556B2F'
-            },
+            colorMap: @json($suitColors),
 
             hexFor(name) {
                 if (!name) return 'transparent';

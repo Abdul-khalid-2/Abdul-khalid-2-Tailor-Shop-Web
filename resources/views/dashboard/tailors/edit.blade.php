@@ -3,9 +3,9 @@
     <x-ui.styles />
 
     <div class="container-fluid">
-        <x-ui.page-header title="Edit Tailor" subtitle="Update tailor information">
+        <x-ui.page-header :title="__('messages.edit_tailor')" :subtitle="__('messages.edit_tailor_subtitle')">
             <x-slot:actions>
-                <x-ui.button :href="route('tailors.show', $tailor)" variant="outline-secondary" icon="las la-arrow-left">Back to Tailor</x-ui.button>
+                <x-ui.button :href="route('tailors.show', $tailor)" variant="outline-secondary" icon="las la-arrow-left">{{ __('messages.back_to_tailor') }}</x-ui.button>
             </x-slot:actions>
         </x-ui.page-header>
 
@@ -20,47 +20,47 @@
 
                         <div class="row">
                             <div class="col-md-6">
-                                <x-ui.form.input name="name" label="Name" :value="$tailor->name" required />
+                                <x-ui.form.input name="name" :label="__('messages.name')" :value="$tailor->name" required />
                             </div>
                             <div class="col-md-6">
-                                <x-ui.form.input name="phone" label="Phone" :value="$tailor->phone" required />
+                                <x-ui.form.input name="phone" :label="__('messages.phone')" :value="$tailor->phone" required />
                             </div>
                         </div>
 
                         <div class="row">
                             <div class="col-md-6">
-                                <x-ui.form.input name="cnic" label="CNIC" :value="$tailor->cnic" />
+                                <x-ui.form.input name="cnic" :label="__('messages.cnic')" :value="$tailor->cnic" />
                             </div>
                             <div class="col-md-6">
-                                <x-ui.form.input type="date" name="joining_date" label="Joining Date" :value="$tailor->joining_date?->format('Y-m-d')" />
+                                <x-ui.form.input type="date" name="joining_date" :label="__('messages.joining_date')" :value="$tailor->joining_date?->format('Y-m-d')" />
                             </div>
                         </div>
 
                         @if($tailor->profile_photo)
                             <div class="form-group">
-                                <label class="form-label d-block">Current Photo</label>
+                                <label class="form-label d-block">{{ __('messages.current_photo') }}</label>
                                 <img src="{{ asset($tailor->profile_photo) }}" alt="{{ $tailor->name }}"
                                      class="rounded" style="height:90px;width:90px;object-fit:cover;">
                             </div>
                         @endif
-                        <x-ui.form.file name="profile_photo" label="Photo" accept="image/*" help="Leave empty to keep current photo. JPG, PNG or WEBP. Max 2MB." />
+                        <x-ui.form.file name="profile_photo" :label="__('messages.photo')" accept="image/*" :help="__('messages.photo_help_keep')" />
 
-                        <x-ui.form.textarea name="address" label="Address" :value="$tailor->address" :rows="2" />
+                        <x-ui.form.textarea name="address" :label="__('messages.address')" :value="$tailor->address" :rows="2" />
 
                         <div class="row">
                             <div class="col-md-4">
                                 <x-ui.form.select
                                     name="specialty"
-                                    label="Specialty"
-                                    :options="['all' => 'All', 'shalwar_kameez' => 'Shalwar Kameez', 'sherwani' => 'Sherwani']"
+                                    :label="__('messages.specialty')"
+                                    :options="['all' => __('messages.all_types'), 'shalwar_kameez' => __('messages.shalwar_kameez'), 'sherwani' => __('messages.sherwani')]"
                                     :selected="$tailor->specialty"
                                 />
                             </div>
                             <div class="col-md-4">
                                 <x-ui.form.select
                                     name="status"
-                                    label="Status"
-                                    :options="['active' => 'Active', 'on_leave' => 'On Leave']"
+                                    :label="__('messages.status')"
+                                    :options="['active' => __('messages.active'), 'on_leave' => __('messages.on_leave')]"
                                     :selected="$tailor->status"
                                 />
                             </div>
@@ -68,20 +68,20 @@
                                 <div class="col-md-4">
                                     <x-ui.form.select
                                         name="branch_id"
-                                        label="Branch"
+                                        :label="__('messages.branch_label')"
                                         :options="$branches"
                                         :selected="$tailor->branch_id"
-                                        placeholder="— Select branch —"
+                                        :placeholder="__('messages.select_branch')"
                                     />
                                 </div>
                             @endif
                         </div>
 
-                        <x-ui.form.textarea name="notes" label="Notes" :value="$tailor->notes" />
+                        <x-ui.form.textarea name="notes" :label="__('messages.notes')" :value="$tailor->notes" />
 
                         <div class="d-flex">
-                            <x-ui.button type="submit" icon="las la-save">Save Tailor</x-ui.button>
-                            <x-ui.button :href="route('tailors.show', $tailor)" variant="outline-secondary" class="ml-2">Cancel</x-ui.button>
+                            <x-ui.button type="submit" icon="las la-save">{{ __('messages.save_tailor') }}</x-ui.button>
+                            <x-ui.button :href="route('tailors.show', $tailor)" variant="outline-secondary" class="ml-2">{{ __('messages.cancel') }}</x-ui.button>
                         </div>
                     </form>
                 </x-ui.card>

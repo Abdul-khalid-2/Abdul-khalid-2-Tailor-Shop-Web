@@ -3,24 +3,24 @@
     <x-ui.styles />
 
     <div class="container-fluid">
-        <x-ui.page-header title="Dashboard" subtitle="Overview of your tailor shop orders and deliveries">
+        <x-ui.page-header :title="__('messages.dashboard')" :subtitle="__('messages.dashboard_subtitle')">
             <x-slot:actions>
-                <x-ui.button :href="route('orders.create')" icon="las la-plus">New Order</x-ui.button>
+                <x-ui.button :href="route('orders.create')" icon="las la-plus">{{ __('messages.new_order') }}</x-ui.button>
             </x-slot:actions>
         </x-ui.page-header>
 
         <div class="row">
             <div class="col-xl-3 col-md-6 mb-4">
-                <x-ui.stat-card label="Pending" :value="$pendingCount" icon="las la-clock" color="warning" :href="route('orders.pending')" />
+                <x-ui.stat-card :label="__('messages.pending_label')" :value="$pendingCount" icon="las la-clock" color="warning" :href="route('orders.pending')" />
             </div>
             <div class="col-xl-3 col-md-6 mb-4">
-                <x-ui.stat-card label="In Progress" :value="$inProgressCount" icon="las la-cut" color="primary" :href="route('orders.in-progress')" />
+                <x-ui.stat-card :label="__('messages.in_progress_label')" :value="$inProgressCount" icon="las la-cut" color="primary" :href="route('orders.in-progress')" />
             </div>
             <div class="col-xl-3 col-md-6 mb-4">
-                <x-ui.stat-card label="Ready" :value="$readyCount" icon="las la-check-circle" color="success" :href="route('orders.ready')" />
+                <x-ui.stat-card :label="__('messages.ready_label')" :value="$readyCount" icon="las la-check-circle" color="success" :href="route('orders.ready')" />
             </div>
             <div class="col-xl-3 col-md-6 mb-4">
-                <x-ui.stat-card label="Overdue" :value="$overdueCount" icon="las la-exclamation-triangle" color="danger" :href="route('orders.overdue')" />
+                <x-ui.stat-card :label="__('messages.overdue_label')" :value="$overdueCount" icon="las la-exclamation-triangle" color="danger" :href="route('orders.overdue')" />
             </div>
         </div>
 
@@ -29,19 +29,19 @@
                 <x-ui.card class="h-100" border="danger">
                     <x-slot:header>
                         <h6 class="m-0 font-weight-bold text-danger">
-                            <i class="las la-exclamation-triangle mr-1"></i> Overdue Orders
+                            <i class="las la-exclamation-triangle mr-1"></i> {{ __('messages.overdue_orders') }}
                         </h6>
-                        <x-ui.button :href="route('orders.overdue')" variant="outline-danger" size="sm">View All</x-ui.button>
+                        <x-ui.button :href="route('orders.overdue')" variant="outline-danger" size="sm">{{ __('messages.view_all') }}</x-ui.button>
                     </x-slot:header>
 
                     <x-ui.table>
                         <thead class="thead-light">
                             <tr>
-                                <th>Order#</th>
-                                <th>Customer</th>
-                                <th>Tailor</th>
-                                <th>Delivery Date</th>
-                                <th class="text-right">Days Overdue</th>
+                                <th>{{ __('messages.order_hash') }}</th>
+                                <th>{{ __('messages.customer') }}</th>
+                                <th>{{ __('messages.tailor') }}</th>
+                                <th>{{ __('messages.delivery_date') }}</th>
+                                <th class="text-right">{{ __('messages.days_overdue') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -58,7 +58,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <x-ui.empty-state title="No overdue orders." :colspan="5" :asRow="true" />
+                                <x-ui.empty-state :title="__('messages.no_overdue_orders')" :colspan="5" :asRow="true" />
                             @endforelse
                         </tbody>
                     </x-ui.table>
@@ -66,20 +66,20 @@
             </div>
 
             <div class="col-lg-6 mb-4">
-                <x-ui.card class="h-100" title="Today's Deliveries">
+                <x-ui.card class="h-100" :title="__('messages.todays_deliveries')">
                     <x-slot:header>
                         <h6 class="m-0 font-weight-bold text-primary">
-                            <i class="las la-calendar-day mr-1"></i> Today's Deliveries
+                            <i class="las la-calendar-day mr-1"></i> {{ __('messages.todays_deliveries') }}
                         </h6>
                     </x-slot:header>
 
                     <x-ui.table>
                         <thead class="thead-light">
                             <tr>
-                                <th>Customer</th>
-                                <th>Phone</th>
-                                <th class="text-center">Suits</th>
-                                <th class="text-right">Balance Due</th>
+                                <th>{{ __('messages.customer') }}</th>
+                                <th>{{ __('messages.phone') }}</th>
+                                <th class="text-center">{{ __('messages.suits') }}</th>
+                                <th class="text-right">{{ __('messages.balance_due_label') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -97,7 +97,7 @@
                                     </td>
                                 </tr>
                             @empty
-                                <x-ui.empty-state title="No deliveries scheduled for today." :colspan="4" :asRow="true" />
+                                <x-ui.empty-state :title="__('messages.no_deliveries_today')" :colspan="4" :asRow="true" />
                             @endforelse
                         </tbody>
                     </x-ui.table>
@@ -105,23 +105,23 @@
             </div>
         </div>
 
-        <x-ui.card title="Recent Orders" class="mb-4" :noPadding="true">
+        <x-ui.card :title="__('messages.recent_orders')" class="mb-4" :noPadding="true">
             <x-slot:header>
-                <h6 class="m-0 font-weight-bold text-primary">Recent Orders</h6>
-                <x-ui.button :href="route('orders.index')" variant="outline-primary" size="sm">View All Orders</x-ui.button>
+                <h6 class="m-0 font-weight-bold text-primary">{{ __('messages.recent_orders') }}</h6>
+                <x-ui.button :href="route('orders.index')" variant="outline-primary" size="sm">{{ __('messages.view_all_orders') }}</x-ui.button>
             </x-slot:header>
 
             <x-ui.table>
                 <thead class="thead-light">
                     <tr>
-                        <th>Order#</th>
-                        <th>Customer</th>
-                        <th>Label</th>
-                        <th class="text-center">Suits</th>
-                        <th class="text-right">Total</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                        <th class="text-center" width="80">Action</th>
+                        <th>{{ __('messages.order_hash') }}</th>
+                        <th>{{ __('messages.customer') }}</th>
+                        <th>{{ __('messages.label') }}</th>
+                        <th class="text-center">{{ __('messages.suits') }}</th>
+                        <th class="text-right">{{ __('messages.total') }}</th>
+                        <th>{{ __('messages.status') }}</th>
+                        <th>{{ __('messages.date') }}</th>
+                        <th class="text-center" width="80">{{ __('messages.action') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -143,9 +143,9 @@
                             </td>
                         </tr>
                     @empty
-                        <x-ui.empty-state title="No orders yet." :colspan="8" :asRow="true">
+                        <x-ui.empty-state :title="__('messages.no_orders_yet')" :colspan="8" :asRow="true">
                             <x-slot:action>
-                                <x-ui.button :href="route('orders.create')" size="sm">Create your first order</x-ui.button>
+                                <x-ui.button :href="route('orders.create')" size="sm">{{ __('messages.create_first_order') }}</x-ui.button>
                             </x-slot:action>
                         </x-ui.empty-state>
                     @endforelse

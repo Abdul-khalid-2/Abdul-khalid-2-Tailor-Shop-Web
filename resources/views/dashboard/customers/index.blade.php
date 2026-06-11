@@ -3,10 +3,10 @@
     <x-ui.styles />
 
     <div class="container-fluid">
-        <x-ui.page-header title="Customers" subtitle="Manage your tailor shop customers">
+        <x-ui.page-header :title="__('messages.customers')" :subtitle="__('messages.customers_subtitle')">
             <x-slot:actions>
                 <x-ui.button :href="route('customers.create')" icon="las la-user-plus">
-                    Add Customer
+                    {{ __('messages.add_customer') }}
                 </x-ui.button>
             </x-slot:actions>
         </x-ui.page-header>
@@ -16,7 +16,7 @@
         <x-ui.filter-bar>
             <x-ui.filter-search
                 :action="route('customers.index')"
-                placeholder="Search by name or phone..."
+                :placeholder="__('messages.search_name_phone_ph')"
                 col="col-12"
             />
         </x-ui.filter-bar>
@@ -25,11 +25,11 @@
             <x-ui.table>
                 <thead class="thead-light">
                     <tr>
-                        <th>Name</th>
-                        <th>Phone</th>
-                        <th>Address</th>
-                        <th class="text-center">Total Orders</th>
-                        <th class="text-center" width="160">Actions</th>
+                        <th>{{ __('messages.name') }}</th>
+                        <th>{{ __('messages.phone') }}</th>
+                        <th>{{ __('messages.address') }}</th>
+                        <th class="text-center">{{ __('messages.total_orders') }}</th>
+                        <th class="text-center" width="160">{{ __('messages.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,25 +46,25 @@
                                     :view="route('customers.show', $customer)"
                                     :edit="route('customers.edit', $customer)"
                                     :delete="route('customers.destroy', $customer)"
-                                    deleteMessage="Delete this customer?"
+                                    :deleteMessage="__('messages.delete_customer_q')"
                                 />
                             </td>
                         </tr>
                     @empty
                         <x-ui.empty-state
                             icon="las la-users"
-                            title="No customers found."
+                            :title="__('messages.no_customers_found')"
                             :colspan="5"
                             :asRow="true"
                         >
                             <x-slot:action>
                                 @if(request('search'))
                                     <x-ui.button :href="route('customers.index')" variant="outline-secondary" size="sm">
-                                        Clear search
+                                        {{ __('messages.clear_search') }}
                                     </x-ui.button>
                                 @else
                                     <x-ui.button :href="route('customers.create')" size="sm">
-                                        Add First Customer
+                                        {{ __('messages.add_first_customer') }}
                                     </x-ui.button>
                                 @endif
                             </x-slot:action>

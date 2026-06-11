@@ -1,15 +1,15 @@
 <x-ui.table>
     <thead class="thead-light">
         <tr>
-            <th>Order#</th>
-            <th>Customer</th>
-            <th>Label</th>
-            <th class="text-center">Suits</th>
-            <th class="text-right">Total</th>
-            <th class="text-right">Balance</th>
-            <th>Status</th>
-            <th>Delivery Date</th>
-            <th class="text-center" width="120">Actions</th>
+            <th>{{ __('messages.order_hash') }}</th>
+            <th>{{ __('messages.customer') }}</th>
+            <th>{{ __('messages.label') }}</th>
+            <th class="text-center">{{ __('messages.suits') }}</th>
+            <th class="text-right">{{ __('messages.total') }}</th>
+            <th class="text-right">{{ __('messages.balance') }}</th>
+            <th>{{ __('messages.status') }}</th>
+            <th>{{ __('messages.delivery_date') }}</th>
+            <th class="text-center" width="120">{{ __('messages.actions') }}</th>
         </tr>
     </thead>
     <tbody>
@@ -33,7 +33,7 @@
                     @if($order->delivery_date)
                         {{ $order->delivery_date->format('d M, Y') }}
                         @if($order->isOverdue())
-                            <span class="text-danger font-weight-bold ml-1">OVERDUE</span>
+                            <span class="text-danger font-weight-bold ml-1">{{ __('messages.overdue_flag') }}</span>
                         @endif
                     @else
                         <span class="text-muted">—</span>
@@ -47,7 +47,7 @@
                 </td>
             </tr>
         @empty
-            <x-ui.empty-state icon="" title="No orders found." :colspan="9" :asRow="true" />
+            <x-ui.empty-state icon="" :title="__('messages.no_orders_found')" :colspan="9" :asRow="true" />
         @endforelse
     </tbody>
 </x-ui.table>

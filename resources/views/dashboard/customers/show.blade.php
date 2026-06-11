@@ -32,14 +32,14 @@
                     @endif
                     <p class="mb-0 text-muted">
                         <i class="las la-store mr-1"></i>
-                        Branch: {{ $customer->branch?->name ?? '—' }}
+                        {{ __('messages.branch_label') }}: {{ $customer->branch?->name ?? '—' }}
                     </p>
                     </div>
                 </div>
                 <div class="d-flex flex-wrap mt-2 mt-md-0">
-                    <x-ui.button :href="route('customers.edit', $customer)" icon="las la-edit" class="mr-2 mb-2">Edit</x-ui.button>
-                    <x-ui.button :href="route('orders.create')" variant="outline-primary" icon="las la-plus" class="mr-2 mb-2">New Order for this Customer</x-ui.button>
-                    <x-ui.button href="https://wa.me/{{ $waPhone }}" target="_blank" rel="noopener noreferrer" variant="success" icon="lab la-whatsapp" class="mb-2">WhatsApp</x-ui.button>
+                    <x-ui.button :href="route('customers.edit', $customer)" icon="las la-edit" class="mr-2 mb-2">{{ __('messages.edit') }}</x-ui.button>
+                    <x-ui.button :href="route('orders.create')" variant="outline-primary" icon="las la-plus" class="mr-2 mb-2">{{ __('messages.new_order_for_customer') }}</x-ui.button>
+                    <x-ui.button href="https://wa.me/{{ $waPhone }}" target="_blank" rel="noopener noreferrer" variant="success" icon="lab la-whatsapp" class="mb-2">{{ __('messages.whatsapp') }}</x-ui.button>
                 </div>
             </div>
         </x-ui.card>
@@ -47,31 +47,31 @@
         {{-- Stats --}}
         <div class="row mb-4">
             <div class="col-md-4 mb-3 mb-md-0">
-                <x-ui.stat-card label="Total Orders" :value="$totalOrders" color="primary" />
+                <x-ui.stat-card :label="__('messages.total_orders')" :value="$totalOrders" color="primary" />
             </div>
             <div class="col-md-4 mb-3 mb-md-0">
-                <x-ui.stat-card label="Total Spent" :value="'Rs '.number_format($totalSpent, 0)" color="success" />
+                <x-ui.stat-card :label="__('messages.total_spent')" :value="'Rs '.number_format($totalSpent, 0)" color="success" />
             </div>
             <div class="col-md-4">
-                <x-ui.stat-card label="Balance Due" :value="'Rs '.number_format($balanceDue, 0)" :color="$balanceDue > 0 ? 'danger' : 'secondary'" />
+                <x-ui.stat-card :label="__('messages.balance_due_label')" :value="'Rs '.number_format($balanceDue, 0)" :color="$balanceDue > 0 ? 'danger' : 'secondary'" />
             </div>
         </div>
 
         {{-- Orders --}}
-        <x-ui.card title="Customer Orders" :noPadding="true">
+        <x-ui.card :title="__('messages.customer_orders')" :noPadding="true">
             @if($orders->count())
                 <x-ui.table>
                     <thead class="thead-light">
                         <tr>
-                            <th>Order#</th>
-                            <th>Label</th>
-                            <th class="text-center">Suits</th>
-                            <th class="text-right">Total</th>
-                            <th class="text-right">Advance</th>
-                            <th class="text-right">Balance</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th class="text-center">Actions</th>
+                            <th>{{ __('messages.order_hash') }}</th>
+                            <th>{{ __('messages.label') }}</th>
+                            <th class="text-center">{{ __('messages.suits') }}</th>
+                            <th class="text-right">{{ __('messages.total') }}</th>
+                            <th class="text-right">{{ __('messages.advance') }}</th>
+                            <th class="text-right">{{ __('messages.balance') }}</th>
+                            <th>{{ __('messages.status') }}</th>
+                            <th>{{ __('messages.date') }}</th>
+                            <th class="text-center">{{ __('messages.actions') }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -97,9 +97,9 @@
                     </tbody>
                 </x-ui.table>
             @else
-                <x-ui.empty-state icon="las la-shopping-bag" title="No orders yet for this customer.">
+                <x-ui.empty-state icon="las la-shopping-bag" :title="__('messages.no_orders_for_customer')">
                     <x-slot:action>
-                        <x-ui.button :href="route('orders.create')" icon="las la-plus">Create First Order</x-ui.button>
+                        <x-ui.button :href="route('orders.create')" icon="las la-plus">{{ __('messages.create_first_order') }}</x-ui.button>
                     </x-slot:action>
                 </x-ui.empty-state>
             @endif
@@ -112,7 +112,7 @@
         </x-ui.card>
 
         @if($customer->notes)
-            <x-ui.card title="Notes" class="mt-4">
+            <x-ui.card :title="__('messages.notes')" class="mt-4">
                 <p class="mb-0">{{ $customer->notes }}</p>
             </x-ui.card>
         @endif

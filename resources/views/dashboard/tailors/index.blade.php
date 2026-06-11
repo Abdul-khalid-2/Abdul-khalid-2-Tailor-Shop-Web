@@ -3,9 +3,9 @@
     <x-ui.styles />
 
     <div class="container-fluid">
-        <x-ui.page-header title="Tailors" subtitle="Manage your tailor team and assignments">
+        <x-ui.page-header :title="__('messages.tailors')" :subtitle="__('messages.tailors_subtitle')">
             <x-slot:actions>
-                <x-ui.button :href="route('tailors.create')" icon="las la-user-plus">Add Tailor</x-ui.button>
+                <x-ui.button :href="route('tailors.create')" icon="las la-user-plus">{{ __('messages.add_tailor') }}</x-ui.button>
             </x-slot:actions>
         </x-ui.page-header>
 
@@ -14,7 +14,7 @@
         <x-ui.filter-bar>
             <x-ui.filter-search
                 :action="route('tailors.index')"
-                placeholder="Search by name or phone..."
+                :placeholder="__('messages.search_name_phone_ph')"
                 col="col-12"
             />
         </x-ui.filter-bar>
@@ -23,13 +23,13 @@
             <x-ui.table>
                 <thead class="thead-light">
                     <tr>
-                        <th>Name</th>
-                        <th>Phone</th>
-                        <th>Status</th>
-                        <th class="text-center">Active Orders</th>
-                        <th class="text-center">Total Suits</th>
-                        <th class="text-right">Fee Balance</th>
-                        <th class="text-center" width="160">Actions</th>
+                        <th>{{ __('messages.name') }}</th>
+                        <th>{{ __('messages.phone') }}</th>
+                        <th>{{ __('messages.status') }}</th>
+                        <th class="text-center">{{ __('messages.active_orders_label') }}</th>
+                        <th class="text-center">{{ __('messages.total_suits_label') }}</th>
+                        <th class="text-right">{{ __('messages.fee_balance') }}</th>
+                        <th class="text-center" width="160">{{ __('messages.actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -39,7 +39,7 @@
                             <td>{{ $tailor->phone }}</td>
                             <td>
                                 <x-ui.badge :variant="$tailor->status === 'active' ? 'success' : 'warning'">
-                                    {{ $tailor->status === 'active' ? 'Active' : 'On Leave' }}
+                                    {{ $tailor->status === 'active' ? __('messages.active') : __('messages.on_leave') }}
                                 </x-ui.badge>
                             </td>
                             <td class="text-center">
@@ -54,25 +54,25 @@
                                     :view="route('tailors.show', $tailor)"
                                     :edit="route('tailors.edit', $tailor)"
                                     :delete="route('tailors.destroy', $tailor)"
-                                    deleteMessage="Delete this tailor?"
+                                    :deleteMessage="__('messages.delete_tailor_q')"
                                 />
                             </td>
                         </tr>
                     @empty
                         <x-ui.empty-state
                             icon="las la-cut"
-                            title="No tailors found."
+                            :title="__('messages.no_tailors_found')"
                             :colspan="7"
                             :asRow="true"
                         >
                             <x-slot:action>
                                 @if(request('search'))
                                     <x-ui.button :href="route('tailors.index')" variant="outline-secondary" size="sm">
-                                        Clear search
+                                        {{ __('messages.clear_search') }}
                                     </x-ui.button>
                                 @else
                                     <x-ui.button :href="route('tailors.create')" size="sm">
-                                        Add First Tailor
+                                        {{ __('messages.add_first_tailor') }}
                                     </x-ui.button>
                                 @endif
                             </x-slot:action>
