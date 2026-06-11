@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\OrderStatus;
 use App\Models\OrderStatusLog;
+use App\Models\Setting;
 use App\Models\Tailor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -160,6 +161,20 @@ class OrderController extends Controller
         ]);
 
         return view('dashboard.orders.show', compact('order'));
+    }
+
+    /**
+     * Printable customer bill (also used as the source for the WhatsApp message).
+     */
+    public function bill(Order $order)
+    {
+        $order->load(['customer', 'tailor', 'branch', 'status', 'suits', 'measurement']);
+
+        $setting = $order->branch?->setting
+            ?? Setting::whereNull('branch_id')->first()
+            ?? Setting::first();
+
+        return view('dashboard.orders.bill', compact('order', 'setting'));
     }
 
     /*

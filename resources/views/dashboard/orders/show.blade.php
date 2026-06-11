@@ -13,6 +13,7 @@
         'trouser_length' => 'Trouser Length', 'trouser_waist' => 'Trouser Waist',
         'thigh' => 'Thigh', 'bottom_opening' => 'Bottom Opening',
     ];
+    $whatsappUrl = $order->billWhatsappUrl();
 @endphp
 
 <x-app-layout>
@@ -47,6 +48,9 @@
                     </div>
                 </div>
                 <div class="d-flex flex-wrap mt-2 mt-md-0">
+                    <x-ui.button :href="route('orders.bill', $order)" target="_blank" variant="outline-dark" icon="las la-receipt" class="mr-2 mb-2">Bill</x-ui.button>
+                    <x-ui.button :href="route('orders.bill', ['order' => $order, 'autoprint' => 1])" target="_blank" variant="outline-primary" icon="las la-print" class="mr-2 mb-2">Print Bill</x-ui.button>
+                    <x-ui.button :href="$whatsappUrl" target="_blank" variant="outline-success" icon="lab la-whatsapp" class="mr-2 mb-2">WhatsApp</x-ui.button>
                     <x-ui.button :href="route('orders.edit', $order)" icon="las la-edit" class="mr-2 mb-2">Edit</x-ui.button>
                     <x-ui.button variant="outline-info" icon="las la-sync" class="mr-2 mb-2" data-toggle="modal" data-target="#statusModal">Update Status</x-ui.button>
                     <x-ui.button :href="route('orders.index')" variant="outline-secondary" icon="las la-arrow-left" class="mb-2">Back</x-ui.button>

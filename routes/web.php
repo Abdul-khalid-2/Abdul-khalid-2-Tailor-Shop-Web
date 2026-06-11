@@ -73,6 +73,7 @@ Route::group([
             Route::get('/create', [OrderController::class, 'create'])->name('create');
             Route::post('/', [OrderController::class, 'store'])->name('store');
             Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+            Route::get('/{order}/bill', [OrderController::class, 'bill'])->name('bill');
             Route::get('/{order}/edit', [OrderController::class, 'edit'])->name('edit');
             Route::put('/{order}', [OrderController::class, 'update'])->name('update');
             Route::delete('/{order}', [OrderController::class, 'destroy'])->name('destroy');

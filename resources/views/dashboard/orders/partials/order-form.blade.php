@@ -28,7 +28,6 @@
         'trouser_length' => 'Trouser Length', 'trouser_waist' => 'Trouser Waist',
         'thigh' => 'Thigh', 'bottom_opening' => 'Bottom Opening',
     ];
-    $newCustomerBranches = \App\Models\Branch::where('is_active', true)->orderBy('name')->get();
 @endphp
 
 <style>
@@ -257,15 +256,6 @@
         <label for="nc_address">Address</label>
         <textarea id="nc_address" class="form-control" rows="2"></textarea>
     </div>
-    <div class="form-group">
-        <label for="nc_branch_id">Branch</label>
-        <select id="nc_branch_id" class="form-control">
-            <option value="">— Select branch —</option>
-            @foreach($newCustomerBranches as $b)
-                <option value="{{ $b->id }}">{{ $b->name }}</option>
-            @endforeach
-        </select>
-    </div>
     <div class="form-group mb-0">
         <label for="nc_notes">Notes</label>
         <textarea id="nc_notes" class="form-control" rows="2"></textarea>
@@ -372,7 +362,6 @@
                     name:      document.getElementById('nc_name').value,
                     phone:     document.getElementById('nc_phone').value,
                     address:   document.getElementById('nc_address').value,
-                    branch_id: document.getElementById('nc_branch_id').value,
                     notes:     document.getElementById('nc_notes').value,
                 };
 
@@ -407,7 +396,6 @@
                         ['nc_name', 'nc_phone', 'nc_address', 'nc_notes'].forEach(function (id) {
                             document.getElementById(id).value = '';
                         });
-                        document.getElementById('nc_branch_id').value = '';
 
                         if (window.jQuery) {
                             jQuery('#addCustomerModal').modal('hide');

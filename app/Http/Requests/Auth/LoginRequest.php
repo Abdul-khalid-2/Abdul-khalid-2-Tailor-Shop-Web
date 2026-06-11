@@ -62,6 +62,16 @@ class LoginRequest extends FormRequest
                     .'Please wait for an administrator to approve your account.',
             ]);
         }
+
+        // A user tied to a branch may only sign in while that branch is active.
+        // (Super Admins have no branch and are unaffected.)
+        if ($user && $user->branch_id && ! optional($user->branch)->is_active) {
+            Auth::logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Your branch has been deactivated. Please contact the administrator.',
+            ]);
+        }
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\BelongsToBranch;
+use App\Models\Setting;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Builder;
@@ -159,6 +160,51 @@ class Order extends Model
 
         return $this->delivery_date->isPast()
             && ! in_array($statusName, ['Delivered', 'Cancelled'], true);
+    }
+
+    /**
+     * Build a "click to chat" WhatsApp URL containing a plain-text bill summary.
+     * Resolves the order branch's shop setting (falling back to the global one).
+     */
+    public function billWhatsappUrl(): string
+    {
+        $setting = $this->branch?->setting
+            ?? Setting::whereNull('branch_id')->first()
+            ?? Setting::first();
+
+        $currency = $setting->currency_symbol ?? 'Rs';
+        $shopName = $setting->shop_name ?? config('app.name', 'Tailor Shop');
+        $fmt = fn ($amount) => $currency . ' ' . number_format((float) $amount, 0);
+
+        // Digits only; a leading 0 (local format) becomes +92 (Pakistan).
+        $phone = preg_replace('/\D+/', '', (string) ($this->customer->phone ?? ''));
+        if (str_starts_with($phone, '0')) {
+            $phone = '92' . substr($phone, 1);
+        }
+
+        $lines = [
+            "*{$shopName}*",
+            "Bill / Receipt — Order #{$this->order_number}",
+            '',
+            "Customer: {$this->customer->name}",
+            'Order Date: ' . $this->order_date->format('d M, Y'),
+        ];
+        if ($this->delivery_date) {
+            $lines[] = 'Delivery Date: ' . $this->delivery_date->format('d M, Y');
+        }
+        $lines[] = '';
+        $lines[] = '*Items*';
+        foreach ($this->suits as $suit) {
+            $lines[] = "• {$suit->color} x{$suit->quantity} — " . $fmt($suit->suit_total);
+        }
+        $lines[] = '';
+        $lines[] = 'Total: ' . $fmt($this->total_amount);
+        $lines[] = 'Advance Paid: ' . $fmt($this->advance_paid);
+        $lines[] = 'Balance Due: ' . $fmt($this->balance_due);
+        $lines[] = '';
+        $lines[] = $setting->receipt_footer ?? 'Thank you for your business!';
+
+        return 'https://wa.me/' . $phone . '?text=' . rawurlencode(implode("\n", $lines));
     }
 
     /**

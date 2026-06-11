@@ -46,6 +46,10 @@ class CustomerController extends Controller
 
         $validated = $this->enforceBranchId($validated);
 
+        // The "Add New Customer" modal no longer asks for a branch; fall back to
+        // the logged-in user's branch so the customer is created in their branch.
+        $validated['branch_id'] = $validated['branch_id'] ?? auth()->user()->branch_id;
+
         $data = collect($validated)->except('profile_photo')->all();
         $data['created_by'] = auth()->id();
 
